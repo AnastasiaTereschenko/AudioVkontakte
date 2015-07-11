@@ -65,7 +65,7 @@ public class MainActivity extends ActionBarActivity {
             for (Recipe.Feed feed : recipes.response) {
                 if(feed != null && feed.text != null){
                     textView.setText(textView.getText() + Html.fromHtml(feed.text).toString() +
-                            "\n======================"+"\n");
+                            "\n+++++++++++++++++++++"+"\n");
                 }
             }
         }
