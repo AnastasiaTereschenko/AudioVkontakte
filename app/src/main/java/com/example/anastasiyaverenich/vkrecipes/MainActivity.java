@@ -1,9 +1,9 @@
 package com.example.anastasiyaverenich.vkrecipes;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -14,9 +14,11 @@ import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import retrofit.Callback;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
-
 
 public class MainActivity extends ActionBarActivity {
     private static final String API_URL = "https://api.vk.com";
@@ -31,44 +33,31 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView = (TextView) findViewById(R.id.textView);
-
-        BackgroundTask task = new BackgroundTask();
-        task.execute();
-
-    }
-
-
-    private class BackgroundTask extends AsyncTask<Void, Void,
-            Recipe> {
-        RestAdapter restAdapter;
-
-        @Override
-        protected void onPreExecute() {
-            Gson gson = new GsonBuilder().
-                    registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
-            restAdapter = new RestAdapter.Builder()
-                    .setEndpoint(API_URL)
-                    .setConverter(new GsonConverter(gson))
-                    .build();
-        }
-
-        @Override
-        protected Recipe doInBackground(Void... params) {
-            IApiMethods methods = restAdapter.create(IApiMethods.class);
-            Recipe recipes = methods.getParam(OWNER_ID, COUNT, FILTER, VERSION);
-
-            return recipes;
-        }
-
-        @Override
-        protected void onPostExecute(Recipe recipes) {
-            for (Recipe.Feed feed : recipes.response) {
-                if(feed != null && feed.text != null){
-                    textView.setText(textView.getText() + Html.fromHtml(feed.text).toString() +
-                            "\n+++++++++++++++++++++"+"\n");
+        Gson gson = new GsonBuilder().
+                registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(API_URL)
+                .setConverter(new GsonConverter(gson))
+                .build();
+        IApiMethods methods = restAdapter.create(IApiMethods.class);
+        Callback callback = new Callback() {
+            @Override
+            public void success(Object o, Response response) {
+                Log.e("TAG", "SUCCESS");
+                Recipe recipes = (Recipe)o;
+                for (Recipe.Feed feed : recipes.response) {
+                    if(feed != null && feed.text != null) {
+                        textView.setText(textView.getText() + Html.fromHtml(feed.text).toString() +
+                                "\n+++++++++++++++++++++" + "\n");
+                    }
                 }
             }
-        }
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                Log.e("TAG","ERROR");
+            }
+        };
+        methods.getParam(OWNER_ID,COUNT,FILTER,VERSION,callback);
     }
 
     @Override

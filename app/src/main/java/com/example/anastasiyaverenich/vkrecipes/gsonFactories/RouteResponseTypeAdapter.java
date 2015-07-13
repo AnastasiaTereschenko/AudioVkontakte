@@ -17,18 +17,18 @@ import java.util.List;
 public class RouteResponseTypeAdapter extends TypeAdapter<Recipe> {
 
     private final TypeAdapter<JsonElement> jsonElementTypeAdapter;
-    private final TypeAdapter<Recipe> distanceTypeAdapter;
+    private final TypeAdapter<Recipe> recipeTypeAdapter;
     private final TypeAdapter<Recipe.Feed> feedTypeAdapter;
 
     public RouteResponseTypeAdapter(Gson gson) {
         this.jsonElementTypeAdapter = gson.getAdapter(JsonElement.class);
-        this.distanceTypeAdapter = gson.getAdapter(Recipe.class);
+        this.recipeTypeAdapter = gson.getAdapter(Recipe.class);
         this.feedTypeAdapter = gson.getAdapter(Recipe.Feed.class);
     }
 
     @Override
     public void write(JsonWriter out, Recipe value) throws IOException {
-        distanceTypeAdapter.write(out,value);
+        recipeTypeAdapter.write(out,value);
     }
 
     @Override
