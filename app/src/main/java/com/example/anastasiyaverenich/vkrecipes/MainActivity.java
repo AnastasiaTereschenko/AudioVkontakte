@@ -2,17 +2,21 @@ package com.example.anastasiyaverenich.vkrecipes;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.anastasiyaverenich.vkrecipes.gsonFactories.RecipeTypeAdapterFactory;
+import com.example.anastasiyaverenich.vkrecipes.modules.FeedAdapter;
 import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethods;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -26,31 +30,33 @@ public class MainActivity extends ActionBarActivity {
     private static final String COUNT="10";
     private static final String FILTER="all";
     private static final String VERSION="5.7";
+    private List<Recipe.Feed> feedList;
     TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        feedList = new ArrayList<Recipe.Feed>();
+        // находим список
+        final ListView lvMain = (ListView) findViewById(R.id.lvMain);
+
         textView = (TextView) findViewById(R.id.textView);
         Gson gson = new GsonBuilder().
                 registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
-        RestAdapter restAdapter = new RestAdapter.Builder()
+        final RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(API_URL)
                 .setConverter(new GsonConverter(gson))
                 .build();
         IApiMethods methods = restAdapter.create(IApiMethods.class);
-        Callback callback = new Callback() {
+        Callback callback = new Callback<Recipe>() {
             @Override
-            public void success(Object o, Response response) {
-                Log.e("TAG", "SUCCESS");
-                Recipe recipes = (Recipe)o;
-                for (Recipe.Feed feed : recipes.response) {
-                    if(feed != null && feed.text != null) {
-                        textView.setText(textView.getText() + Html.fromHtml(feed.text).toString() +
-                                "\n+++++++++++++++++++++" + "\n");
-                    }
-                }
+            public void success(Recipe results, Response response) {
+
+                FeedAdapter adapter = new FeedAdapter(MainActivity.this, R.layout.recipe_list, results.response);
+                lvMain.setAdapter(adapter);
+
+
             }
             @Override
             public void failure(RetrofitError retrofitError) {
