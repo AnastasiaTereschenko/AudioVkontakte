@@ -9,7 +9,8 @@ public interface IApiMethods {
     @GET("/method/wall.get")
     void getParam(
             @Query("owner_id") String owner,
-            @Query("count") String count,
+            @Query("offset") int offset,
+            @Query("count") int count,
             @Query("filter") String filter,
             @Query("version") String version,
             Callback<Recipe> cb

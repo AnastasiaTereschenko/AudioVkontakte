@@ -27,10 +27,14 @@ import retrofit.converter.GsonConverter;
 public class MainActivity extends ActionBarActivity {
     private static final String API_URL = "https://api.vk.com";
     private static final String OWNER_ID="-39009769";
-    private static final String COUNT="10";
+    private static final int OFFSET=0;
+    private static final int COUNT=1;
     private static final String FILTER="all";
     private static final String VERSION="5.7";
     private List<Recipe.Feed> feedList;
+    private FeedAdapter adapter;
+    private IApiMethods methods;
+    private Callback callback;
     TextView textView;
 
     @Override
@@ -38,9 +42,9 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         feedList = new ArrayList<Recipe.Feed>();
-        // находим список
         final ListView lvMain = (ListView) findViewById(R.id.lvMain);
-
+        adapter = new FeedAdapter(MainActivity.this, R.layout.recipe_list, feedList);
+        lvMain.setAdapter(adapter);
         textView = (TextView) findViewById(R.id.textView);
         Gson gson = new GsonBuilder().
                 registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
@@ -48,22 +52,23 @@ public class MainActivity extends ActionBarActivity {
                 .setEndpoint(API_URL)
                 .setConverter(new GsonConverter(gson))
                 .build();
-        IApiMethods methods = restAdapter.create(IApiMethods.class);
-        Callback callback = new Callback<Recipe>() {
+        methods = restAdapter.create(IApiMethods.class);
+        callback = new Callback<Recipe>() {
             @Override
             public void success(Recipe results, Response response) {
-
-                FeedAdapter adapter = new FeedAdapter(MainActivity.this, R.layout.recipe_list, results.response);
-                lvMain.setAdapter(adapter);
-
-
+                Log.e("TAG", "SUCCESS");
+                feedList.addAll(results.response);
+                adapter.notifyDataSetChanged();
+                if (OFFSET<100){
+                    methods.getParam(OWNER_ID,OFFSET+10,COUNT,FILTER,VERSION,callback);
+                }
             }
             @Override
             public void failure(RetrofitError retrofitError) {
                 Log.e("TAG","ERROR");
             }
         };
-        methods.getParam(OWNER_ID,COUNT,FILTER,VERSION,callback);
+        methods.getParam(OWNER_ID,OFFSET,COUNT,FILTER,VERSION,callback);
     }
 
     @Override
