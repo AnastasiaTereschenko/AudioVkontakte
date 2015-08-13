@@ -7,7 +7,7 @@ import retrofit.http.Query;
 public interface IApiMethods {
 
     @GET("/method/wall.get")
-    void getParam(
+    void getFeeds(
             @Query("owner_id") String owner,
             @Query("offset") int offset,
             @Query("count") int count,
