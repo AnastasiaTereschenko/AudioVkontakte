@@ -19,21 +19,21 @@ public class FeedUtils {
 
     public static ArrayList<Recipe.Feed> getFeedsWithoutAds(List<Recipe.Feed> feeds) {
         ArrayList<Recipe.Feed> feedsNew = new ArrayList<>();
-        for (int i = 0; i < feeds.size(); i++) {
-            Recipe.Feed feed = feeds.get(i);
-            String text = feed.text.toString();
-            if (!text.equals("")) {
-                if (((text.charAt(0) >= 'а') && ((text.charAt(0) <= 'я')) ||
-                        (((text.charAt(0) >= 'А') && ((text.charAt(0) <= 'Я'))))))
-                {
-                    feedsNew.add(feed);
-                }
-                if ((feed.text.toString().endsWith("]"))
-                ||(text.toUpperCase().contains("ПОДПИСЫВАЙТЕСЬ"))||
-                        (feed.text.toString().contains("Регистрируйтесь"))||
-                        (feed.text.toString().contains("регистрируйтесь")))
-                {
-                    feedsNew.remove(feed);
+        if (!feeds.equals(null)) {
+            for (int i = 0; i < feeds.size(); i++) {
+                Recipe.Feed feed = feeds.get(i);
+                String text = feed.text.toString();
+                if (!text.equals("")) {
+                    if (((text.charAt(0) >= 'а') && ((text.charAt(0) <= 'я')) ||
+                            (((text.charAt(0) >= 'А') && ((text.charAt(0) <= 'Я')))))) {
+                        feedsNew.add(feed);
+                    }
+                    if ((text.endsWith("]")) || (text.toUpperCase().contains("ПОДПИСЫВАЙТЕСЬ")) ||
+                            (text.toUpperCase().contains("РЕГИСТРИРУЙТЕСЬ"))||
+                            (text.toUpperCase().contains("ДОБАВЬ"))||
+                            (text.toUpperCase().contains("ДОБАВЛЯЙТЕСЬ"))){
+                        feedsNew.remove(feed);
+                    }
                 }
             }
         }

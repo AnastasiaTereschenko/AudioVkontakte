@@ -17,11 +17,12 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
-import com.example.anastasiyaverenich.vkrecipes.gsonFactories.RecipeTypeAdapterFactory;
-import com.example.anastasiyaverenich.vkrecipes.ui.EndlessScrollListview;
 import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapter;
+import com.example.anastasiyaverenich.vkrecipes.futils.FeedUtils;
+import com.example.anastasiyaverenich.vkrecipes.gsonFactories.RecipeTypeAdapterFactory;
 import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethods;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
+import com.example.anastasiyaverenich.vkrecipes.ui.EndlessScrollListview;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -48,11 +49,11 @@ public class MainActivity extends AppCompatActivity{
     private IApiMethods methods;
     private Callback callback;
     private ImageLoader imageLoader;
+    private View content;
 
     ListView lvMain;
     View footerView;
     private DrawerLayout drawerLayout;
-    private View content;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +83,8 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void success(Recipe results, Response response) {
                 Log.e("TAG", "SUCCESS");
-                feedList.addAll(results.response);
+                final ArrayList<Recipe.Feed> feedNew = FeedUtils.getFeedsWithoutAds(results.response);
+                feedList.addAll(feedNew);
                 adapter.notifyDataSetChanged();
             }
 

@@ -8,9 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
-import com.example.anastasiyaverenich.vkrecipes.ui.HackyViewPager;
 import com.example.anastasiyaverenich.vkrecipes.adapters.PhotosPagerAdapter;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
+import com.example.anastasiyaverenich.vkrecipes.ui.HackyViewPager;
 
 import java.util.ArrayList;
 
@@ -26,7 +26,7 @@ public class ImageActivity extends ActionBarActivity {
         int position = intent.getIntExtra(ImageActivity.POSITION, 0);
         //int position = Integer.valueOf(positionStr);
         HackyViewPager viewPager = (HackyViewPager) findViewById(R.id.view_pager);
-        PhotosPagerAdapter photosPagerAdapter = new PhotosPagerAdapter(photos);
+        PhotosPagerAdapter photosPagerAdapter = new PhotosPagerAdapter(photos, this);
         viewPager.setAdapter(photosPagerAdapter);
         viewPager.setCurrentItem(position);
         getWindow().getDecorView().setBackgroundColor(Color.BLACK);

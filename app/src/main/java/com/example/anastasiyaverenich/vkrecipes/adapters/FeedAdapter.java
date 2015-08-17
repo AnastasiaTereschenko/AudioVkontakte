@@ -18,7 +18,6 @@ import com.example.anastasiyaverenich.vkrecipes.futils.FeedUtils;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +48,6 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        options = new DisplayImageOptions.Builder()
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(true)
-                .displayer(new RoundedBitmapDisplayer(20)).build();
         final ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
@@ -66,8 +60,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         viewHolder.container.removeAllViews();
-       // final Recipe.Feed feedAll = getItem(position);
-     //final ArrayList<Recipe.Feed> feedNew = FeedUtils.getFeedsWithoutAds(feeds);
+        final Recipe.Feed feedAll = getItem(position);
         final Recipe.Feed feed = feeds.get(position);
         int size = feed.text.toString().length();
         if (feed.text.toString() != "") {
