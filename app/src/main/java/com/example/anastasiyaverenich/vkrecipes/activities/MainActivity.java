@@ -18,8 +18,8 @@ import android.widget.ListView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.gsonFactories.RecipeTypeAdapterFactory;
-import com.example.anastasiyaverenich.vkrecipes.modules.EndlessScrollListview;
-import com.example.anastasiyaverenich.vkrecipes.modules.FeedAdapter;
+import com.example.anastasiyaverenich.vkrecipes.ui.EndlessScrollListview;
+import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapter;
 import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethods;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.google.gson.Gson;
@@ -102,6 +102,10 @@ public class MainActivity extends AppCompatActivity{
                 }
                 OFFSET = OFFSET + COUNT;
                 methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
+                if((COUNT==0) ||(COUNT<3 ))
+                {
+                    lvMain.removeFooterView(footerView);
+                }
 
             }
         });
@@ -113,7 +117,7 @@ public class MainActivity extends AppCompatActivity{
         final ActionBar actionBar = getSupportActionBar();
 
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+            actionBar.setHomeAsUpIndicator(R.mipmap.ic_restaurant_menu_black_24dp);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }

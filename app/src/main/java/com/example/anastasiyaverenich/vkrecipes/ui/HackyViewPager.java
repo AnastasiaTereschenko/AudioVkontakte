@@ -1,4 +1,4 @@
-package com.example.anastasiyaverenich.vkrecipes.modules;
+package com.example.anastasiyaverenich.vkrecipes.ui;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;

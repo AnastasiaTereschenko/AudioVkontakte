@@ -1,4 +1,4 @@
-package com.example.anastasiyaverenich.vkrecipes.modules;
+package com.example.anastasiyaverenich.vkrecipes.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +15,10 @@ import android.widget.TextView;
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.activities.ImageActivity;
 import com.example.anastasiyaverenich.vkrecipes.futils.FeedUtils;
+import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +26,7 @@ import java.util.List;
 public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     private final Context mContext;
     private final int mResourceId;
+    private DisplayImageOptions options;
     private List<Recipe.Feed> feeds;
 
     public FeedAdapter(Context context, int resource, List<Recipe.Feed> objects) {
@@ -44,41 +48,55 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        options = new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true)
+                .displayer(new RoundedBitmapDisplayer(20)).build();
         final ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
             convertView = LayoutInflater.from(mContext).inflate(mResourceId, parent, false);
-            viewHolder.textDescription = (TextView) convertView.findViewById(R.id.textViewDescription);
-            viewHolder.textName = (TextView) convertView.findViewById(R.id.textViewName);
+            viewHolder.textDescription = (TextView) convertView.findViewById(R.id.rli_tv_description_list);
+            viewHolder.textName = (TextView) convertView.findViewById(R.id.rli_tv_name_list);
             viewHolder.container = (LinearLayout) convertView.findViewById(R.id.rli_ll_images_container);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
-        final Recipe.Feed feed = getItem(position);
+        viewHolder.container.removeAllViews();
+       // final Recipe.Feed feedAll = getItem(position);
+     //final ArrayList<Recipe.Feed> feedNew = FeedUtils.getFeedsWithoutAds(feeds);
+        final Recipe.Feed feed = feeds.get(position);
         int size = feed.text.toString().length();
         if (feed.text.toString() != "") {
-            int index = feed.text.toString().indexOf("<br>");
-            if (index == -1) {
-                viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
-            } else {
-                String Name = feed.text.toString().substring(0, index);
-                String Description = feed.text.toString().substring(index, size);
-                Name = feed.text.toString().substring(0, index);
-                Description = feed.text.toString().substring(index, size);
-                viewHolder.textName.setText(Html.fromHtml(Name.toString()));
-                viewHolder.textDescription.setText(Html.fromHtml(Description.toString()));
-            }
+                int index = feed.text.toString().indexOf("<br>");
+                if (index == -1) {
+                    viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
+                    viewHolder.textDescription.setText(" ");
+
+                } else {
+                    String Name = feed.text.toString().substring(0, index);
+                    String Description = feed.text.toString().substring(index, size);
+                    Name = feed.text.toString().substring(0, index);
+                    Description = feed.text.toString().substring(index, size);
+                    viewHolder.textName.setText(Html.fromHtml(Name.toString()));
+                    viewHolder.textDescription.setText(Html.fromHtml(Description.toString()));
+                }
+        //    } else {
+          //      feeds.remove(position);
+            //}
+
         }
+        else{ viewHolder.textName.setText(" ");
+            viewHolder.textDescription.setText(" ");}
+
         // image = new ImageView(mContext);
-        viewHolder.container.removeAllViews();
-        final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
+        final ArrayList<Recipe.Photo> photos= FeedUtils.getPhotosFromAttachments(feed.attachments);
         for (int x = 0; x < photos.size(); x++) {
             final ImageView image = new ImageView(mContext);
             image.setBackgroundColor(0xfff0f0f0);
-
             Log.i("TAG", "index :" + feed.attachments.size());
             final Recipe.Photo photo = photos.get(x);
             Log.d("Image", photo.src_big);
@@ -87,7 +105,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             // image.setAdjustViewBounds(true);
             image.setLayoutParams(lp);
-            lp.topMargin = 16;
+            lp.setMargins(0, 16, 0, 0);
             viewHolder.container.addView(image);
             viewHolder.container.post(new Runnable() {
                 @Override
@@ -101,7 +119,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                     image.setLayoutParams(layoutParams);
                 }
             });
-          image.postDelayed(new Runnable() {
+            image.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if (image.getWidth() == 0) {
@@ -116,23 +134,27 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                     image.setLayoutParams(layoutParams);
                 }
             }, 300);
-            ImageLoader.getInstance().displayImage(photo.src_big, image);
+            ImageLoader.getInstance().displayImage(photo.src_big, image, options);
+
+            final int finalX = x;
+            image.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Log.d("OnImageButton", "Clicked");
+                  //  Log.i("OnImageButton", String.valueOf(position));
+                    System.err.println(finalX);
+                    Intent newActivity = new Intent(mContext, ImageActivity.class);
+                    newActivity.putExtra(ImageActivity.POSITION, finalX);
+                    newActivity.putExtra(ImageActivity.PHOTOS, photos);
+                    mContext.startActivity(newActivity);
+                }
+            });
+
         }
         viewHolder.container.requestLayout();
         //  else {
         //    imageView.setVisibility(View.GONE);
         //}
-        viewHolder.container.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Log.d("OnImageButton", "Clicked");
-                Intent newActivity = new Intent(mContext, ImageActivity.class);
-                newActivity.putExtra(ImageActivity.PHOTOS, photos);
 
-                mContext.startActivity(newActivity);
-            }
-
-
-        });
         return convertView;
     }
 
