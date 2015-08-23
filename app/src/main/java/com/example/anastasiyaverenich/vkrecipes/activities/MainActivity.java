@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
@@ -50,7 +49,6 @@ public class MainActivity extends AppCompatActivity{
     private Callback callback;
     private ImageLoader imageLoader;
     private View content;
-
     ListView lvMain;
     View footerView;
     private DrawerLayout drawerLayout;
@@ -59,6 +57,7 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        content = findViewById(R.id.content);
         initToolbar();
         setupDrawerLayout();
         imageLoader = ImageLoader.getInstance();
@@ -74,7 +73,6 @@ public class MainActivity extends AppCompatActivity{
         Gson gson = new GsonBuilder().
                 registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
         final RestAdapter restAdapter = new RestAdapter.Builder()
-
                 .setEndpoint(API_URL)
                 .setConverter(new GsonConverter(gson))
                 .build();
@@ -86,6 +84,10 @@ public class MainActivity extends AppCompatActivity{
                 final ArrayList<Recipe.Feed> feedNew = FeedUtils.getFeedsWithoutAds(results.response);
                 feedList.addAll(feedNew);
                 adapter.notifyDataSetChanged();
+                if((results.response.size()==0) ||(results.response.size() < COUNT ))
+                {
+                    lvMain.removeFooterView(footerView);
+                }
             }
 
             @Override
@@ -104,10 +106,6 @@ public class MainActivity extends AppCompatActivity{
                 }
                 OFFSET = OFFSET + COUNT;
                 methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
-                if((COUNT==0) ||(COUNT<3 ))
-                {
-                    lvMain.removeFooterView(footerView);
-                }
 
             }
         });
@@ -119,7 +117,7 @@ public class MainActivity extends AppCompatActivity{
         final ActionBar actionBar = getSupportActionBar();
 
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.mipmap.ic_restaurant_menu_black_24dp);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
@@ -129,7 +127,8 @@ public class MainActivity extends AppCompatActivity{
 
         NavigationView view = (NavigationView) findViewById(R.id.navigation_view);
         view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override public boolean onNavigationItemSelected(MenuItem menuItem) {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
                 Snackbar.make(content, menuItem.getTitle() + " pressed", Snackbar.LENGTH_LONG).show();
                 menuItem.setChecked(true);
                 drawerLayout.closeDrawers();
@@ -140,18 +139,12 @@ public class MainActivity extends AppCompatActivity{
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
+        int id = item.getItemId();
+        if (id==android.R.id.home) {
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+
         }
 
         return super.onOptionsItemSelected(item);

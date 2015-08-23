@@ -31,7 +31,8 @@ public class FeedUtils {
                     if ((text.endsWith("]")) || (text.toUpperCase().contains("ПОДПИСЫВАЙТЕСЬ")) ||
                             (text.toUpperCase().contains("РЕГИСТРИРУЙТЕСЬ"))||
                             (text.toUpperCase().contains("ДОБАВЬ"))||
-                            (text.toUpperCase().contains("ДОБАВЛЯЙТЕСЬ"))){
+                            (text.toUpperCase().contains("ДОБАВЛЯЙТЕСЬ"))||
+                            (text.toUpperCase().contains("ВСТУПАЙТЕ"))){
                         feedsNew.remove(feed);
                     }
                 }

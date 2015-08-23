@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "23.0.0 rc3"
+    buildToolsVersion "23.0.0"
 
     defaultConfig {
         applicationId "com.example.anastasiyaverenich.vkrecipes"
@@ -22,6 +22,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:design:22.2.0'
+    compile 'com.nispok:snackbar:2.11.+'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.android.support:palette-v7:22.2.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'

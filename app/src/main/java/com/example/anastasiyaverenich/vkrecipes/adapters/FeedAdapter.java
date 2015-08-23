@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.activities.ImageActivity;
+import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.futils.FeedUtils;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -33,6 +34,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         mContext = context;
         mResourceId = resource;
         this.feeds = objects;
+        options = VkRApplication.get().getOptions();
     }
 
     static class ViewHolder {
@@ -59,34 +61,28 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.container.removeAllViews();
-        final Recipe.Feed feedAll = getItem(position);
         final Recipe.Feed feed = feeds.get(position);
         int size = feed.text.toString().length();
         if (feed.text.toString() != "") {
-                int index = feed.text.toString().indexOf("<br>");
-                if (index == -1) {
-                    viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
-                    viewHolder.textDescription.setText(" ");
+            int index = feed.text.toString().indexOf("<br>");
+            if (index == -1) {
+                viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
+                viewHolder.textDescription.setText(" ");
 
-                } else {
-                    String Name = feed.text.toString().substring(0, index);
-                    String Description = feed.text.toString().substring(index, size);
-                    Name = feed.text.toString().substring(0, index);
-                    Description = feed.text.toString().substring(index, size);
-                    viewHolder.textName.setText(Html.fromHtml(Name.toString()));
-                    viewHolder.textDescription.setText(Html.fromHtml(Description.toString()));
-                }
-        //    } else {
-          //      feeds.remove(position);
-            //}
-
+            } else {
+                String Name = feed.text.substring(0, index);
+                String Description = feed.text.substring(index, size);
+                viewHolder.textName.setText(Html.fromHtml(Name.toString()));
+                viewHolder.textDescription.setText(Html.fromHtml(Description.toString()));
+            }
+        } else {
+            viewHolder.textName.setText(" ");
+            viewHolder.textDescription.setText(" ");
         }
-        else{ viewHolder.textName.setText(" ");
-            viewHolder.textDescription.setText(" ");}
 
         // image = new ImageView(mContext);
-        final ArrayList<Recipe.Photo> photos= FeedUtils.getPhotosFromAttachments(feed.attachments);
+        viewHolder.container.removeAllViews();
+        final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
         for (int x = 0; x < photos.size(); x++) {
             final ImageView image = new ImageView(mContext);
             image.setBackgroundColor(0xfff0f0f0);
@@ -100,40 +96,24 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             image.setLayoutParams(lp);
             lp.setMargins(0, 16, 0, 0);
             viewHolder.container.addView(image);
-            viewHolder.container.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (viewHolder.container.getWidth() == 0) {
-                        return;
-                    }
-                    int relativeHeight = (int) ((float) photo.height / photo.width * viewHolder.container.getWidth());
-                    android.view.ViewGroup.LayoutParams layoutParams = image.getLayoutParams();
-                    layoutParams.height = relativeHeight;
-                    image.setLayoutParams(layoutParams);
-                }
-            });
-            image.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (image.getWidth() == 0) {
-                        if (viewHolder.container.indexOfChild(image) != -1) {
-                            image.postDelayed(this, 300);
+            if (viewHolder.container.getWidth() != 0) {
+                setImageViewHeight(viewHolder, image, photo);
+            } else {
+                viewHolder.container.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (viewHolder.container.getWidth() == 0) {
+                            return;
                         }
-                        return;
+                        setImageViewHeight(viewHolder, image, photo);
                     }
-                    int relativeHeight = (int) ((float) photo.height / photo.width * image.getWidth());
-                    android.view.ViewGroup.LayoutParams layoutParams = image.getLayoutParams();
-                    layoutParams.height = relativeHeight;
-                    image.setLayoutParams(layoutParams);
-                }
-            }, 300);
+                });
+            }
             ImageLoader.getInstance().displayImage(photo.src_big, image, options);
-
             final int finalX = x;
             image.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Log.d("OnImageButton", "Clicked");
-                  //  Log.i("OnImageButton", String.valueOf(position));
                     System.err.println(finalX);
                     Intent newActivity = new Intent(mContext, ImageActivity.class);
                     newActivity.putExtra(ImageActivity.POSITION, finalX);
@@ -142,6 +122,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                 }
             });
 
+
         }
         viewHolder.container.requestLayout();
         //  else {
@@ -149,6 +130,13 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         //}
 
         return convertView;
+    }
+
+    private void setImageViewHeight(ViewHolder viewHolder, ImageView image, Recipe.Photo photo) {
+        int relativeHeight = (int) ((float) photo.height / photo.width * viewHolder.container.getWidth());
+        ViewGroup.LayoutParams layoutParams = image.getLayoutParams();
+        layoutParams.height = relativeHeight;
+        image.setLayoutParams(layoutParams);
     }
 
 }
