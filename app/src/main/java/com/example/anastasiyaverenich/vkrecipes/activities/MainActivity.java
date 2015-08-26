@@ -3,7 +3,6 @@ package com.example.anastasiyaverenich.vkrecipes.activities;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -17,6 +16,8 @@ import android.widget.ListView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapter;
+import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
+import com.example.anastasiyaverenich.vkrecipes.futils.BookmarkUtils;
 import com.example.anastasiyaverenich.vkrecipes.futils.FeedUtils;
 import com.example.anastasiyaverenich.vkrecipes.gsonFactories.RecipeTypeAdapterFactory;
 import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethods;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity{
     ListView lvMain;
     View footerView;
     private DrawerLayout drawerLayout;
+    private int currentItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +68,7 @@ public class MainActivity extends AppCompatActivity{
         footerView = (View) inflater.inflate(R.layout.footer, null);
         feedList = new ArrayList<Recipe.Feed>();
         lvMain = (ListView) findViewById(R.id.lvMain);
-        lvMain.addFooterView(footerView);
-        adapter = new FeedAdapter(MainActivity.this, R.layout.recipe_list_item, feedList);
-        lvMain.setAdapter(adapter);
-        lvMain.removeFooterView(footerView);
+        initAdapter(feedList);
         Gson gson = new GsonBuilder().
                 registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
         final RestAdapter restAdapter = new RestAdapter.Builder()
@@ -77,6 +76,7 @@ public class MainActivity extends AppCompatActivity{
                 .setConverter(new GsonConverter(gson))
                 .build();
         methods = restAdapter.create(IApiMethods.class);
+        BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllFeeds());
         callback = new Callback<Recipe>() {
             @Override
             public void success(Recipe results, Response response) {
@@ -111,6 +111,25 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
+    private void initAdapter(List<Recipe.Feed> feeds){
+        if( lvMain.getFooterViewsCount() != 0){
+            lvMain.removeFooterView(footerView);
+        }
+        if(!isBookmark()){
+            lvMain.addFooterView(footerView);
+        }
+        adapter = new FeedAdapter(MainActivity.this, R.layout.recipe_list_item, feeds,isBookmark());
+        lvMain.setAdapter(adapter);
+        if(!isBookmark()){
+            lvMain.removeFooterView(footerView);
+        }
+    }
+
+    private boolean isBookmark(){
+        return currentItem == R.id.drawer_favourite;
+    }
+
+
     private void initToolbar() {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -129,8 +148,19 @@ public class MainActivity extends AppCompatActivity{
         view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                Snackbar.make(content, menuItem.getTitle() + " pressed", Snackbar.LENGTH_LONG).show();
-                menuItem.setChecked(true);
+                switch (menuItem.getItemId()){
+                    case R.id.drawer_favourite:
+                        if(currentItem != R.id.drawer_favourite){
+                            initAdapter(BookmarkUtils.getBookmarks());
+                        }
+                        break;
+                    case R.id.drawer_home:
+                        if(currentItem != R.id.drawer_home){
+                            initAdapter(feedList);
+                        }
+                        break;
+                }
+                currentItem = menuItem.getItemId();
                 drawerLayout.closeDrawers();
                 return true;
             }

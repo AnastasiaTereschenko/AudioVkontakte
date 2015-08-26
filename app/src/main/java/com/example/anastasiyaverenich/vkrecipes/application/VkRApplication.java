@@ -5,14 +5,15 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Build;
 
+import com.example.anastasiyaverenich.vkrecipes.SQLite.MySQLiteHelper;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 public class VkRApplication extends Application {
+    private MySQLiteHelper mySQLiteHelper;
     private DisplayImageOptions options;
     private static VkRApplication instance;
     public static VkRApplication get(){
@@ -30,6 +31,7 @@ public class VkRApplication extends Application {
         super.onCreate();
         instance = this;
         initImageLoader(getApplicationContext());
+        mySQLiteHelper = new MySQLiteHelper(getApplicationContext());
     }
 
     public void initImageLoader(Context context) {
@@ -50,7 +52,10 @@ public class VkRApplication extends Application {
         options = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
-                .considerExifParams(true)
-                .displayer(new RoundedBitmapDisplayer(20)).build();
+                .considerExifParams(true).build();
+    }
+
+    public MySQLiteHelper getMySQLiteHelper() {
+        return mySQLiteHelper;
     }
 }

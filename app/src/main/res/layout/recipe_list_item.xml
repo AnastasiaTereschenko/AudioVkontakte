@@ -53,7 +53,7 @@
                     android:src="@drawable/ic_save_black_24dp" />
             </FrameLayout>
             <FrameLayout
-                android:id="@+id/rli_fl_panel_favourite_list"
+                android:id="@+id/rli_fl_panel_favourite_item"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerHorizontal="true"
@@ -61,14 +61,14 @@
                 android:background="?attr/selectableItemBackground"
                 android:layout_below="@+id/rli_v_separator">
             <ImageView
-                android:id="@+id/rli_iv_panel_favourite_list"
+                android:id="@+id/rli_iv_panel_favourite_item"
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="9dp"
                 android:src="@drawable/ic_star_border_black_24dp" />
             </FrameLayout>
             <FrameLayout
-                android:id="@+id/rli_fl_panel_share_list"
+                android:id="@+id/rli_fl_panel_share_item"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentLeft="true"
@@ -77,7 +77,7 @@
                 android:background="?attr/selectableItemBackground">
             <ImageView
                 android:layout_gravity="left"
-                android:id="@+id/rli_iv_panel_share_list"
+                android:id="@+id/rli_iv_panel_share_item"
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="9dp"

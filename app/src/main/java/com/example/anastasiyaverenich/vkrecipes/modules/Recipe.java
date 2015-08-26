@@ -8,6 +8,7 @@ public class Recipe {
     public static class Feed {
         public List<Attach> attachments;
         public String text;
+        public long id;
     }
     public static class Attach {
         public Photo photo;

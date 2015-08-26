@@ -23,7 +23,6 @@ public class ImageActivity extends ActionBarActivity {
         Intent intent = getIntent();
         ArrayList<Recipe.Photo> photos = (ArrayList<Recipe.Photo>) intent.getSerializableExtra(ImageActivity.PHOTOS);
         int position = intent.getIntExtra(ImageActivity.POSITION, 0);
-        //int position = Integer.valueOf(positionStr);
         HackyViewPager viewPager = (HackyViewPager) findViewById(R.id.view_pager);
         PhotosPagerAdapter photosPagerAdapter = new PhotosPagerAdapter(photos, this);
         viewPager.setAdapter(photosPagerAdapter);
