@@ -116,9 +116,9 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         for (int x = 0; x < photos.size(); x++) {
             final ImageView image = new ImageView(mContext);
             image.setBackgroundColor(0xfff0f0f0);
-            Log.i("TAG", "index :" + feed.attachments.size());
+          //  Log.i("TAG", "index :" + feed.attachments.size());
             final Recipe.Photo photo = photos.get(x);
-            Log.d("Image", photo.src_big);
+          //  Log.d("Image", photo.src_big);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -148,10 +148,10 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                     Intent newActivity = new Intent(mContext, ImageActivity.class);
                     newActivity.putExtra(ImageActivity.POSITION, finalX);
                     newActivity.putExtra(ImageActivity.PHOTOS, photos);
-                   // mContext.startActivity(newActivity);
-                    Toast.makeText(mContext,
-                            ImageLoader.getInstance().getDiskCache().get(photo.src_big).getPath(),
-                            Toast.LENGTH_SHORT).show();
+                   mContext.startActivity(newActivity);
+                    //Toast.makeText(mContext,
+                           // ImageLoader.getInstance().getDiskCache().get(photo.src_big).getPath(),
+                           // Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -190,6 +190,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
+                        Toast.makeText(mContext,"Изображение сохранено в папку Recipes.", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
