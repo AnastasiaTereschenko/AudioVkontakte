@@ -1,6 +1,7 @@
 package com.example.anastasiyaverenich.vkrecipes.fragments;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,9 +31,9 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
-public class FeedFragment extends android.support.v4.app.Fragment {
-    public static final int FEEDS=0;
-    public static final int BOOKMARKS=1;
+public class FeedFragment extends android.support.v4.app.Fragment implements SwipeRefreshLayout.OnRefreshListener {
+    public static final int FEEDS = 0;
+    public static final int BOOKMARKS = 1;
     private static final String API_URL = "https://api.vk.com";
     private static final String OWNER_ID = "-39009769";
     private int OFFSET = 0;
@@ -47,7 +48,7 @@ public class FeedFragment extends android.support.v4.app.Fragment {
     View footerView;
     private List<Recipe.Feed> feedList;
     private int currentItem;
-
+    private SwipeRefreshLayout swipeRefresh;
 
 
     public static FeedFragment newInstance(int position) {
@@ -69,71 +70,107 @@ public class FeedFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_feed,container,false);
+        View view = inflater.inflate(R.layout.fragment_feed, container, false);
+        swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
+        swipeRefresh.setOnRefreshListener(this);
+        swipeRefresh.setColorSchemeResources(R.color.light_blue, R.color.middle_blue, R.color.deep_blue);
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(getActivity()));
         lvMain = (ListView) view.findViewById(R.id.lvMain);
+        footerView = (View) inflater.inflate(R.layout.footer, null);
         if (isBookmark()) {
+            swipeRefresh.setRefreshing(false);
             initAdapter(BookmarkUtils.getBookmarks());
-
         } else {
-            footerView = (View) inflater.inflate(R.layout.footer, null);
-            feedList = new ArrayList<Recipe.Feed>();
-            initAdapter(feedList);
-            Gson gson = new GsonBuilder().
-                    registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
-            final RestAdapter restAdapter = new RestAdapter.Builder()
-                    .setEndpoint(API_URL)
-                    .setConverter(new GsonConverter(gson))
-                    .build();
-            methods = restAdapter.create(IApiMethods.class);
-            BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllFeeds());
-            callback = new Callback<Recipe>() {
-                @Override
-                public void success(Recipe results, Response response) {
-                    Log.e("TAG", "SUCCESS " + results.response.size());
-                    final ArrayList<Recipe.Feed> feedNew = FeedUtils.getFeedsWithoutAds(results.response);
-                    feedList.addAll(feedNew);
-                    adapter.notifyDataSetChanged();
-                    if ((results.response.size() == 0) || (results.response.size() < COUNT)) {
-                        lvMain.removeFooterView(footerView);
-                    }
-                    else{
-                        endlessScrollListener.setLoading(false);
-                    }
-                }
-                @Override
-                public void failure(RetrofitError retrofitError) {
-                    retrofitError.printStackTrace();
-                    endlessScrollListener.setLoading(false);
-                    Log.e("TAG", "ERROR ");
-                }
-            };
-            methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
-            lvMain.setOnScrollListener(endlessScrollListener);
+            homePage();
         }
-    return view;
-}
-
-EndlessScrollListener endlessScrollListener = new EndlessScrollListener() {
-    @Override
-    public void loadData() {
-        if (lvMain.getFooterViewsCount() == 0) {
-            lvMain.addFooterView(footerView);
-        }
-        OFFSET = OFFSET + COUNT;
-        methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
+        return view;
     }
-};
+
+    private void homePage(){
+        feedList = new ArrayList<Recipe.Feed>();
+        initAdapter(feedList);
+        Gson gson = new GsonBuilder().
+                registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
+        final RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(API_URL)
+                .setConverter(new GsonConverter(gson))
+                .build();
+        methods = restAdapter.create(IApiMethods.class);
+        BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllFeeds());
+        callback = new Callback<Recipe>() {
+            @Override
+            public void success(Recipe results, Response response) {
+                Log.e("TAG", "SUCCESS " + results.response.size());
+                final ArrayList<Recipe.Feed> feedNew = FeedUtils.getFeedsWithoutAds(results.response);
+                feedList.addAll(feedNew);
+                adapter.notifyDataSetChanged();
+                swipeRefresh.setRefreshing(false);
+                if ((results.response.size() == 0) || (results.response.size() < COUNT)) {
+                    lvMain.removeFooterView(footerView);
+                } else {
+                    endlessScrollListener.setLoading(false);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                retrofitError.printStackTrace();
+                endlessScrollListener.setLoading(false);
+                swipeRefresh.setRefreshing(false);
+                Log.e("TAG", "ERROR ");
+            }
+        };
+        methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
+        lvMain.setOnScrollListener(endlessScrollListener);
+    }
+
+    @Override
+    public void onRefresh() {
+        if (lvMain.getFooterViewsCount() != 0) {
+            lvMain.removeFooterView(footerView);
+        }
+        if (!isBookmark()) {
+            feedList.clear();
+            OFFSET=0;
+            OFFSET = OFFSET + COUNT;
+            methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
+        }
+        swipeRefresh.setRefreshing(false);
+    }
+
+    EndlessScrollListener endlessScrollListener = new EndlessScrollListener() {
+        @Override
+        public void loadData() {
+            if (lvMain.getFooterViewsCount() == 0) {
+                lvMain.addFooterView(footerView);
+            }
+            OFFSET = OFFSET + COUNT;
+            methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
+        }
+    };
+
     private void initAdapter(List<Recipe.Feed> feeds) {
         if (lvMain.getFooterViewsCount() != 0) {
             lvMain.removeFooterView(footerView);
         }
         if (!isBookmark()) {
+            swipeRefresh.post(new Runnable() {
+                                  @Override
+                                  public void run() {
+
+                                      swipeRefresh.setRefreshing(true);
+                                  }
+                              }
+            );
             lvMain.addFooterView(footerView);
         }
         adapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, feeds, isBookmark());
         lvMain.setAdapter(adapter);
+
+        if (!isBookmark()) {
+            lvMain.removeFooterView(footerView);
+        }
     }
 
     private boolean isBookmark() {

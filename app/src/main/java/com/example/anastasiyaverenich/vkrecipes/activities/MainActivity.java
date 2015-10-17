@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private int currentItem;
@@ -75,9 +75,7 @@ public class MainActivity extends AppCompatActivity{
         if (id == android.R.id.home) {
             drawerLayout.openDrawer(GravityCompat.START);
             return true;
-
         }
-
         return super.onOptionsItemSelected(item);
     }
 
