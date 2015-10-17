@@ -1,4 +1,4 @@
-package com.example.anastasiyaverenich.vkrecipes.futils;
+package com.example.anastasiyaverenich.vkrecipes.utils;
 
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;

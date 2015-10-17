@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.text.Html;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,20 +13,25 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.activities.ImageActivity;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
-import com.example.anastasiyaverenich.vkrecipes.futils.BookmarkUtils;
-import com.example.anastasiyaverenich.vkrecipes.futils.FeedUtils;
+import com.example.anastasiyaverenich.vkrecipes.attachments.Attachment;
+import com.example.anastasiyaverenich.vkrecipes.attachments.ImagesLayoutManager;
+import com.example.anastasiyaverenich.vkrecipes.attachments.ThumbAttachment;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
+import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
+import com.example.anastasiyaverenich.vkrecipes.utils.CommonUtils;
+import com.example.anastasiyaverenich.vkrecipes.utils.FeedUtils;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import org.apmem.tools.layouts.FlowLayout;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +47,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     private DisplayImageOptions options;
     private List<Recipe.Feed> feeds;
     private boolean isBookmark;
+    private int widthSize;
 
     public FeedAdapter(Context context, int resource, List<Recipe.Feed> objects, boolean isBookmark) {
         super(context, resource, objects);
@@ -48,13 +55,15 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         mResourceId = resource;
         this.feeds = objects;
         options = VkRApplication.get().getOptions();
+        DisplayMetrics localDisplayMetrics = VkRApplication.get().getResources().getDisplayMetrics();
+        widthSize = Math.min(localDisplayMetrics.widthPixels, localDisplayMetrics.heightPixels) - Math.round(2 * CommonUtils.scale(32.0F));
         this.isBookmark = isBookmark;
     }
 
     static class ViewHolder {
         TextView textName;
         TextView textDescription;
-        LinearLayout container;
+        FlowLayout container;
         ImageView imageViewBM;
         FrameLayout flBookmarkImage;
         FrameLayout flShareImage;
@@ -83,7 +92,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             convertView = LayoutInflater.from(mContext).inflate(mResourceId, parent, false);
             viewHolder.textDescription = (TextView) convertView.findViewById(R.id.rli_tv_description_list);
             viewHolder.textName = (TextView) convertView.findViewById(R.id.rli_tv_name_list);
-            viewHolder.container = (LinearLayout) convertView.findViewById(R.id.rli_ll_images_container);
+            viewHolder.container = (FlowLayout) convertView.findViewById(R.id.rli_ll_images_container);
             viewHolder.imageViewBM = (ImageView) convertView.findViewById(R.id.rli_iv_panel_favourite_item);
             viewHolder.flBookmarkImage = (FrameLayout) convertView.findViewById(R.id.rli_fl_panel_favourite_item);
             viewHolder.flShareImage = (FrameLayout)convertView.findViewById(R.id.rli_fl_panel_share_item);
@@ -94,8 +103,8 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         }
         final Recipe.Feed feed = feeds.get(position);
         int size = feed.text.toString().length();
-        final int index = feed.text.toString().indexOf("<br>");;
-        if (feed.text.toString() != "") {
+        final int index = feed.text.toString().indexOf("<br>");
+        if (!feed.text.toString().equals("")) {
             if (index == -1) {
                 viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
                 viewHolder.textDescription.setText(" ");
@@ -111,50 +120,9 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             viewHolder.textDescription.setText(" ");
         }
         // image = new ImageView(mContext);
-        viewHolder.container.removeAllViews();
         final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
-        for (int x = 0; x < photos.size(); x++) {
-            final ImageView image = new ImageView(mContext);
-            image.setBackgroundColor(0xfff0f0f0);
-          //  Log.i("TAG", "index :" + feed.attachments.size());
-            final Recipe.Photo photo = photos.get(x);
-          //  Log.d("Image", photo.src_big);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            // image.setAdjustViewBounds(true);
-            image.setLayoutParams(lp);
-            lp.setMargins(0, 16, 0, 0);
-            viewHolder.container.addView(image);
-            if (viewHolder.container.getWidth() != 0) {
-                setImageViewHeight(viewHolder, image, photo);
-            } else {
-                viewHolder.container.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (viewHolder.container.getWidth() == 0) {
-                            return;
-                        }
-                        setImageViewHeight(viewHolder, image, photo);
-                    }
-                });
-            }
-            ImageLoader.getInstance().displayImage(photo.src_big, image, options);
-            final int finalX = x;
-            image.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    Log.d("OnImageButton", "Clicked");
-                    System.err.println(finalX);
-                    Intent newActivity = new Intent(mContext, ImageActivity.class);
-                    newActivity.putExtra(ImageActivity.POSITION, finalX);
-                    newActivity.putExtra(ImageActivity.PHOTOS, photos);
-                   mContext.startActivity(newActivity);
-                    //Toast.makeText(mContext,
-                           // ImageLoader.getInstance().getDiskCache().get(photo.src_big).getPath(),
-                           // Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+
+        setFeedImages(viewHolder, photos);
         viewHolder.flSaveImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 final File src = ImageLoader.getInstance().getDiskCache().get(photos.get(0).src_big);
@@ -242,11 +210,65 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         return convertView;
     }
 
+    private void setFeedImages(final ViewHolder viewHolder, final ArrayList<Recipe.Photo> photos) {
+        viewHolder.container.removeAllViews();
+        ArrayList<ThumbAttachment> attachments = new ArrayList<>();
+        for(int i=0; i< photos.size(); i++){
+            Attachment attachment = new Attachment();
+            attachment.photo = photos.get(i);
+            attachments.add(attachment);
+        }
+        ImagesLayoutManager.processThumbs(widthSize, widthSize, attachments);
+        for (int x = 0; x < photos.size(); x++) {
+            final ImageView image = new ImageView(mContext);
+            image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            image.setBackgroundColor(0xfff0f0f0);
+          //  Log.i("TAG", "index :" + feed.attachments.size());
+            final Recipe.Photo photo = photos.get(x);
+          //  Log.d("Image", photo.src_big);
+            Attachment attachment = (Attachment) attachments.get(x);
+            FlowLayout.LayoutParams lp = new FlowLayout.LayoutParams(attachment.getWidth(),
+                    attachment.getHeight());
+            image.setLayoutParams(lp);
+            lp.setMargins(CommonUtils.scale(2), CommonUtils.scale(2), 0, 0);
+            viewHolder.container.addView(image);
+            //not needed now
+//            if (viewHolder.container.getWidth() != 0) {
+//                setImageViewHeight(viewHolder, image, photo);
+//            } else {
+//                viewHolder.container.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (viewHolder.container.getWidth() == 0) {
+//                            return;
+//                        }
+//                        setImageViewHeight(viewHolder, image, photo);
+//                    }
+//                });
+//            }
+            ImageLoader.getInstance().displayImage(photo.src_big, image, options);
+            final int finalX = x;
+            image.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Log.d("OnImageButton", "Clicked");
+                    System.err.println(finalX);
+                    Intent newActivity = new Intent(mContext, ImageActivity.class);
+                    newActivity.putExtra(ImageActivity.POSITION, finalX);
+                    newActivity.putExtra(ImageActivity.PHOTOS, photos);
+                   mContext.startActivity(newActivity);
+                    //Toast.makeText(mContext,
+                           // ImageLoader.getInstance().getDiskCache().get(photo.src_big).getPath(),
+                           // Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
     private void setImageViewHeight(ViewHolder viewHolder, ImageView image, Recipe.Photo photo) {
-        int relativeHeight = (int) ((float) photo.height / photo.width * viewHolder.container.getWidth());
-        ViewGroup.LayoutParams layoutParams = image.getLayoutParams();
-        layoutParams.height = relativeHeight;
-        image.setLayoutParams(layoutParams);
+//        int relativeHeight = (int) ((float) photo.height / photo.width * viewHolder.container.getWidth());
+//        ViewGroup.LayoutParams layoutParams = image.getLayoutParams();
+//        layoutParams.height = relativeHeight;
+//        image.setLayoutParams(layoutParams);
     }
 
 }
