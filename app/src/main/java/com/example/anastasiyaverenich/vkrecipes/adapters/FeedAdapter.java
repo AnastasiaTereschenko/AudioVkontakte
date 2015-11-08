@@ -56,7 +56,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         this.feeds = objects;
         options = VkRApplication.get().getOptions();
         DisplayMetrics localDisplayMetrics = VkRApplication.get().getResources().getDisplayMetrics();
-        widthSize = Math.min(localDisplayMetrics.widthPixels, localDisplayMetrics.heightPixels) - Math.round(2 * CommonUtils.scale(32.0F));
+        widthSize = Math.min(localDisplayMetrics.widthPixels, localDisplayMetrics.heightPixels) - Math.round(2 * CommonUtils.scale(34.0F));
         this.isBookmark = isBookmark;
     }
 
@@ -125,22 +125,22 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         setFeedImages(viewHolder, photos);
         viewHolder.flSaveImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                final File src = ImageLoader.getInstance().getDiskCache().get(photos.get(0).src_big);
-                File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes" );
-                if(dst.exists()==false)
-                {
+                for (int i = 0; i < photos.size(); i++){
+                    final File src = ImageLoader.getInstance().getDiskCache().get(photos.get(i).src_big);
+                File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes");
+                if (dst.exists() == false) {
                     dst.mkdirs();
                     File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                            File.separator +"Recipes"+ File.separator + System.currentTimeMillis()+".jpg");
+                            File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
                     dst = dst1;
-                }
-                else{
+                } else {
                     File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                            File.separator +"Recipes"+ File.separator + System.currentTimeMillis()+".jpg");
+                            File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
                     dst = dst1;
                 }
                 final File finalDst = dst;
-                ImageLoader.getInstance().loadImage(photos.get(0).src_big, options, new ImageLoadingListener() {
+
+                ImageLoader.getInstance().loadImage(photos.get(i).src_big, options, new ImageLoadingListener() {
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
 
@@ -158,7 +158,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
-                        Toast.makeText(mContext,"Изображение сохранено в папку Recipes.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Изображения сохранены в папку Recipes.", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -166,7 +166,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                     public void onLoadingCancelled(String imageUri, View view) {
                     }
                 });
-
+                }
             }
         });
         viewHolder.flShareImage.setOnClickListener(new View.OnClickListener() {
@@ -183,6 +183,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         else {
             viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_border_black_24dp);
         }
+        final int ownIdBookmark = 0;
         viewHolder.flBookmarkImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,8 +193,10 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                     if (isBookmark) {
                         notifyDataSetChanged();
                     }
-                } else {
-                    BookmarkUtils.addBookmark(feed);
+                }
+                else {
+                    BookmarkUtils.addBookmark(feed );
+                    BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllBookmarks());
                     viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_black_24dp);
                     if (isBookmark) {
                         notifyDataSetChanged();

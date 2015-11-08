@@ -8,7 +8,8 @@ import java.util.List;
 public class BookmarkUtils {
     private static List<Recipe.Feed> bookmarks;
 
-    public static List<Recipe.Feed> getBookmarks() {
+    public static List<Recipe.Feed> getBookmarks(List<Recipe.Feed> bookmarks)
+    {
         return bookmarks;
     }
 
@@ -25,7 +26,7 @@ public class BookmarkUtils {
     }
     public static void addBookmark(Recipe.Feed feed){
         bookmarks.add(feed);
-        VkRApplication.get().getMySQLiteHelper().addFeed(feed);
+        VkRApplication.get().getMySQLiteHelper().addBookmarks(feed);
     }
     public static void deleteBookmark(Recipe.Feed feed){
         for(int i = 0; i < bookmarks.size(); i++){
@@ -34,6 +35,6 @@ public class BookmarkUtils {
                 break;
             }
         }
-        VkRApplication.get().getMySQLiteHelper().deleteFeed(feed);
+        VkRApplication.get().getMySQLiteHelper().deleteBookmark(feed);
     }
 }

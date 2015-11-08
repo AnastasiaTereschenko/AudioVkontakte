@@ -8,7 +8,7 @@ public interface IApiMethods {
 
     @GET("/method/wall.get")
     void getFeeds(
-            @Query("owner_id") String owner,
+            @Query("owner_id") int owner,
             @Query("offset") int offset,
             @Query("count") int count,
             @Query("filter") String filter,

@@ -41,7 +41,6 @@ public class Attachment implements ThumbAttachment{
 
     @Override
     public void setPaddingAfter(boolean paramBoolean) {
-
     }
 
     @Override

@@ -16,7 +16,11 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private int currentItem;
-    FeedFragment feedFragment;
+    FeedFragment cookGoodFragment;
+    FeedFragment fitnessRecipeFragment;
+    FeedFragment healthFoodFragment;
+    FeedFragment bestRecipeFragment;
+    FeedFragment usefulRecipeFragment;
     FeedFragment bookmarkFragment;
 
     @Override
@@ -25,9 +29,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initToolbar();
         setupDrawerLayout();
-        feedFragment = FeedFragment.newInstance(FeedFragment.FEEDS);
+        cookGoodFragment = FeedFragment.newInstance(FeedFragment.COOK_GOOD);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, feedFragment).commit();
+                .replace(R.id.container, cookGoodFragment).commit();
     }
 
     private void initToolbar() {
@@ -47,11 +51,39 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
-                    case R.id.drawer_home:
-                        if (feedFragment == null || currentItem != R.id.drawer_home) {
-                            feedFragment = FeedFragment.newInstance(FeedFragment.FEEDS);
+                    case R.id.drawer_cook_good:
+                        if (cookGoodFragment == null || currentItem != R.id.drawer_cook_good) {
+                            cookGoodFragment = FeedFragment.newInstance(FeedFragment.COOK_GOOD);
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, feedFragment).commit();
+                                    .replace(R.id.container, cookGoodFragment).commit();
+                        }
+                        break;
+                    case R.id.drawer_fitness_recipe:
+                        if (fitnessRecipeFragment == null || currentItem != R.id.drawer_fitness_recipe) {
+                            fitnessRecipeFragment = FeedFragment.newInstance(FeedFragment.FITNESS_RECIPE);
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, fitnessRecipeFragment).commit();
+                        }
+                        break;
+                    case R.id.drawer_health_food:
+                        if (healthFoodFragment == null || currentItem != R.id.drawer_health_food) {
+                            healthFoodFragment = FeedFragment.newInstance(FeedFragment.HEALTH_FOOD);
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, healthFoodFragment).commit();
+                        }
+                        break;
+                    case R.id.drawer_best_recipe:
+                        if (bestRecipeFragment == null || currentItem != R.id.drawer_best_recipe) {
+                            bestRecipeFragment = FeedFragment.newInstance(FeedFragment.BEST_RECIPE);
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, bestRecipeFragment).commit();
+                        }
+                        break;
+                    case R.id.drawer_useful_recipe:
+                        if (usefulRecipeFragment == null || currentItem != R.id.drawer_useful_recipe) {
+                            usefulRecipeFragment = FeedFragment.newInstance(FeedFragment.USEFUL_RECIPE);
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, usefulRecipeFragment).commit();
                         }
                         break;
                     case R.id.drawer_favourite:

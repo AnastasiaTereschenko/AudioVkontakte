@@ -24,8 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/rli_tv_name_list"
                 android:orientation="horizontal"
-                android:gravity="fill"
-                >
+                android:gravity="fill">
             </org.apmem.tools.layouts.FlowLayout>
             <TextView
                 android:id="@+id/rli_tv_description_list"

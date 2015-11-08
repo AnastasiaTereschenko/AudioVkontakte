@@ -1,11 +1,36 @@
 package com.example.anastasiyaverenich.vkrecipes.utils;
 
+import com.example.anastasiyaverenich.vkrecipes.SQLite.MySQLiteHelper;
+import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FeedUtils {
+    private static List<Recipe.Feed> feeds;
+    private static MySQLiteHelper sqLiteHelper = VkRApplication.get().getMySQLiteHelper();
+
+    public static List<Recipe.Feed> getFeeds()
+    {
+        return feeds;
+    }
+    public static void setFeeds(List<Recipe.Feed> feeds) {
+        FeedUtils.feeds = feeds;
+    }
+    public static void addFeeds(List<Recipe.Feed> feeds, int groupId){
+        sqLiteHelper.addFeeds(feeds, groupId);
+    }
+    public static void updateFeeds(List<Recipe.Feed> feeds, int idGroup){
+        sqLiteHelper.updateFeeds(feeds, idGroup);
+    }
+    public static void saveRefreshData(List<Recipe.Feed> feeds, int groupId){
+        if (sqLiteHelper.getAllFeeds(groupId)== null){
+            addFeeds(feeds, groupId);
+        } else{
+            updateFeeds(feeds, groupId);
+        }
+    }
     public static ArrayList<Recipe.Photo> getPhotosFromAttachments(List<Recipe.Attach> attaches) {
         ArrayList<Recipe.Photo> photos = new ArrayList<>();
         for (int i = 0; i < attaches.size(); i++) {
@@ -16,7 +41,6 @@ public class FeedUtils {
         }
         return photos;
     }
-
     public static ArrayList<Recipe.Feed> getFeedsWithoutAds(List<Recipe.Feed> feeds) {
         ArrayList<Recipe.Feed> feedsNew = new ArrayList<>();
         if (!feeds.equals(null)) {
@@ -24,7 +48,7 @@ public class FeedUtils {
                 Recipe.Feed feed = feeds.get(i);
                 String text = feed.text.toString();
                 if (!text.equals("")) {
-                    if (((text.charAt(0) >= 'а') && ((text.charAt(0) <= 'я')) ||
+                    if ((text.charAt(0) == '#') ||  ((text.charAt(0) >= 'а') && ((text.charAt(0) <= 'я')) ||
                             (((text.charAt(0) >= 'А') && ((text.charAt(0) <= 'Я')))))) {
                         feedsNew.add(feed);
                     }

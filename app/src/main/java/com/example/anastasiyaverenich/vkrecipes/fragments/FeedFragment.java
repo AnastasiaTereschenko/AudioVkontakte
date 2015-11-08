@@ -11,12 +11,12 @@ import android.widget.ListView;
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapter;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
-import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
-import com.example.anastasiyaverenich.vkrecipes.utils.FeedUtils;
 import com.example.anastasiyaverenich.vkrecipes.gsonFactories.RecipeTypeAdapterFactory;
 import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethods;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.ui.EndlessScrollListener;
+import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
+import com.example.anastasiyaverenich.vkrecipes.utils.FeedUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -32,10 +32,18 @@ import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
 public class FeedFragment extends android.support.v4.app.Fragment implements SwipeRefreshLayout.OnRefreshListener {
-    public static final int FEEDS = 0;
-    public static final int BOOKMARKS = 1;
+    public static final int COOK_GOOD = 0;
+    public static final int FITNESS_RECIPE = 1;
+    public static final int HEALTH_FOOD = 2;
+    public static final int BEST_RECIPE = 3;
+    public static final int USEFUL_RECIPE = 4;
+    public static final int BOOKMARKS = 5;
     private static final String API_URL = "https://api.vk.com";
-    private static final String OWNER_ID = "-39009769";
+    private static final int COOK_GOOD_ID = -39009769;
+    private static final int FITNESS_RECIPE_ID = -80410546;
+    private static final int HEALTH_FOOD_ID = -77109534;
+    private static final int BEST_RECIPE_ID = -32194285;
+    private static final int USEFUL_RECIPE_ID = -76882174;
     private int OFFSET = 0;
     private static final int COUNT = 15;
     private static final String FILTER = "all";
@@ -49,6 +57,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
     private List<Recipe.Feed> feedList;
     private int currentItem;
     private SwipeRefreshLayout swipeRefresh;
+    private int currentGroupId;
 
 
     public static FeedFragment newInstance(int position) {
@@ -78,17 +87,32 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
         imageLoader.init(ImageLoaderConfiguration.createDefault(getActivity()));
         lvMain = (ListView) view.findViewById(R.id.lvMain);
         footerView = (View) inflater.inflate(R.layout.footer, null);
+        BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllBookmarks());
         if (isBookmark()) {
             swipeRefresh.setRefreshing(false);
-            initAdapter(BookmarkUtils.getBookmarks());
+            initAdapter(BookmarkUtils.getBookmarks(VkRApplication.get().getMySQLiteHelper().getAllBookmarks()));
         } else {
-            homePage();
+            if (isBestRecipe()){
+                currentGroupId = BEST_RECIPE_ID;
+            } else if (isCookGood())
+                currentGroupId = COOK_GOOD_ID;
+            else if (isHealthFood())
+                currentGroupId = HEALTH_FOOD_ID;
+            else if (isFitnessRecipe())
+                currentGroupId = FITNESS_RECIPE_ID;
+            else if (isUsefulRecipe())
+                currentGroupId = USEFUL_RECIPE_ID;
+            FeedUtils.setFeeds(VkRApplication.get().getMySQLiteHelper().getAllFeeds(currentGroupId));
+            loadingFeeds();
         }
         return view;
     }
 
-    private void homePage(){
+    private void loadingFeeds(){
         feedList = new ArrayList<Recipe.Feed>();
+        if (FeedUtils.getFeeds()!= null){
+            feedList = FeedUtils.getFeeds();
+        }
         initAdapter(feedList);
         Gson gson = new GsonBuilder().
                 registerTypeAdapterFactory(new RecipeTypeAdapterFactory()).create();
@@ -97,12 +121,17 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
                 .setConverter(new GsonConverter(gson))
                 .build();
         methods = restAdapter.create(IApiMethods.class);
-        BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllFeeds());
         callback = new Callback<Recipe>() {
             @Override
             public void success(Recipe results, Response response) {
-                Log.e("TAG", "SUCCESS " + results.response.size());
+                Log.e("TAG", "SUCCESS" + results.response.size());
                 final ArrayList<Recipe.Feed> feedNew = FeedUtils.getFeedsWithoutAds(results.response);
+                if (OFFSET==0){
+                    if (!feedList.isEmpty()){
+                        feedList.clear();
+                    }
+                    FeedUtils.saveRefreshData(feedNew, currentGroupId);
+                }
                 feedList.addAll(feedNew);
                 adapter.notifyDataSetChanged();
                 swipeRefresh.setRefreshing(false);
@@ -112,7 +141,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
                     endlessScrollListener.setLoading(false);
                 }
             }
-
             @Override
             public void failure(RetrofitError retrofitError) {
                 retrofitError.printStackTrace();
@@ -121,7 +149,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
                 Log.e("TAG", "ERROR ");
             }
         };
-        methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
+        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
         lvMain.setOnScrollListener(endlessScrollListener);
     }
 
@@ -132,9 +160,8 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
         }
         if (!isBookmark()) {
             feedList.clear();
-            OFFSET=0;
-            OFFSET = OFFSET + COUNT;
-            methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
+            OFFSET = 0;
+            methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
         }
         swipeRefresh.setRefreshing(false);
     }
@@ -146,7 +173,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
                 lvMain.addFooterView(footerView);
             }
             OFFSET = OFFSET + COUNT;
-            methods.getFeeds(OWNER_ID, OFFSET, COUNT, FILTER, VERSION, callback);
+            methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
         }
     };
 
@@ -175,6 +202,21 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
 
     private boolean isBookmark() {
         return getPosition() == BOOKMARKS;
+    }
+    private boolean isCookGood(){
+        return getPosition() == COOK_GOOD;
+    }
+    private boolean isFitnessRecipe() {
+        return getPosition() == FITNESS_RECIPE;
+    }
+    private boolean isHealthFood() {
+        return getPosition() == HEALTH_FOOD;
+    }
+    private boolean isBestRecipe() {
+        return getPosition() == BEST_RECIPE;
+    }
+    private boolean isUsefulRecipe() {
+        return getPosition() == USEFUL_RECIPE;
     }
 
 

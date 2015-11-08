@@ -76,7 +76,7 @@ public class ImagesLayoutManager
     ((ThumbAttachment)localArrayList1.get(-1 + localArrayList1.size())).setPaddingAfter(true);
     float f1 = 0;
     float f2 = CommonUtils.scale(2.0F);
-    float f3 = CommonUtils.scale(2.0F);;
+    float f3 = CommonUtils.scale(2.0F);
     float f4 = 1.0f;
     float f5 = 1.0f;
     if (!localArrayList2.isEmpty())
