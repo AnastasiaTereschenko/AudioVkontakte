@@ -24,9 +24,9 @@ public class BookmarkUtils {
         }
         return false;
     }
-    public static void addBookmark(Recipe.Feed feed){
+    public static void addBookmark(Recipe.Feed feed, int categoryId){
         bookmarks.add(feed);
-        VkRApplication.get().getMySQLiteHelper().addBookmarks(feed);
+        VkRApplication.get().getMySQLiteHelper().addBookmarks(feed,categoryId);
     }
     public static void deleteBookmark(Recipe.Feed feed){
         for(int i = 0; i < bookmarks.size(); i++){

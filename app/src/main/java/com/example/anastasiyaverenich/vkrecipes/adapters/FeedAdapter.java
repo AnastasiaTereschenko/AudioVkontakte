@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -22,6 +24,7 @@ import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.attachments.Attachment;
 import com.example.anastasiyaverenich.vkrecipes.attachments.ImagesLayoutManager;
 import com.example.anastasiyaverenich.vkrecipes.attachments.ThumbAttachment;
+import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkDialogFragment;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.CommonUtils;
@@ -49,7 +52,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     private boolean isBookmark;
     private int widthSize;
 
-    public FeedAdapter(Context context, int resource, List<Recipe.Feed> objects, boolean isBookmark) {
+    public FeedAdapter(Context context, int resource, List<Recipe.Feed> objects) {
         super(context, resource, objects);
         mContext = context;
         mResourceId = resource;
@@ -57,7 +60,6 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         options = VkRApplication.get().getOptions();
         DisplayMetrics localDisplayMetrics = VkRApplication.get().getResources().getDisplayMetrics();
         widthSize = Math.min(localDisplayMetrics.widthPixels, localDisplayMetrics.heightPixels) - Math.round(2 * CommonUtils.scale(34.0F));
-        this.isBookmark = isBookmark;
     }
 
     static class ViewHolder {
@@ -69,19 +71,20 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         FrameLayout flShareImage;
         FrameLayout flSaveImage;
     }
+
     @Override
     public int getCount() {
         return feeds.size();
     }
-    public void copy(File src, File dst) throws IOException {
-            FileInputStream inStream = new FileInputStream(src);
-            FileOutputStream outStream = new FileOutputStream(dst);
-            FileChannel inChannel = inStream.getChannel();
-            FileChannel outChannel = outStream.getChannel();
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-            inStream.close();
-            outStream.close();
 
+    public void copy(File src, File dst) throws IOException {
+        FileInputStream inStream = new FileInputStream(src);
+        FileOutputStream outStream = new FileOutputStream(dst);
+        FileChannel inChannel = inStream.getChannel();
+        FileChannel outChannel = outStream.getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+        inStream.close();
+        outStream.close();
     }
 
     @Override
@@ -95,8 +98,8 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             viewHolder.container = (FlowLayout) convertView.findViewById(R.id.rli_ll_images_container);
             viewHolder.imageViewBM = (ImageView) convertView.findViewById(R.id.rli_iv_panel_favourite_item);
             viewHolder.flBookmarkImage = (FrameLayout) convertView.findViewById(R.id.rli_fl_panel_favourite_item);
-            viewHolder.flShareImage = (FrameLayout)convertView.findViewById(R.id.rli_fl_panel_share_item);
-            viewHolder.flSaveImage = (FrameLayout)convertView.findViewById(R.id.rli_fl_panel_save_images);
+            viewHolder.flShareImage = (FrameLayout) convertView.findViewById(R.id.rli_fl_panel_share_item);
+            viewHolder.flSaveImage = (FrameLayout) convertView.findViewById(R.id.rli_fl_panel_save_images);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -119,53 +122,52 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             viewHolder.textName.setText(" ");
             viewHolder.textDescription.setText(" ");
         }
-        // image = new ImageView(mContext);
         final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
 
         setFeedImages(viewHolder, photos);
         viewHolder.flSaveImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                for (int i = 0; i < photos.size(); i++){
+                for (int i = 0; i < photos.size(); i++) {
                     final File src = ImageLoader.getInstance().getDiskCache().get(photos.get(i).src_big);
-                File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes");
-                if (dst.exists() == false) {
-                    dst.mkdirs();
-                    File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                            File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
-                    dst = dst1;
-                } else {
-                    File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                            File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
-                    dst = dst1;
-                }
-                final File finalDst = dst;
-
-                ImageLoader.getInstance().loadImage(photos.get(i).src_big, options, new ImageLoadingListener() {
-                    @Override
-                    public void onLoadingStarted(String imageUri, View view) {
-
+                    File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes");
+                    if (dst.exists() == false) {
+                        dst.mkdirs();
+                        File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                                File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
+                        dst = dst1;
+                    } else {
+                        File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                                File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
+                        dst = dst1;
                     }
+                    final File finalDst = dst;
 
-                    @Override
-                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                    ImageLoader.getInstance().loadImage(photos.get(i).src_big, options, new ImageLoadingListener() {
+                        @Override
+                        public void onLoadingStarted(String imageUri, View view) {
 
-                    }
-
-                    @Override
-                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        try {
-                            copy(src, finalDst);
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
                         }
-                        Toast.makeText(mContext, "Изображения сохранены в папку Recipes.", Toast.LENGTH_SHORT).show();
-                    }
 
-                    @Override
+                        @Override
+                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
 
-                    public void onLoadingCancelled(String imageUri, View view) {
-                    }
-                });
+                        }
+
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            try {
+                                copy(src, finalDst);
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
+                            Toast.makeText(mContext, "Изображения сохранены в папку Recipes.", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+
+                        public void onLoadingCancelled(String imageUri, View view) {
+                        }
+                    });
                 }
             }
         });
@@ -177,38 +179,35 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                 mContext.startActivity(Intent.createChooser(share, "Share Text"));
             }
         });
-        if (BookmarkUtils.checkBookmarks(feed.id)){
+        if (BookmarkUtils.checkBookmarks(feed.id)) {
             viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_black_24dp);
-        }
-        else {
+        } else {
             viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_border_black_24dp);
         }
-        final int ownIdBookmark = 0;
         viewHolder.flBookmarkImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (BookmarkUtils.checkBookmarks(feed.id)) {
                     BookmarkUtils.deleteBookmark(feed);
                     viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_border_black_24dp);
-                    if (isBookmark) {
-                        notifyDataSetChanged();
-                    }
-                }
-                else {
-                    BookmarkUtils.addBookmark(feed );
-                    BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllBookmarks());
-                    viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_black_24dp);
-                    if (isBookmark) {
-                        notifyDataSetChanged();
-                    }
+                    notifyDataSetChanged();
+                } else {
+                    FragmentActivity activity = (FragmentActivity) (mContext);
+                    FragmentManager fm = activity.getSupportFragmentManager();
+                    BookmarkDialogFragment bookmarkDialog = new BookmarkDialogFragment(feeds.get(position));
+                    bookmarkDialog.setListener(new BookmarkDialogFragment.OnBookmarkItemClickListener() {
+                        @Override
+                        public void onBookmarkItemClick() {
+                            viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_black_24dp);
+                        }
+                    });
+                    bookmarkDialog.show(fm, "fragmentalert");
                 }
             }
         });
 
+
         viewHolder.container.requestLayout();
-        //  else {
-        //    imageView.setVisibility(View.GONE);
-        //}
 
         return convertView;
     }
@@ -216,7 +215,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     private void setFeedImages(final ViewHolder viewHolder, final ArrayList<Recipe.Photo> photos) {
         viewHolder.container.removeAllViews();
         ArrayList<ThumbAttachment> attachments = new ArrayList<>();
-        for(int i=0; i< photos.size(); i++){
+        for (int i = 0; i < photos.size(); i++) {
             Attachment attachment = new Attachment();
             attachment.photo = photos.get(i);
             attachments.add(attachment);
@@ -226,29 +225,13 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             final ImageView image = new ImageView(mContext);
             image.setScaleType(ImageView.ScaleType.CENTER_CROP);
             image.setBackgroundColor(0xfff0f0f0);
-          //  Log.i("TAG", "index :" + feed.attachments.size());
             final Recipe.Photo photo = photos.get(x);
-          //  Log.d("Image", photo.src_big);
             Attachment attachment = (Attachment) attachments.get(x);
             FlowLayout.LayoutParams lp = new FlowLayout.LayoutParams(attachment.getWidth(),
                     attachment.getHeight());
             image.setLayoutParams(lp);
             lp.setMargins(CommonUtils.scale(2), CommonUtils.scale(2), 0, 0);
             viewHolder.container.addView(image);
-            //not needed now
-//            if (viewHolder.container.getWidth() != 0) {
-//                setImageViewHeight(viewHolder, image, photo);
-//            } else {
-//                viewHolder.container.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (viewHolder.container.getWidth() == 0) {
-//                            return;
-//                        }
-//                        setImageViewHeight(viewHolder, image, photo);
-//                    }
-//                });
-//            }
             ImageLoader.getInstance().displayImage(photo.src_big, image, options);
             final int finalX = x;
             image.setOnClickListener(new View.OnClickListener() {
@@ -258,20 +241,9 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                     Intent newActivity = new Intent(mContext, ImageActivity.class);
                     newActivity.putExtra(ImageActivity.POSITION, finalX);
                     newActivity.putExtra(ImageActivity.PHOTOS, photos);
-                   mContext.startActivity(newActivity);
-                    //Toast.makeText(mContext,
-                           // ImageLoader.getInstance().getDiskCache().get(photo.src_big).getPath(),
-                           // Toast.LENGTH_SHORT).show();
+                    mContext.startActivity(newActivity);
                 }
             });
         }
     }
-
-    private void setImageViewHeight(ViewHolder viewHolder, ImageView image, Recipe.Photo photo) {
-//        int relativeHeight = (int) ((float) photo.height / photo.width * viewHolder.container.getWidth());
-//        ViewGroup.LayoutParams layoutParams = image.getLayoutParams();
-//        layoutParams.height = relativeHeight;
-//        image.setLayoutParams(layoutParams);
-    }
-
 }

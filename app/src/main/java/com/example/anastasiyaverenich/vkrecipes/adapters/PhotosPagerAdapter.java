@@ -42,8 +42,6 @@ public class PhotosPagerAdapter extends PagerAdapter {
         View view = (View) inflater.inflate(R.layout.progress_bar_for_image, container, false);
         final PhotoView photoView = (PhotoView) view.findViewById(R.id.iv_photo);
         final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        //PhotoView photoView = new PhotoView(container.getContext());
-        //photoView.addFooterView(footerView);
 
         ImageLoader.getInstance().loadImage(photos.get(position).src_big, options, new ImageLoadingListener() {
             @Override

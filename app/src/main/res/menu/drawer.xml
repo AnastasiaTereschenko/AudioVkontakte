@@ -35,7 +35,7 @@
             android:icon="@drawable/restaurant23"
             android:title="@string/useful_recipe" />
         <item
-            android:id="@+id/drawer_favourite"
+            android:id="@+id/drawer_bookmark"
             android:state_focused="true"
             android:state_pressed="false"
             android:icon="@drawable/ic_star_border_black_24dp"

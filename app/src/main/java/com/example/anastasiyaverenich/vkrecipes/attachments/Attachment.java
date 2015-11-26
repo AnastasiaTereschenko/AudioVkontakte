@@ -2,9 +2,6 @@ package com.example.anastasiyaverenich.vkrecipes.attachments;
 
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 
-/**
- * Created by Andrey on 10/17/15.
- */
 public class Attachment implements ThumbAttachment{
     public Recipe.Photo photo;
     private int displayH;

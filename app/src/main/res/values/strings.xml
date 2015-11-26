@@ -8,4 +8,16 @@
     <string name="best_recipe">Лучшие рецепты</string>
     <string name="useful_recipe">Полезные рецепты</string>
     <string name="bookmark">Закладки</string>
+    <string-array name="bookmark">
+        <item>Первые блюда</item>
+        <item>Вторые блюда</item>
+        <item>Салаты</item>
+        <item>Десерты</item>
+        <item>Напитки</item>
+        <item>Другое</item>
+    </string-array>
+    <string name="change_bookmark">Выберите закладку</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

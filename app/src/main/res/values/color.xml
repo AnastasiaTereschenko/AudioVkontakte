@@ -5,6 +5,6 @@
     <color name="drawer_item_color">#fff</color>
     <color name="list_divider">#5e5e5e</color>
     <color name="light_blue">#AFEEEE</color>
-    <color name="middle_blue">#6495ED</color>
+    <color name="middle_blue">#6495ED</color>1
     <color name="deep_blue">#0000FF</color>
 </resources>

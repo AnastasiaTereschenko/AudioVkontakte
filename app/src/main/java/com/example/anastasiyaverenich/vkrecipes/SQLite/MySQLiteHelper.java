@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.anastasiyaverenich.vkrecipes.modules.BookmarkCategory;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -17,9 +18,7 @@ import java.util.List;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    // Database Version
-    private static final int DATABASE_VERSION = 15;
-    // Database Name
+    private static final int DATABASE_VERSION = 14;
     private static final String DATABASE_NAME = "DB";
 
     public MySQLiteHelper(Context context) {
@@ -28,147 +27,171 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_BOOKMARK_TABLE = "CREATE TABLE bookmarks ( " +
-                "idBookmark INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                "contentBookmark TEXT )";
         String CREATE_FEED_TABLE = "CREATE TABLE feeds ( " +
                 "groupId INTEGER PRIMARY KEY, " +
                 "contentFeed TEXT )";
+        String CREATE_BOOKMARK_TABLE = "CREATE TABLE bookmarks ( " +
+                "bookmarkId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "contentBookmark TEXT, categoryId INTEGER)";
+        String CREATE_CATEGORY_TABLE = "CREATE TABLE categories ( " +
+                "categoryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "nameOfCategory TEXT )";
         db.execSQL(CREATE_FEED_TABLE);
         db.execSQL(CREATE_BOOKMARK_TABLE);
-
+        db.execSQL(CREATE_CATEGORY_TABLE);
+        String INSERT_CATEGORY_TABLE_1 = "INSERT INTO categories (nameOfCategory) " +
+                "VALUES ('Первые блюда')";
+        db.execSQL(INSERT_CATEGORY_TABLE_1);
+        String INSERT_CATEGORY_TABLE_2 = "INSERT INTO categories (nameOfCategory) " +
+                "VALUES ('Вторые блюда')";
+        db.execSQL(INSERT_CATEGORY_TABLE_2);
+        String INSERT_CATEGORY_TABLE_3 = "INSERT INTO categories (nameOfCategory) " +
+                "VALUES ('Салаты')";
+        db.execSQL(INSERT_CATEGORY_TABLE_3);
+        String INSERT_CATEGORY_TABLE_4 = "INSERT INTO categories (nameOfCategory) " +
+                "VALUES ('Десерты')";
+        db.execSQL(INSERT_CATEGORY_TABLE_4);
+        String INSERT_CATEGORY_TABLE_5 = "INSERT INTO categories (nameOfCategory) " +
+                "VALUES ('Напитки')";
+        db.execSQL(INSERT_CATEGORY_TABLE_5);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older feeds table if existed
         db.execSQL("DROP TABLE IF EXISTS feeds");
         db.execSQL("DROP TABLE IF EXISTS bookmarks");
+        db.execSQL("DROP TABLE IF EXISTS categories");
 
-
-        // create fresh feeds table
         this.onCreate(db);
     }
-    //---------------------------------------------------------------------
 
-    // Bookmark table name
     private static final String TABLE_BOOKMARKS = "bookmarks";
-
-    // Bookmark Table Columns names
-    private static final String KEY_ID_BOOKMARK = "idBookmark";
+    private static final String KEY_ID_BOOKMARK = "bookmarkId";
     private static final String KEY_CONTENT_BOOKMARK = "contentBookmark";
-    // Feed table name
     private static final String TABLE_FEEDS = "feeds";
-    // Feed Table Columns names
     private static final String KEY_ID_GROUP = "groupId";
     private static final String KEY_CONTENT_FEED = "contentFeed";
+    private static final String KEY_ID_CATEGORIES_FOR_BOOKMARK = "categoryId";
+    private static final String TABLE_CATEGORIES = "categories";
+    private static final String KEY_ID_CATEGORY = "categoryId";
+    private static final String KEY_NAME_OF_CATEGORY = "nameOfCategory";
 
-    public void addFeeds(List<Recipe.Feed>  feeds, int groupId){
+    public void addFeeds(List<Recipe.Feed> feeds, int groupId) {
         String tempSaveDb;
-        // 1. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
-        // 2. create ContentValues to add key "column"/value
         ContentValues values = new ContentValues();
         tempSaveDb = gson.toJson(feeds);
         Log.d("addFeed", tempSaveDb);
         values.put(KEY_ID_GROUP, groupId);
         values.put(KEY_CONTENT_FEED, tempSaveDb);
-        // 3. insert
-        db.insert(TABLE_FEEDS, // table
-                null, //nullColumnHack
-                values); // key/value -> keys = column names/ values = column values
-        // 4. close
+        db.insert(TABLE_FEEDS, null, values);
         db.close();
     }
-    // Get All Feeds
+
     public List<Recipe.Feed> getAllFeeds(int groupId) {
         List<Recipe.Feed> feeds;
         String id = Integer.toString(groupId);
-        //String query = "SELECT  * FROM " + TABLE_FEEDS + " WHERE " +  KEY_ID_GROUP + " = '" + groupId +"'" ;
-        // 2. get reference to writable DB
-        Log.e("getAllFeeds()", "SELECT  * FROM " + TABLE_FEEDS + " WHERE " +  KEY_ID_GROUP + " = '" + groupId +"'");
+        Log.e("getAllFeeds()", "SELECT  * FROM " + TABLE_FEEDS + " WHERE " + KEY_ID_GROUP + " = '" + groupId + "'");
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT  * FROM " + TABLE_FEEDS + " WHERE " + KEY_ID_GROUP + " = ?", new String[] {id});
+        Cursor cursor = db.rawQuery("SELECT  * FROM " + TABLE_FEEDS + " WHERE " + KEY_ID_GROUP + " = ?", new String[]{id});
         if (cursor.moveToFirst()) {
             String tempVarForDisplay = cursor.getString(1);
-            Type listType = new TypeToken<ArrayList<Recipe.Feed>>() {}.getType();
+            Type listType = new TypeToken<ArrayList<Recipe.Feed>>() {
+            }.getType();
             feeds = new Gson().fromJson(tempVarForDisplay, listType);
-            //List<Recipe.Feed> tempFeed = gson.fromJson(tempVarForDisplay, Recipe.Feed.class);
-            // Add feed to feeds
-        }
-        else {
+        } else {
             return null;
         }
         return feeds;
     }
 
-    public void updateFeeds(List<Recipe.Feed>  feeds, int groupId) {
+    public void updateFeeds(List<Recipe.Feed> feeds, int groupId) {
         SQLiteDatabase db = this.getWritableDatabase();
         String tempSaveDb;
         ContentValues values = new ContentValues();
         tempSaveDb = gson.toJson(feeds);
         values.put(KEY_CONTENT_FEED, tempSaveDb);
         String id = Integer.toString(groupId);
-        db.update(TABLE_FEEDS, values, KEY_ID_GROUP + " = ?", new String[] {id});
-    }
-    //-----------------------------Bookmarks-----------------------------------------------
-    public void addBookmarks(Recipe.Feed feed){
-        String tempSaveDb;
-        // 1. get reference to writable DB
-        SQLiteDatabase db = this.getWritableDatabase();
-        // 2. create ContentValues to add key "column"/value
-        ContentValues values = new ContentValues();
-        String query = "SELECT * FROM " + TABLE_BOOKMARKS ;
-        // 2. get reference to writable DB
-        Cursor cursor = db.rawQuery(query, null);
-            tempSaveDb = gson.toJson(feed);
-            values.put(KEY_CONTENT_BOOKMARK, tempSaveDb);
-            // 3. insert
-            db.insert(TABLE_BOOKMARKS, // table
-                    null, //nullColumnHack
-                    values); // key/value -> keys = column names/ values = column values
-            // 4. close
-        //onUpgrade(db, version, mNewVersion);
-            db.close();
+        db.update(TABLE_FEEDS, values, KEY_ID_GROUP + " = ?", new String[]{id});
     }
 
-    // Get All Feeds
+    //-----------------------------Bookmarks-----------------------------------------------
+    public void addBookmarks(Recipe.Feed feed, int categoryId) {
+        String tempSaveDb;
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        tempSaveDb = gson.toJson(feed);
+        values.put(KEY_ID_BOOKMARK, feed.id);
+        values.put(KEY_CONTENT_BOOKMARK, tempSaveDb);
+        values.put(KEY_ID_CATEGORIES_FOR_BOOKMARK, categoryId);
+        db.insert(TABLE_BOOKMARKS, null, values);
+        db.close();
+    }
+
     public List<Recipe.Feed> getAllBookmarks() {
         List<Recipe.Feed> feeds = new ArrayList<>();
-        // 1. build the query
-        String query = "SELECT * FROM " + TABLE_BOOKMARKS ;
-
-        // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_BOOKMARKS, null, null,
                 null, null, null, KEY_ID_BOOKMARK + " DESC", null);
-        //Cursor cursor = db.rawQuery(query, null);
-
-        // 3. go over each row, build feed and add it to list
         if (cursor.moveToFirst()) {
             do {
                 String tempVarForDisplay = cursor.getString(1);
                 Recipe.Feed tempFeed = gson.fromJson(tempVarForDisplay, Recipe.Feed.class);
-                // Add feed to feeds
                 feeds.add(tempFeed);
             } while (cursor.moveToNext());
         }
         return feeds;
     }
 
-    // Deleting single feed
-    public void deleteBookmark(Recipe.Feed feed) {
-
-        // 1. get reference to writable DB
+    public List<Recipe.Feed> getBookmarksForCertainCategory(int categoryId) {
+        List<Recipe.Feed> feeds = new ArrayList<>();
+        String id = Integer.toString(categoryId);
         SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_ID_CATEGORIES_FOR_BOOKMARK + " = ?" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC", new String[]{id});
+        if (cursor.moveToFirst()) {
+            do {
+                String tempVarForDisplay = cursor.getString(1);
+                Recipe.Feed tempFeed = gson.fromJson(tempVarForDisplay, Recipe.Feed.class);
+                feeds.add(tempFeed);
+            } while (cursor.moveToNext());
+        }
+        return feeds;
+    }
 
-        // 2. delete
-        db.delete(TABLE_BOOKMARKS,
-                KEY_ID_BOOKMARK+" = ?",
-                new String[] { String.valueOf(feed.id) });
-
-        // 3. close
+    public void deleteBookmark(Recipe.Feed feed) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_BOOKMARKS, KEY_ID_BOOKMARK + " = ?", new String[]{String.valueOf(feed.id)});
         db.close();
+    }
+
+    //-----------------------------Categories-----------------------------------------------
+    public void addCategories(Recipe.Feed feed) {
+        String tempSaveDb;
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        String query = "SELECT * FROM " + TABLE_CATEGORIES;
+        Cursor cursor = db.rawQuery(query, null);
+        tempSaveDb = gson.toJson(feed);
+        values.put(KEY_NAME_OF_CATEGORY, tempSaveDb);
+        db.insert(TABLE_CATEGORIES, null, values);
+        db.close();
+    }
+
+    public List<BookmarkCategory> getAllCategoties() {
+        List<BookmarkCategory> arrayOfCategoty = new ArrayList<BookmarkCategory>();
+        String query = "SELECT * FROM " + TABLE_CATEGORIES;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                BookmarkCategory objectOfCategory = new BookmarkCategory();
+                objectOfCategory.setCategoryId(cursor.getInt((cursor.getColumnIndex(KEY_ID_CATEGORY))));
+                objectOfCategory.setNameOfCategory(cursor.getString((cursor.getColumnIndex(KEY_NAME_OF_CATEGORY))));
+                arrayOfCategoty.add(objectOfCategory);
+            } while (cursor.moveToNext());
+        }
+        return arrayOfCategoty;
     }
 }
 
