@@ -14,6 +14,7 @@ import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
+import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFromInstagramFragment;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     FeedFragment bestRecipeFragment;
     FeedFragment usefulRecipeFragment;
     BookmarkFragment bookmarkFragment;
+    FeedFromInstagramFragment feedFromInstagramFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.drawer_bookmark:
                         bookmarkFragment = (BookmarkFragment) changeFragmentOnClick(bookmarkFragment, 0, R.id.drawer_bookmark);
                         break;
+                    case R.id.drawer_instagram_recipes:
+                        feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);
                 }
                 drawerLayout.closeDrawers();
                 return true;
@@ -102,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
             return fitnessRecipeFragment;
         } else if (R.id.drawer_health_food == currentId) {
             return healthFoodFragment;
+        }else if(R.id.drawer_instagram_recipes == currentId){
+            return feedFromInstagramFragment;
         } else return bookmarkFragment;
     }
 
@@ -120,6 +126,11 @@ public class MainActivity extends AppCompatActivity {
             newFragment = BookmarkFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, newFragment, "bookmarkFragment")
+                    .commit();
+        } else if (newFragment == null && R.id.drawer_instagram_recipes == groupId){
+            newFragment = FeedFromInstagramFragment.newInstance();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, newFragment, "feedFromInstagramFragment")
                     .commit();
         } else if (newFragment == null) {
             newFragment = FeedFragment.newInstance(newInstanceOfFragment);
@@ -145,7 +156,9 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.fitness_recipe));
         } else if (R.id.drawer_health_food == groupId) {
             getSupportActionBar().setTitle(getString(R.string.health_food));
-        } else getSupportActionBar().setTitle(getString(R.string.bookmark));
+        } else if(R.id.drawer_instagram_recipes == groupId){
+            getSupportActionBar().setTitle(getString(R.string.recipes_from_instagram));
+        }else getSupportActionBar().setTitle(getString(R.string.bookmark));
     }
 
     private void setCurrentItem(int groupId) {

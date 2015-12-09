@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
@@ -49,7 +50,25 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
                 lvBookmark.setAdapter(bookmarkAdapter);
             }
         });
+        lvBookmark.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+            public boolean onItemLongClick(AdapterView<?> adapter, View view,
+                                           int position, long id) {
+                final List<BookmarkCategory> nameOfBookmark = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
+                int idCategory = nameOfBookmark.get(position).getCategoryId();
+                VkRApplication.get().getMySQLiteHelper().deleteCategory(idCategory);
+                updateListView();
+                return true;
+            }
+
+        });
         return view;
+    }
+
+    public void updateListView() {
+        final List<BookmarkCategory> values = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
+        final ArrayAdapter<BookmarkCategory> adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(),
+                R.layout.name_of_bookmark_list_item, values);
+        lvBookmark.setAdapter(adapterNameOfBookmark);
     }
     public boolean canGoBack(){
         if (currentPosition == -1) {

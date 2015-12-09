@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 20;
     private static final String DATABASE_NAME = "DB";
 
     public MySQLiteHelper(Context context) {
@@ -39,20 +39,20 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_FEED_TABLE);
         db.execSQL(CREATE_BOOKMARK_TABLE);
         db.execSQL(CREATE_CATEGORY_TABLE);
-        String INSERT_CATEGORY_TABLE_1 = "INSERT INTO categories (nameOfCategory) " +
-                "VALUES ('Первые блюда')";
+        String INSERT_CATEGORY_TABLE_1 = "INSERT INTO categories (nameOfCategory, categoryId) " +
+                "VALUES ('Первые блюда', 0)";
         db.execSQL(INSERT_CATEGORY_TABLE_1);
-        String INSERT_CATEGORY_TABLE_2 = "INSERT INTO categories (nameOfCategory) " +
-                "VALUES ('Вторые блюда')";
+        String INSERT_CATEGORY_TABLE_2 = "INSERT INTO categories (nameOfCategory, categoryId) " +
+                "VALUES ('Вторые блюда', 1)";
         db.execSQL(INSERT_CATEGORY_TABLE_2);
-        String INSERT_CATEGORY_TABLE_3 = "INSERT INTO categories (nameOfCategory) " +
-                "VALUES ('Салаты')";
+        String INSERT_CATEGORY_TABLE_3 = "INSERT INTO categories (nameOfCategory, categoryId) " +
+                "VALUES ('Салаты', 2)";
         db.execSQL(INSERT_CATEGORY_TABLE_3);
-        String INSERT_CATEGORY_TABLE_4 = "INSERT INTO categories (nameOfCategory) " +
-                "VALUES ('Десерты')";
+        String INSERT_CATEGORY_TABLE_4 = "INSERT INTO categories (nameOfCategory, categoryId) " +
+                "VALUES ('Десерты', 3)";
         db.execSQL(INSERT_CATEGORY_TABLE_4);
-        String INSERT_CATEGORY_TABLE_5 = "INSERT INTO categories (nameOfCategory) " +
-                "VALUES ('Напитки')";
+        String INSERT_CATEGORY_TABLE_5 = "INSERT INTO categories (nameOfCategory, categoryId) " +
+                "VALUES ('Напитки', 4)";
         db.execSQL(INSERT_CATEGORY_TABLE_5);
     }
 
@@ -165,14 +165,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     }
 
     //-----------------------------Categories-----------------------------------------------
-    public void addCategories(Recipe.Feed feed) {
-        String tempSaveDb;
+    public void addCategories(String nameOfCategory) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         String query = "SELECT * FROM " + TABLE_CATEGORIES;
         Cursor cursor = db.rawQuery(query, null);
-        tempSaveDb = gson.toJson(feed);
-        values.put(KEY_NAME_OF_CATEGORY, tempSaveDb);
+        values.put(KEY_NAME_OF_CATEGORY, nameOfCategory);
         db.insert(TABLE_CATEGORIES, null, values);
         db.close();
     }
@@ -192,6 +190,11 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         return arrayOfCategoty;
+    }
+    public void deleteCategory(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_CATEGORIES, KEY_ID_CATEGORY + " = ?", new String[]{String.valueOf(id)});
+        db.close();
     }
 }
 

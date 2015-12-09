@@ -36,7 +36,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
     public static final int HEALTH_FOOD = 2;
     public static final int BEST_RECIPE = 3;
     public static final int USEFUL_RECIPE = 4;
-    public static final int BOOKMARKS = 5;
     private static final String API_URL = "https://api.vk.com";
     private static final int COOK_GOOD_ID = -39009769;
     private static final int FITNESS_RECIPE_ID = -80410546;
@@ -95,7 +94,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
                 setCurrentParam (USEFUL_RECIPE_ID);
             FeedUtils.setFeeds(VkRApplication.get().getMySQLiteHelper().getAllFeeds(currentGroupId));
             loadingFeeds();
-        return view;
+        return view ;
     }
 
     private void setCurrentParam(int groupId) {
@@ -152,11 +151,9 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
         if (lvMain.getFooterViewsCount() != 0) {
             lvMain.removeFooterView(footerView);
         }
-       // if (!isBookmark()) {
             feedList.clear();
             OFFSET = 0;
             methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-        //}
         swipeRefresh.setRefreshing(false);
     }
 
@@ -190,9 +187,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
 
     }
 
-   /*private boolean isBookmark() {
-        return getPosition() == BOOKMARKS;
-    }*/
     private boolean isCookGood(){
         return getPosition() == COOK_GOOD;
     }

@@ -49,7 +49,6 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     private final int mResourceId;
     private DisplayImageOptions options;
     private List<Recipe.Feed> feeds;
-    private boolean isBookmark;
     private int widthSize;
 
     public FeedAdapter(Context context, int resource, List<Recipe.Feed> objects) {
