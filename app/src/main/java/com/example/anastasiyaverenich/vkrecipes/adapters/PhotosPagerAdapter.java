@@ -37,7 +37,7 @@ public class PhotosPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public View instantiateItem(ViewGroup container, int position) {
+    public View instantiateItem(ViewGroup container, final int position) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
         View view = (View) inflater.inflate(R.layout.progress_bar_for_image, container, false);
         final PhotoView photoView = (PhotoView) view.findViewById(R.id.iv_photo);
@@ -59,6 +59,7 @@ public class PhotosPagerAdapter extends PagerAdapter {
 
                 progressBar.setVisibility(View.INVISIBLE);
                 photoView.setImageBitmap(loadedImage);
+
             }
 
             @Override

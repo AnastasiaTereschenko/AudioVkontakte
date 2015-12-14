@@ -7,9 +7,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.adapters.NameOfBookmarkAdapter;
@@ -32,21 +31,16 @@ public class BookmarkDialogFragment extends DialogFragment{
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final List<BookmarkCategory> nameOfBookmark = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(), R.layout.name_of_bookmark_list_item, nameOfBookmark);
-        builder.setTitle(R.string.change_bookmark)
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.MyAlertDialogStyle ).
+        setTitle("Выберите закладку")
                 .setAdapter(adapterNameOfBookmark, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        BookmarkCategory checkedCategory = nameOfBookmark.get(which);
-                        BookmarkUtils.addBookmark(feedsFromAdapter, checkedCategory.getCategoryId());
-                        if (listener != null) {
-                            listener.onBookmarkItemClick();
-                        }
-                    }
-                });
-        builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
+            public void onClick(DialogInterface dialog, int which) {
+                BookmarkCategory checkedCategory = nameOfBookmark.get(which);
+                BookmarkUtils.addBookmark(feedsFromAdapter, checkedCategory.getCategoryId());
+                if (listener != null) {
+                    listener.onBookmarkItemClick();
+                }
             }
         });
         builder.setPositiveButton(R.string.button_add_bookmrk, new DialogInterface.OnClickListener() {
@@ -57,12 +51,26 @@ public class BookmarkDialogFragment extends DialogFragment{
                 bookmarkDialog.show(fm, "fragmentalert");
             }
         });
-        new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
-            public void onLongPress(MotionEvent e) {
-                Log.e("", "Longpress detected");
+        builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
             }
         });
-        return builder.create();
+      return builder.create();
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Button pButton =  ((AlertDialog) getDialog()).getButton(DialogInterface.BUTTON_POSITIVE);
+        Button nButton =  ((AlertDialog) getDialog()).getButton(DialogInterface.BUTTON_NEGATIVE);
+
+        pButton.setTextColor(getResources().getColor(R.color.fun_blue));
+        nButton.setTextColor(getResources().getColor(R.color.fun_blue));
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) pButton.getLayoutParams();
+        layoutParams.leftMargin = 50;
+        layoutParams.rightMargin = 12;
+        pButton.setLayoutParams(layoutParams);
     }
 
     public void setListener(OnBookmarkItemClickListener listener) {

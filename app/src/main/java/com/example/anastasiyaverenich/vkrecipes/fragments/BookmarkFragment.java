@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
+import com.example.anastasiyaverenich.vkrecipes.activities.MainActivity;
 import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapter;
 import com.example.anastasiyaverenich.vkrecipes.adapters.NameOfBookmarkAdapter;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
@@ -44,13 +45,16 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 currentPosition = position;
                 BookmarkCategory checkedCategory = nameOfBookmark.get(position);
-                BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
-                List<Recipe.Feed> allBookmarks = BookmarkUtils.getBookmarks(VkRApplication.get().getMySQLiteHelper().getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
+                BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper()
+                        .getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
+                List<Recipe.Feed> allBookmarks = BookmarkUtils.getBookmarks(VkRApplication.get()
+                        .getMySQLiteHelper().getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
                 bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, allBookmarks);
                 lvBookmark.setAdapter(bookmarkAdapter);
+                ((MainActivity)getActivity()).onBookmarkDetailsOpened();
             }
         });
-        lvBookmark.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+        lvBookmark.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView<?> adapter, View view,
                                            int position, long id) {
                 final List<BookmarkCategory> nameOfBookmark = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
@@ -59,7 +63,6 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
                 updateListView();
                 return true;
             }
-
         });
         return view;
     }

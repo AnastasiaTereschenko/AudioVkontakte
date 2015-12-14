@@ -2,51 +2,57 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <android.support.v7.widget.CardView
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/cv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         card_view:cardCornerRadius="5dp"
         card_view:cardElevation="5dp"
         card_view:contentPadding="10dp">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp">
+
             <TextView
                 android:id="@+id/rli_tv_name_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp" />
+
             <org.apmem.tools.layouts.FlowLayout
                 android:id="@+id/rli_ll_images_container"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/rli_tv_name_list"
-                android:orientation="horizontal"
-                android:gravity="fill">
-            </org.apmem.tools.layouts.FlowLayout>
+                android:gravity="fill"
+                android:orientation="horizontal"></org.apmem.tools.layouts.FlowLayout>
+
             <TextView
                 android:id="@+id/rli_tv_description_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/rli_ll_images_container" />
+
             <View
                 android:id="@+id/rli_v_separator"
-                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="1px"
                 android:layout_below="@+id/rli_tv_description_list"
-                android:background="@android:color/darker_gray"/>
+                android:layout_marginTop="8dp"
+                android:background="@android:color/darker_gray" />
+
             <FrameLayout
                 android:id="@+id/rli_fl_panel_save_images"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
-                android:clickable="true"
+                android:layout_below="@+id/rli_v_separator"
                 android:background="?attr/selectableItemBackground"
-                android:layout_below="@+id/rli_v_separator">
+                android:clickable="true">
+
                 <ImageView
                     android:id="@+id/rli_iv_panel_save_images"
                     android:layout_width="40dp"
@@ -55,36 +61,40 @@
                     android:layout_marginTop="9dp"
                     android:src="@drawable/ic_save_black_24dp" />
             </FrameLayout>
+
             <FrameLayout
                 android:id="@+id/rli_fl_panel_favourite_item"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_below="@+id/rli_v_separator"
                 android:layout_centerHorizontal="true"
-                android:clickable="true"
                 android:background="?attr/selectableItemBackground"
-                android:layout_below="@+id/rli_v_separator">
-            <ImageView
-                android:id="@+id/rli_iv_panel_favourite_item"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="9dp"
-                android:src="@drawable/ic_star_border_black_24dp" />
+                android:clickable="true">
+
+                <ImageView
+                    android:id="@+id/rli_iv_panel_favourite_item"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp"
+                    android:src="@drawable/ic_star_border_black_24dp" />
             </FrameLayout>
+
             <FrameLayout
                 android:id="@+id/rli_fl_panel_share_item"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/rli_v_separator"
-                android:clickable="true"
-                android:background="?attr/selectableItemBackground">
-            <ImageView
-                android:layout_gravity="left"
-                android:id="@+id/rli_iv_panel_share_item"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="9dp"
-                android:src="@drawable/ic_share_black_24dp" />
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true">
+
+                <ImageView
+                    android:id="@+id/rli_iv_panel_share_item"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginTop="9dp"
+                    android:src="@drawable/ic_share_black_24dp" />
             </FrameLayout>
         </RelativeLayout>
     </android.support.v7.widget.CardView>

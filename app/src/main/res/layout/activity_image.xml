@@ -1,6 +1,41 @@
-<com.example.anastasiyaverenich.vkrecipes.ui.HackyViewPager
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/view_pager"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:onClick="onClick"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.example.anastasiyaverenich.vkrecipes.ui.HackyViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/view_pager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:onClick="onClick" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:clickable="true"
+        android:background="#88000000" >
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackground"
+            android:layout_alignParentLeft="true"
+            android:tint="#ffffff"
+            android:src="@drawable/ic_arrow_back_black_24dp" />
+        <TextView
+            android:id="@+id/count_images"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:layout_toEndOf="@+id/back_button"
+            android:textColor="#ffffff"
+            android:textSize="20sp"/>
+        <ImageButton
+            android:id="@+id/menu_for_image"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackground"
+            android:layout_alignParentRight="true"
+            android:tint="#ffffff"
+            android:src="@drawable/ic_more_vert_black_24dp"/>
+    </RelativeLayout>
+</FrameLayout>

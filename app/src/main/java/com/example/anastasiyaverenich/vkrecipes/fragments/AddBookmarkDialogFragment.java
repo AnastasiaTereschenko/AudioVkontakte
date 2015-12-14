@@ -7,6 +7,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
@@ -24,7 +25,7 @@ public class AddBookmarkDialogFragment extends DialogFragment {
         builder.setTitle(R.string.change_bookmark);
         builder.setView(view);
         editTextInputNewBookmark = (EditText)view.findViewById(R.id.fab_add_new_bookmark);
-        builder.setPositiveButton(R.string.button_add_name_bookmark, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.button_add_name_bookmark,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 VkRApplication.get().getMySQLiteHelper().addCategories(editTextInputNewBookmark.getText().toString());
@@ -37,5 +38,15 @@ public class AddBookmarkDialogFragment extends DialogFragment {
             }
         });
         return builder.create();
+    }
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        Button pButton =  ((AlertDialog) getDialog()).getButton(DialogInterface.BUTTON_POSITIVE);
+        Button nButton =  ((AlertDialog) getDialog()).getButton(DialogInterface.BUTTON_NEGATIVE);
+
+        pButton.setTextColor(getResources().getColor(R.color.fun_blue));
+        nButton.setTextColor(getResources().getColor(R.color.fun_blue));
     }
 }

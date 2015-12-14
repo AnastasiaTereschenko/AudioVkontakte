@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.drawer_bookmark:
                         bookmarkFragment = (BookmarkFragment) changeFragmentOnClick(bookmarkFragment, 0, R.id.drawer_bookmark);
+
                         break;
                     case R.id.drawer_instagram_recipes:
                         feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);
@@ -89,8 +90,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            drawerLayout.openDrawer(GravityCompat.START);
-            return true;
+            if (currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()) {
+                onBackPressed();
+                return true;
+            } else {
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -106,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
             return fitnessRecipeFragment;
         } else if (R.id.drawer_health_food == currentId) {
             return healthFoodFragment;
-        }else if(R.id.drawer_instagram_recipes == currentId){
+        } else if (R.id.drawer_instagram_recipes == currentId) {
             return feedFromInstagramFragment;
         } else return bookmarkFragment;
     }
@@ -127,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, newFragment, "bookmarkFragment")
                     .commit();
-        } else if (newFragment == null && R.id.drawer_instagram_recipes == groupId){
+        } else if (newFragment == null && R.id.drawer_instagram_recipes == groupId) {
             newFragment = FeedFromInstagramFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, newFragment, "feedFromInstagramFragment")
@@ -145,7 +151,8 @@ public class MainActivity extends AppCompatActivity {
         setCurrentItem(groupId);
         return newFragment;
     }
-    private  void setTitleOnFragment(int groupId){
+
+    private void setTitleOnFragment(int groupId) {
         if (R.id.drawer_cook_good == groupId) {
             getSupportActionBar().setTitle(getString(R.string.cook_good));
         } else if (R.id.drawer_useful_recipe == groupId) {
@@ -156,9 +163,9 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.fitness_recipe));
         } else if (R.id.drawer_health_food == groupId) {
             getSupportActionBar().setTitle(getString(R.string.health_food));
-        } else if(R.id.drawer_instagram_recipes == groupId){
+        } else if (R.id.drawer_instagram_recipes == groupId) {
             getSupportActionBar().setTitle(getString(R.string.recipes_from_instagram));
-        }else getSupportActionBar().setTitle(getString(R.string.bookmark));
+        } else getSupportActionBar().setTitle(getString(R.string.bookmark));
     }
 
     private void setCurrentItem(int groupId) {
@@ -170,9 +177,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (bookmarkFragment != null && !bookmarkFragment.canGoBack() && R.id.drawer_bookmark == currentItem) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
             bookmarkFragment.goBack();
             return;
         }
         super.onBackPressed();
+    }
+
+    public void onBookmarkDetailsOpened(){
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
     }
 }

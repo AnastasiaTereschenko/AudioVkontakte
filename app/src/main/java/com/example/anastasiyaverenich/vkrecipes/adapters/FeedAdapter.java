@@ -122,7 +122,6 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             viewHolder.textDescription.setText(" ");
         }
         final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
-
         setFeedImages(viewHolder, photos);
         viewHolder.flSaveImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

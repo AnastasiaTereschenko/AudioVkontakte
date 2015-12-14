@@ -41,6 +41,18 @@ public class FeedUtils {
         }
         return photos;
     }
+    public static Boolean isPhotosFromAttachments(List<Recipe.Attach> attaches) {
+        Boolean isPhoto = false;
+        for (int i = 0; i < 1; i++) {
+            Recipe.Attach attach = attaches.get(i);
+            if (attach.photo != null) {
+                isPhoto = true;
+            } else {
+                isPhoto = false;
+            }
+        }
+        return isPhoto;
+    }
     public static ArrayList<Recipe.Feed> getFeedsWithoutAds(List<Recipe.Feed> feeds) {
         ArrayList<Recipe.Feed> feedsNew = new ArrayList<>();
         if (!feeds.equals(null)) {
@@ -48,7 +60,14 @@ public class FeedUtils {
                 Recipe.Feed feed = feeds.get(i);
                 String text = feed.text.toString();
                 if (!text.equals("")) {
-                    if ((text.charAt(0) == '#') ||  ((text.charAt(0) >= 'а') && ((text.charAt(0) <= 'я')) ||
+                    if (text.charAt(0) == '#'){
+                        int index = feed.text.indexOf("<br>");
+                        int size = feed.text.toString().length();
+                        String feedTextNew = feed.text.substring(index+8,size);
+                        feed.text = feedTextNew;
+                        feedsNew.add(feed);
+                    }
+                    if (((text.charAt(0) >= 'а') && ((text.charAt(0) <= 'я')) ||
                             (((text.charAt(0) >= 'А') && ((text.charAt(0) <= 'Я')))))) {
                         feedsNew.add(feed);
                     }
@@ -58,6 +77,9 @@ public class FeedUtils {
                             (text.toUpperCase().contains("ДОБАВЛЯЙТЕСЬ"))||
                             (text.toUpperCase().contains("ВСТУПАЙТЕ"))||
                             (text.toUpperCase().contains("ЛАЙК"))) {
+                        feedsNew.remove(feed);
+                    }
+                    if(!isPhotosFromAttachments(feed.attachments)){
                         feedsNew.remove(feed);
                     }
                 }
