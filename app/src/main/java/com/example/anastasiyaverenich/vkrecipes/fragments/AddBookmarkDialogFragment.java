@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
-import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
+import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
 
 
 public class AddBookmarkDialogFragment extends DialogFragment {
@@ -28,7 +28,7 @@ public class AddBookmarkDialogFragment extends DialogFragment {
         builder.setPositiveButton(R.string.button_add_name_bookmark,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                VkRApplication.get().getMySQLiteHelper().addCategories(editTextInputNewBookmark.getText().toString());
+                BookmarkCategoryUtils.addCategory(editTextInputNewBookmark.getText().toString());
             }
         });
         builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {

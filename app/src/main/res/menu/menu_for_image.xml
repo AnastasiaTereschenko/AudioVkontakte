@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/save_image"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/save_image" />
+    <item
+        android:id="@+id/copy_link"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/copy_link" />
+    <item
+        android:id="@+id/send_link_on_image"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/send_link_on_image" />
+</menu>

@@ -5,9 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.util.Attributes;
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.activities.MainActivity;
 import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapter;
@@ -15,6 +16,7 @@ import com.example.anastasiyaverenich.vkrecipes.adapters.NameOfBookmarkAdapter;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.modules.BookmarkCategory;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
+import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
 
 import java.util.List;
@@ -41,6 +43,16 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
         lvBookmark = (ListView) view.findViewById(R.id.lvBookmark);
         adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(), R.layout.name_of_bookmark_list_item, nameOfBookmark);
         lvBookmark.setAdapter(adapterNameOfBookmark);
+        BookmarkCategoryUtils.setArrayOfCategoty(nameOfBookmark);
+        adapterNameOfBookmark.setMode(Attributes.Mode.Single);
+        lvBookmark.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                currentPosition = position;
+                ((SwipeLayout) (lvBookmark.getChildAt(position - lvBookmark.getFirstVisiblePosition()))).open(true);
+
+            }
+        });
         lvBookmark.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 currentPosition = position;
@@ -54,25 +66,9 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
                 ((MainActivity)getActivity()).onBookmarkDetailsOpened();
             }
         });
-        lvBookmark.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> adapter, View view,
-                                           int position, long id) {
-                final List<BookmarkCategory> nameOfBookmark = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
-                int idCategory = nameOfBookmark.get(position).getCategoryId();
-                VkRApplication.get().getMySQLiteHelper().deleteCategory(idCategory);
-                updateListView();
-                return true;
-            }
-        });
         return view;
     }
 
-    public void updateListView() {
-        final List<BookmarkCategory> values = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
-        final ArrayAdapter<BookmarkCategory> adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(),
-                R.layout.name_of_bookmark_list_item, values);
-        lvBookmark.setAdapter(adapterNameOfBookmark);
-    }
     public boolean canGoBack(){
         if (currentPosition == -1) {
             return true;
@@ -81,6 +77,7 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
             return false;
         }
     }
+
     public void goBack(){
         lvBookmark.setAdapter(adapterNameOfBookmark);
         currentPosition = -1;

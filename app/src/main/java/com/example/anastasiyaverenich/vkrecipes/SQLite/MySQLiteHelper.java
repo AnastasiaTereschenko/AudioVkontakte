@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    private static final int DATABASE_VERSION = 21;
+    private static final int DATABASE_VERSION = 28;
     private static final String DATABASE_NAME = "DB";
 
     public MySQLiteHelper(Context context) {
@@ -195,6 +195,20 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CATEGORIES, KEY_ID_CATEGORY + " = ?", new String[]{String.valueOf(id)});
         db.close();
+    }
+    public BookmarkCategory getLastCategoty() {
+        BookmarkCategory lastCategoty = new BookmarkCategory();
+        String query = "SELECT * FROM " + TABLE_CATEGORIES;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToLast()) {
+                BookmarkCategory objectOfCategory = new BookmarkCategory();
+                objectOfCategory.setCategoryId(cursor.getInt((cursor.getColumnIndex(KEY_ID_CATEGORY))));
+                objectOfCategory.setNameOfCategory(cursor.getString((cursor.getColumnIndex(KEY_NAME_OF_CATEGORY))));
+            lastCategoty = objectOfCategory;
+            }
+        return lastCategoty;
     }
 }
 

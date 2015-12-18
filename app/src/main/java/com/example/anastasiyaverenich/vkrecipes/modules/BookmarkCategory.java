@@ -20,6 +20,4 @@ public class BookmarkCategory {
         this.categoryId = categoryId;
     }
 
-
-
 }
