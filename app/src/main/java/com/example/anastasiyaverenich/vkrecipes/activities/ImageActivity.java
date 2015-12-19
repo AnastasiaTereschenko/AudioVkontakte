@@ -1,8 +1,10 @@
 package com.example.anastasiyaverenich.vkrecipes.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -14,9 +16,19 @@ import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.adapters.PhotosPagerAdapter;
+import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.ui.HackyViewPager;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 public class ImageActivity extends AppCompatActivity {
@@ -25,9 +37,10 @@ public class ImageActivity extends AppCompatActivity {
     TextView countImages;
     ImageButton menuButton;
     ImageButton backButton;
+    int currentPosition;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
         menuButton = (ImageButton) findViewById(R.id.menu_for_image);
@@ -53,8 +66,8 @@ public class ImageActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int arg0) {
-                int curruntPosition = arg0;
-                String tempCountImages = String.valueOf(curruntPosition + 1) + " из " + String.valueOf(photos.size());
+                 currentPosition = arg0;
+                String tempCountImages = String.valueOf(currentPosition + 1) + " из " + String.valueOf(photos.size());
                 countImages.setText(tempCountImages);
 
             }
@@ -87,9 +100,7 @@ public class ImageActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
 
                     case R.id.save_image:
-                        Toast.makeText(getApplicationContext(),
-                                "Вы выбрали сохранить изображение",
-                                Toast.LENGTH_SHORT).show();
+                        saveImageOnDisk();
                         return true;
                     case R.id.copy_link:
                         Toast.makeText(getApplicationContext(),
@@ -116,4 +127,64 @@ public class ImageActivity extends AppCompatActivity {
         });
         popupMenu.show();
     }
+
+    public void copy(File src, File dst) throws IOException {
+        FileInputStream inStream = new FileInputStream(src);
+        FileOutputStream outStream = new FileOutputStream(dst);
+        FileChannel inChannel = inStream.getChannel();
+        FileChannel outChannel = outStream.getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+        inStream.close();
+        outStream.close();
+    }
+
+    public void saveImageOnDisk() {
+        DisplayImageOptions options = VkRApplication.get().getOptions();
+        final Intent intent = getIntent();
+        final ArrayList<Recipe.Photo> photos = (ArrayList<Recipe.Photo>) intent.getSerializableExtra(ImageActivity.PHOTOS);
+        final File src = ImageLoader.getInstance().getDiskCache().get(photos.get(currentPosition).src_big);
+        File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes");
+        if (dst.exists() == false) {
+            dst.mkdirs();
+            File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                    File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
+            dst = dst1;
+        } else {
+            File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                    File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
+            dst = dst1;
+        }
+        final File finalDst = dst;
+
+        ImageLoader.getInstance().loadImage(photos.get(currentPosition).src_big, options, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                try {
+                    copy(src, finalDst);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                Toast.makeText(ImageActivity.this, "Изображения сохранены в папку Recipes.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+
+            public void onLoadingCancelled(String imageUri, View view) {
+            }
+        });
+    }
+    public void copyInClipboard(){
+
+    }
 }
+
