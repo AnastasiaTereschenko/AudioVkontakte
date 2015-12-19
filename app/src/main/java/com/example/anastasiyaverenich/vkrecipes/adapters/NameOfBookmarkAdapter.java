@@ -13,6 +13,7 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.modules.BookmarkCategory;
+import com.example.anastasiyaverenich.vkrecipes.ui.CustomSwipeItemMangerImpl;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
 
 import java.util.List;
@@ -21,11 +22,14 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     private final Context mContext;
     private final int mResourceId;
     private List<BookmarkCategory> objectOfCategory;
+    private boolean isEdit;
+    private int currentDeletePosition = -1;
 
     public NameOfBookmarkAdapter(Context context, int resource, List<BookmarkCategory> objects) {
         this.mContext = context;
         mResourceId = resource;
         objectOfCategory = objects;
+        mItemManger = new CustomSwipeItemMangerImpl(this);
     }
 
     public View generateView(final int position, ViewGroup parent) {
@@ -37,6 +41,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
                 YoYo.with(Techniques.Tada).duration(500).delay(100).playOn(layout.findViewById(R.id.trash));
             }
         });
+
         convertView.findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -44,6 +49,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
                 int idCategory = nameOfBookmark.get(position).getCategoryId();
                 if (BookmarkCategoryUtils.checkCategories(idCategory)) {
                     BookmarkCategoryUtils.deleteBookmark(idCategory);
+                    currentDeletePosition = position;
                     notifyDataSetChanged();
                 }
             }
@@ -61,6 +67,11 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     public void fillValues(int position, View convertView) {
         TextView tvNameOfCategoryBookmark = (TextView) convertView.findViewById(R.id.ll_tv_name_of_bookmark_list);
         tvNameOfCategoryBookmark.setText(objectOfCategory.get(position).getNameOfCategory());
+        if(currentDeletePosition == position){
+            currentDeletePosition = -1;
+            closeItem(position);
+        }
+
     }
 
     @Override
@@ -81,5 +92,18 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     @Override
     public int getSwipeLayoutResourceId(int position) {
         return R.id.swipe;
+    }
+
+    private void isEdit(){
+
+    }
+
+    public void onEdit(){
+        if(isEdit){
+            closeAllItems();
+        } else {
+            ((CustomSwipeItemMangerImpl)mItemManger).openAllItems();
+        }
+        isEdit =!isEdit;
     }
 }

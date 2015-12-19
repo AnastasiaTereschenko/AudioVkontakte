@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -55,6 +57,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
     private List<Recipe.Feed> feedList;
     private SwipeRefreshLayout swipeRefresh;
     private int currentGroupId;
+    private MenuItem menuItem;
 
     public static FeedFragment newInstance(int position) {
         FeedFragment fragment = new FeedFragment();
@@ -78,32 +81,39 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
         swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
         swipeRefresh.setOnRefreshListener(this);
         swipeRefresh.setColorSchemeResources(R.color.light_blue, R.color.middle_blue, R.color.deep_blue);
+        menuItem = (MenuItem) view.findViewById(R.id.action_edit);
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(getActivity()));
         lvMain = (ListView) view.findViewById(R.id.lvMain);
         footerView = (View) inflater.inflate(R.layout.footer, null);
-            if (isBestRecipe()){
-                setCurrentParam(BEST_RECIPE_ID);
-            } else if (isCookGood())
-                setCurrentParam(COOK_GOOD_ID);
-            else if (isHealthFood())
-                setCurrentParam (HEALTH_FOOD_ID);
-            else if (isFitnessRecipe())
-                setCurrentParam (FITNESS_RECIPE_ID);
-            else if (isUsefulRecipe())
-                setCurrentParam (USEFUL_RECIPE_ID);
-            FeedUtils.setFeeds(VkRApplication.get().getMySQLiteHelper().getAllFeeds(currentGroupId));
-            loadingFeeds();
-        return view ;
+        if (isBestRecipe()) {
+            setCurrentParam(BEST_RECIPE_ID);
+        } else if (isCookGood())
+            setCurrentParam(COOK_GOOD_ID);
+        else if (isHealthFood())
+            setCurrentParam(HEALTH_FOOD_ID);
+        else if (isFitnessRecipe())
+            setCurrentParam(FITNESS_RECIPE_ID);
+        else if (isUsefulRecipe())
+            setCurrentParam(USEFUL_RECIPE_ID);
+        FeedUtils.setFeeds(VkRApplication.get().getMySQLiteHelper().getAllFeeds(currentGroupId));
+        loadingFeeds();
+        setHasOptionsMenu(true);
+        return view;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_edit).setVisible(false);
     }
 
     private void setCurrentParam(int groupId) {
         currentGroupId = groupId;
     }
 
-    private void loadingFeeds(){
+    private void loadingFeeds() {
         feedList = new ArrayList<Recipe.Feed>();
-        if (FeedUtils.getFeeds()!= null){
+        if (FeedUtils.getFeeds() != null) {
             feedList = FeedUtils.getFeeds();
         }
         initAdapter(feedList);
@@ -119,8 +129,8 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
             public void success(Recipe results, Response response) {
                 Log.e("TAG", "SUCCESS " + results.response.size());
                 final ArrayList<Recipe.Feed> feedNew = FeedUtils.getFeedsWithoutAds(results.response);
-                if (OFFSET==0){
-                    if (!feedList.isEmpty()){
+                if (OFFSET == 0) {
+                    if (!feedList.isEmpty()) {
                         feedList.clear();
                     }
                     FeedUtils.saveRefreshData(feedNew, currentGroupId);
@@ -134,6 +144,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
                     endlessScrollListener.setLoading(false);
                 }
             }
+
             @Override
             public void failure(RetrofitError retrofitError) {
                 retrofitError.printStackTrace();
@@ -151,9 +162,9 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
         if (lvMain.getFooterViewsCount() != 0) {
             lvMain.removeFooterView(footerView);
         }
-            feedList.clear();
-            OFFSET = 0;
-            methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
+        feedList.clear();
+        OFFSET = 0;
+        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
         swipeRefresh.setRefreshing(false);
     }
 
@@ -172,33 +183,37 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
         if (lvMain.getFooterViewsCount() != 0) {
             lvMain.removeFooterView(footerView);
         }
-            swipeRefresh.post(new Runnable() {
-                                  @Override
-                                  public void run() {
+        swipeRefresh.post(new Runnable() {
+                              @Override
+                              public void run() {
 
-                                      swipeRefresh.setRefreshing(true);
-                                  }
+                                  swipeRefresh.setRefreshing(true);
                               }
-            );
-            lvMain.addFooterView(footerView);
+                          }
+        );
+        lvMain.addFooterView(footerView);
 
         adapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, feeds);
         lvMain.setAdapter(adapter);
 
     }
 
-    private boolean isCookGood(){
+    private boolean isCookGood() {
         return getPosition() == COOK_GOOD;
     }
+
     private boolean isFitnessRecipe() {
         return getPosition() == FITNESS_RECIPE;
     }
+
     private boolean isHealthFood() {
         return getPosition() == HEALTH_FOOD;
     }
+
     private boolean isBestRecipe() {
         return getPosition() == BEST_RECIPE;
     }
+
     private boolean isUsefulRecipe() {
         return getPosition() == USEFUL_RECIPE;
     }

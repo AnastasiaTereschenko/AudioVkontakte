@@ -8,6 +8,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     FeedFragment usefulRecipeFragment;
     BookmarkFragment bookmarkFragment;
     FeedFromInstagramFragment feedFromInstagramFragment;
+    private Menu _menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initToolbar();
         setupDrawerLayout();
+        _menu = null;
         cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment, FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_edit, menu);
+        _menu = menu;
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private Menu getMenu() {
+        return _menu;
     }
 
     private void initToolbar() {
@@ -93,10 +108,13 @@ public class MainActivity extends AppCompatActivity {
             if (currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()) {
                 onBackPressed();
                 return true;
-            } else {
+            }
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
-            }
+        }
+        if (id == R.id.action_edit) {
+            bookmarkFragment.onEdit();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -152,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
         return newFragment;
     }
 
+
     private void setTitleOnFragment(int groupId) {
         if (R.id.drawer_cook_good == groupId) {
             getSupportActionBar().setTitle(getString(R.string.cook_good));
@@ -178,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (bookmarkFragment != null && !bookmarkFragment.canGoBack() && R.id.drawer_bookmark == currentItem) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+           getMenu().findItem(R.id.action_edit).setVisible(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
             bookmarkFragment.goBack();
             return;
@@ -185,9 +205,11 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    public void onBookmarkDetailsOpened(){
+    public void onBookmarkDetailsOpened() {
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+        getMenu().findItem(R.id.action_edit).setVisible(false);
+
     }
 
 }
