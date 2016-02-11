@@ -2,8 +2,6 @@ package com.example.anastasiyaverenich.vkrecipes.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Html;
@@ -16,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.activities.ImageActivity;
@@ -29,18 +26,13 @@ import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.CommonUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.FeedUtils;
+import com.example.anastasiyaverenich.vkrecipes.utils.FileUtils;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import org.apmem.tools.layouts.FlowLayout;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,16 +66,6 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     @Override
     public int getCount() {
         return feeds.size();
-    }
-
-    public void copy(File src, File dst) throws IOException {
-        FileInputStream inStream = new FileInputStream(src);
-        FileOutputStream outStream = new FileOutputStream(dst);
-        FileChannel inChannel = inStream.getChannel();
-        FileChannel outChannel = outStream.getChannel();
-        inChannel.transferTo(0, inChannel.size(), outChannel);
-        inStream.close();
-        outStream.close();
     }
 
     @Override
@@ -122,59 +104,23 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             viewHolder.textDescription.setText(" ");
         }
         final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
-        setFeedImages(viewHolder, photos);
+        setFeedImages(viewHolder, photos, feed);
         viewHolder.flSaveImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 for (int i = 0; i < photos.size(); i++) {
                     final File src = ImageLoader.getInstance().getDiskCache().get(photos.get(i).src_big);
-                    File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes");
-                    if (dst.exists() == false) {
-                        dst.mkdirs();
-                        File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                                File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
-                        dst = dst1;
+                    String loadPhoto = photos.get(i).src_big;
+                    if (i == 1) {
+                        FileUtils.saveImageOnDisk(src, mContext, loadPhoto);
                     } else {
-                        File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                                File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
-                        dst = dst1;
+                        FileUtils.saveImagesOnDisk(src, mContext, loadPhoto);
                     }
-                    final File finalDst = dst;
-
-                    ImageLoader.getInstance().loadImage(photos.get(i).src_big, options, new ImageLoadingListener() {
-                        @Override
-                        public void onLoadingStarted(String imageUri, View view) {
-
-                        }
-
-                        @Override
-                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
-                        }
-
-                        @Override
-                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                            try {
-                                copy(src, finalDst);
-                            } catch (IOException ex) {
-                                ex.printStackTrace();
-                            }
-                            Toast.makeText(mContext, "Изображения сохранены в папку Recipes.", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-
-                        public void onLoadingCancelled(String imageUri, View view) {
-                        }
-                    });
                 }
             }
         });
         viewHolder.flShareImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent share = new Intent(Intent.ACTION_SEND);
-                share.setType("text/plain");
-                share.putExtra(Intent.EXTRA_TEXT, feed.text.substring(0, index) + " \n" + photos.get(0).src_big);
-                mContext.startActivity(Intent.createChooser(share, "Share Text"));
+                FileUtils.shareLink(feed, index, photos,mContext);
             }
         });
         if (BookmarkUtils.checkBookmarks(feed.id)) {
@@ -210,7 +156,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         return convertView;
     }
 
-    private void setFeedImages(final ViewHolder viewHolder, final ArrayList<Recipe.Photo> photos) {
+    private void setFeedImages(final ViewHolder viewHolder, final ArrayList<Recipe.Photo> photos, final Recipe.Feed feed) {
         viewHolder.container.removeAllViews();
         ArrayList<ThumbAttachment> attachments = new ArrayList<>();
         for (int i = 0; i < photos.size(); i++) {
@@ -239,6 +185,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                     Intent newActivity = new Intent(mContext, ImageActivity.class);
                     newActivity.putExtra(ImageActivity.POSITION, finalX);
                     newActivity.putExtra(ImageActivity.PHOTOS, photos);
+                    newActivity.putExtra(ImageActivity.FEED, feed);
                     mContext.startActivity(newActivity);
                 }
             });

@@ -23,7 +23,7 @@
     <string name="name_new_bookmark">Название новой закладки</string>
     <string name="button_add_name_bookmark">Добавить закладки</string>
     <string name="save_image">Сохранить изображение</string>
-    <string name="copy_link">Копировать ссыылку</string>
+    <string name="copy_link">Копировать ссылку</string>
     <string name="send_link_on_image">Поделиться ссылкой</string>
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

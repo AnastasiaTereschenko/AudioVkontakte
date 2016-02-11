@@ -3,6 +3,7 @@ package com.example.anastasiyaverenich.vkrecipes.activities;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -19,9 +20,17 @@ import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFromInstagramFragm
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
 
 public class MainActivity extends AppCompatActivity {
-
+    public static final String BOOKMARK_FRAGMENT_TAG = "BookmarkFragment";
+    public static final String COOK_GOOD_FRAGMENT_TAG = "CookGoodFragment";
+    public static final String USEFUL_RECIPE_FRAGMENT_TAG = "UsefulRecipeFragment";
+    public static final String BEST_RECIPE_FRAGMENT_TAG = "BestRecipeFragment";
+    public static final String FITNESS_RECIPE_FRAGMENT_TAG = "FitnessRecipeFragment";
+    public static final String HEALTH_FOOD_FRAGMENT_TAG = "HealthFoodFragment";
+    public static final String INSTAGRAM_FRAGMENT_TAG = "InstagramFragment";
+    public static final String CURRENT_ITEM = "ItemOfFragment";
     private DrawerLayout drawerLayout;
     private int currentItem;
+    String currentTag;
     FeedFragment cookGoodFragment;
     FeedFragment fitnessRecipeFragment;
     FeedFragment healthFoodFragment;
@@ -30,23 +39,69 @@ public class MainActivity extends AppCompatActivity {
     BookmarkFragment bookmarkFragment;
     FeedFromInstagramFragment feedFromInstagramFragment;
     private Menu _menu;
+    private FragmentManager fragmentManager;
+    boolean needToHideTheMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fragmentManager = getSupportFragmentManager();
         BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllBookmarks());
         setContentView(R.layout.activity_main);
         initToolbar();
         setupDrawerLayout();
         _menu = null;
-        cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment, FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
+        if (savedInstanceState == null) {
+            cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment,
+                    FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
+        } else {
+            currentItem = savedInstanceState.getInt(CURRENT_ITEM);
+            setTitleOnFragment(currentItem);
+            setCurrentItem(currentItem);
+            currentTag = getTagById(currentItem);
+            Fragment currentFragment = fragmentManager.findFragmentByTag(currentTag);
+            hideFragmentByTag(BOOKMARK_FRAGMENT_TAG);
+            hideFragmentByTag(COOK_GOOD_FRAGMENT_TAG);
+            hideFragmentByTag(USEFUL_RECIPE_FRAGMENT_TAG);
+            hideFragmentByTag(HEALTH_FOOD_FRAGMENT_TAG);
+            hideFragmentByTag(INSTAGRAM_FRAGMENT_TAG);
+            hideFragmentByTag(FITNESS_RECIPE_FRAGMENT_TAG);
+            hideFragmentByTag(BEST_RECIPE_FRAGMENT_TAG);
+            if (currentFragment != null) {
+                fragmentManager.beginTransaction()
+                        .show(currentFragment)
+                        .commit();
+            }
+        }
     }
 
+    public void hideFragmentByTag(String tag) {
+        Fragment fragment = fragmentManager.findFragmentByTag(tag);
+        hideFragment(fragment);
+    }
+
+    public void hideFragment(Fragment fragment) {
+        if (fragment == null) {
+            return;
+        } else
+            fragmentManager.beginTransaction()
+                    .hide(fragment)
+                    .commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(CURRENT_ITEM, currentItem);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit, menu);
         _menu = menu;
+        if (needToHideTheMenu == true) {
+            getMenu().findItem(R.id.action_edit).setVisible(false);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -90,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.drawer_bookmark:
                         bookmarkFragment = (BookmarkFragment) changeFragmentOnClick(bookmarkFragment, 0, R.id.drawer_bookmark);
-
                         break;
                     case R.id.drawer_instagram_recipes:
                         feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);
@@ -109,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
                 onBackPressed();
                 return true;
             }
-                drawerLayout.openDrawer(GravityCompat.START);
-                return true;
+            drawerLayout.openDrawer(GravityCompat.START);
+            return true;
         }
         if (id == R.id.action_edit) {
             bookmarkFragment.onEdit();
@@ -119,57 +173,57 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public Fragment getFragmentById(int currentId) {
+    public String getTagById(int currentId) {
         if (R.id.drawer_cook_good == currentId) {
-            return cookGoodFragment;
+            return COOK_GOOD_FRAGMENT_TAG;
         } else if (R.id.drawer_useful_recipe == currentId) {
-            return usefulRecipeFragment;
+            return USEFUL_RECIPE_FRAGMENT_TAG;
         } else if (R.id.drawer_best_recipe == currentId) {
-            return bestRecipeFragment;
+            return BEST_RECIPE_FRAGMENT_TAG;
         } else if (R.id.drawer_fitness_recipe == currentId) {
-            return fitnessRecipeFragment;
+            return FITNESS_RECIPE_FRAGMENT_TAG;
         } else if (R.id.drawer_health_food == currentId) {
-            return healthFoodFragment;
+            return HEALTH_FOOD_FRAGMENT_TAG;
         } else if (R.id.drawer_instagram_recipes == currentId) {
-            return feedFromInstagramFragment;
-        } else return bookmarkFragment;
+            return INSTAGRAM_FRAGMENT_TAG;
+        } else return BOOKMARK_FRAGMENT_TAG;
     }
 
     private Fragment changeFragmentOnClick(Fragment newFragment, int newInstanceOfFragment, int groupId) {
-        Fragment currentFragment = getFragmentById(currentItem);
+        // todo change to getTagByCurrentItem and fragmentManager.findFragmentByTag
+        currentTag = getTagById(currentItem);
+        Fragment currentFragment = fragmentManager.findFragmentByTag(currentTag);
         setTitleOnFragment(groupId);
         if (currentItem == groupId) {
             return newFragment;
         }
         if (currentFragment != null) {
-            getSupportFragmentManager().beginTransaction()
-                    .hide(currentFragment)
-                    .commit();
+            hideFragment(currentFragment);
         }
+        String newTag = getTagById(groupId);
         if (newFragment == null && R.id.drawer_bookmark == groupId) {
             newFragment = BookmarkFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, newFragment, "bookmarkFragment")
+            fragmentManager.beginTransaction()
+                    .add(R.id.container, newFragment, newTag)
                     .commit();
         } else if (newFragment == null && R.id.drawer_instagram_recipes == groupId) {
             newFragment = FeedFromInstagramFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, newFragment, "feedFromInstagramFragment")
+            fragmentManager.beginTransaction()
+                    .add(R.id.container, newFragment, newTag)
                     .commit();
         } else if (newFragment == null) {
             newFragment = FeedFragment.newInstance(newInstanceOfFragment);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, newFragment, "feedFragment")
+            fragmentManager.beginTransaction()
+                    .add(R.id.container, newFragment, newTag)
                     .commit();
         } else {
-            getSupportFragmentManager().beginTransaction()
+            fragmentManager.beginTransaction()
                     .show(newFragment)
                     .commit();
         }
         setCurrentItem(groupId);
         return newFragment;
     }
-
 
     private void setTitleOnFragment(int groupId) {
         if (R.id.drawer_cook_good == groupId) {
@@ -197,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (bookmarkFragment != null && !bookmarkFragment.canGoBack() && R.id.drawer_bookmark == currentItem) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-           getMenu().findItem(R.id.action_edit).setVisible(true);
+            getMenu().findItem(R.id.action_edit).setVisible(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
             bookmarkFragment.goBack();
             return;
@@ -208,8 +262,10 @@ public class MainActivity extends AppCompatActivity {
     public void onBookmarkDetailsOpened() {
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
-        getMenu().findItem(R.id.action_edit).setVisible(false);
-
+        if (getMenu() != null) {
+            getMenu().findItem(R.id.action_edit).setVisible(false);
+        } else {
+            needToHideTheMenu = true;
+        }
     }
-
 }
