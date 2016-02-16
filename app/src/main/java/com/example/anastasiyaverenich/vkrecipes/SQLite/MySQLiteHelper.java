@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    private static final int DATABASE_VERSION = 29;
+    private static final int DATABASE_VERSION = 32;
     private static final String DATABASE_NAME = "DB";
 
     public MySQLiteHelper(Context context) {

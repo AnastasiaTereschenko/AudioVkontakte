@@ -6,9 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
-import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.example.anastasiyaverenich.vkrecipes.R;
@@ -24,7 +21,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     private List<BookmarkCategory> objectOfCategory;
     private boolean isEdit;
     private int currentDeletePosition = -1;
-
+    BookmarkItemClickListener listener;
     public NameOfBookmarkAdapter(Context context, int resource, List<BookmarkCategory> objects) {
         this.mContext = context;
         mResourceId = resource;
@@ -32,17 +29,22 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
         mItemManger = new CustomSwipeItemMangerImpl(this);
     }
 
+
     public View generateView(final int position, ViewGroup parent) {
-        View convertView = LayoutInflater.from(mContext).inflate(R.layout.name_of_bookmark_list_item, null);
-        SwipeLayout swipeLayout = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));
-        swipeLayout.addSwipeListener(new SimpleSwipeListener() {
+        View convertView = LayoutInflater.from(mContext).inflate(R.layout.sample_together, parent, false);
+        SwipeLayout sample2 = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));
+        sample2.setShowMode(SwipeLayout.ShowMode.LayDown);
+        sample2.addDrag(SwipeLayout.DragEdge.Right, sample2.findViewWithTag("Bottom2"));
+        sample2.setShowMode(SwipeLayout.ShowMode.PullOut);
+        sample2.getSurfaceView().setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onOpen(SwipeLayout layout) {
-                YoYo.with(Techniques.Tada).duration(500).delay(100).playOn(layout.findViewById(R.id.trash));
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.BookmarkItemClick(position);
+                }
             }
         });
-
-        convertView.findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
+        convertView.findViewById(R.id.trash).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final List<BookmarkCategory> nameOfBookmark = BookmarkCategoryUtils.getArrayOfCategoty();
@@ -54,24 +56,28 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
                 }
             }
         });
+
         return convertView;
     }
-   /* public void updateListView() {
-        final List<BookmarkCategory> values = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
-        NameOfBookmarkAdapter adapterNameOfBookmark = new NameOfBookmarkAdapter(mContext,
-                R.layout.name_of_bookmark_list_item, values);
-        lvBookmark.setAdapter(adapterNameOfBookmark);
-    }*/
 
     @Override
     public void fillValues(int position, View convertView) {
         TextView tvNameOfCategoryBookmark = (TextView) convertView.findViewById(R.id.ll_tv_name_of_bookmark_list);
         tvNameOfCategoryBookmark.setText(objectOfCategory.get(position).getNameOfCategory());
-        if(currentDeletePosition == position){
+        if (currentDeletePosition == position) {
             currentDeletePosition = -1;
             closeItem(position);
         }
+    }
 
+
+    public void onEdit() {
+        if (isEdit) {
+            closeAllItems();
+        } else {
+            ((CustomSwipeItemMangerImpl) mItemManger).openAllItems();
+        }
+        isEdit = !isEdit;
     }
 
     @Override
@@ -91,19 +97,15 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return R.id.swipe;
+        return R.id.sample2;
     }
 
-    private void isEdit(){
-
+    public void setListener(BookmarkItemClickListener listener) {
+        this.listener = listener;
     }
 
-    public void onEdit(){
-        if(isEdit){
-            closeAllItems();
-        } else {
-            ((CustomSwipeItemMangerImpl)mItemManger).openAllItems();
-        }
-        isEdit =!isEdit;
+    public interface BookmarkItemClickListener {
+        void BookmarkItemClick(int position);
     }
+
 }

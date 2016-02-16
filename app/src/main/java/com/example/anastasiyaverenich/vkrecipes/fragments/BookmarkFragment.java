@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.daimajia.swipe.util.Attributes;
@@ -23,10 +22,8 @@ import java.util.List;
 
 public class BookmarkFragment extends android.support.v4.app.Fragment {
     public static final String CURRENT_POSITION = "CurrentPosition";
-    boolean needToHideTheMenu;
     ListView lvBookmark;
     NameOfBookmarkAdapter adapterNameOfBookmark;
-    FeedAdapter bookmarkAdapter;
     int currentPosition = -1;
     MenuItem menuItem;
     final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
@@ -37,8 +34,9 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
         return fragment;
     }
 
-    public BookmarkFragment(){
+    public BookmarkFragment() {
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,24 +44,37 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
         View view = inflater.inflate(R.layout.fragment_bookmark, container, false);
         lvBookmark = (ListView) view.findViewById(R.id.lvBookmark);
         menuItem = (MenuItem) view.findViewById(R.id.action_edit);
-        adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(), R.layout.name_of_bookmark_list_item, nameOfBookmark);
+        adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(), R.layout.sample_together,
+                nameOfBookmark);
         lvBookmark.setAdapter(adapterNameOfBookmark);
-        BookmarkCategoryUtils.setArrayOfCategoty(nameOfBookmark);
-        adapterNameOfBookmark.setMode(Attributes.Mode.Multiple);
-        if (savedInstanceState != null){
-            currentPosition = savedInstanceState.getInt(CURRENT_POSITION);
-            if (currentPosition != -1)
+        adapterNameOfBookmark.setListener(new NameOfBookmarkAdapter.BookmarkItemClickListener() {
+            @Override
+            public void BookmarkItemClick(int position) {
+                currentPosition = position;
                 showCheckedCategory(currentPosition);
-        }
-        lvBookmark.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                showCheckedCategory(position);
             }
         });
+        BookmarkCategoryUtils.setArrayOfCategoty(nameOfBookmark);
+        adapterNameOfBookmark.setMode(Attributes.Mode.Multiple);
+        if (savedInstanceState != null) {
+            currentPosition = savedInstanceState.getInt(CURRENT_POSITION);
+            if (currentPosition != -1)
+
+                showCheckedCategory(currentPosition);
+
+        }
+        /*lvBookmark.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                currentPosition = adapterNameOfBookmark.showCheckedCategory (position);
+            }
+        });*/
         return view;
     }
-    public void showCheckedCategory(int position){
-        currentPosition = position;
+
+    public void showCheckedCategory(int position) {
+        final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
+                .getMySQLiteHelper().getAllCategoties();
+        FeedAdapter bookmarkAdapter;
         BookmarkCategory checkedCategory = nameOfBookmark.get(position);
         BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper()
                 .getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
@@ -71,30 +82,29 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
                 .getMySQLiteHelper().getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
         bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, allBookmarks);
         lvBookmark.setAdapter(bookmarkAdapter);
-        needToHideTheMenu = true;
         ((MainActivity) getActivity()).onBookmarkDetailsOpened();
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(CURRENT_POSITION, currentPosition);
     }
 
-    public boolean canGoBack(){
+    public boolean canGoBack() {
         if (currentPosition == -1) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
 
-    public void goBack(){
+    public void goBack() {
         lvBookmark.setAdapter(adapterNameOfBookmark);
         currentPosition = -1;
     }
 
-    public void onEdit(){
+    public void onEdit() {
         adapterNameOfBookmark.onEdit();
     }
 

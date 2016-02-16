@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
-import com.example.anastasiyaverenich.vkrecipes.adapters.NameOfBookmarkAdapter;
+import com.example.anastasiyaverenich.vkrecipes.adapters.NameOfBookmarkAdapterOnFeedFragment;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.modules.BookmarkCategory;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class BookmarkDialogFragment extends DialogFragment{
     private Recipe.Feed feedsFromAdapter;
-    NameOfBookmarkAdapter adapterNameOfBookmark;
+    NameOfBookmarkAdapterOnFeedFragment adapterNameOfBookmark;
     OnBookmarkItemClickListener listener;
 
     public BookmarkDialogFragment(Recipe.Feed feeds) {
@@ -31,7 +31,8 @@ public class BookmarkDialogFragment extends DialogFragment{
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final List<BookmarkCategory> nameOfBookmark = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
-        adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(), R.layout.name_of_bookmark_list_item, nameOfBookmark);
+        adapterNameOfBookmark = new NameOfBookmarkAdapterOnFeedFragment(getActivity(),
+                R.layout.name_of_bookmark_list_item, nameOfBookmark);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.MyAlertDialogStyle ).
         setTitle("Выберите закладку")
                 .setAdapter(adapterNameOfBookmark, new DialogInterface.OnClickListener() {

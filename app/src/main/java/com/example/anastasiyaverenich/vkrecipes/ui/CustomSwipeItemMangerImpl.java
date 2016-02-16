@@ -12,16 +12,30 @@ public class CustomSwipeItemMangerImpl extends SwipeItemAdapterMangerImpl {
 
     public void openAllItems() {
         for (int i = 0; i < mBaseAdapter.getCount(); i++) {
-            if(!this.mOpenPositions.contains(Integer.valueOf(i))) {
+            if (!this.mOpenPositions.contains(Integer.valueOf(i))) {
                 this.mOpenPositions.add(Integer.valueOf(i));
             }
         }
 
-        if(this.mBaseAdapter != null) {
+        if (this.mBaseAdapter != null) {
             this.mBaseAdapter.notifyDataSetChanged();
-        } else if(this.mRecyclerAdapter != null) {
-           // this.mRecyclerAdapter.notifyDataSetChanged();
+        } else if (this.mRecyclerAdapter != null) {
+            // this.mRecyclerAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void closeAllItems() {
+        for (int i = 0; i < mBaseAdapter.getCount(); i++) {
+            if (this.mOpenPositions.contains(Integer.valueOf(i))) {
+                this.mOpenPositions.clear();
+            }
         }
 
+        if (this.mBaseAdapter != null) {
+            this.mBaseAdapter.notifyDataSetChanged();
+        } else if (this.mRecyclerAdapter != null) {
+            // this.mRecyclerAdapter.notifyDataSetChanged();
+        }
     }
 }
+

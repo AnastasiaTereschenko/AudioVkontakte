@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
             hideFragmentByTag(INSTAGRAM_FRAGMENT_TAG);
             hideFragmentByTag(FITNESS_RECIPE_FRAGMENT_TAG);
             hideFragmentByTag(BEST_RECIPE_FRAGMENT_TAG);
+            bookmarkFragment = (BookmarkFragment) fragmentManager.findFragmentByTag(BOOKMARK_FRAGMENT_TAG);
             if (currentFragment != null) {
                 fragmentManager.beginTransaction()
                         .show(currentFragment)
@@ -265,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
         if (getMenu() != null) {
             getMenu().findItem(R.id.action_edit).setVisible(false);
         } else {
+            currentItem = R.id.drawer_bookmark;
             needToHideTheMenu = true;
         }
     }
