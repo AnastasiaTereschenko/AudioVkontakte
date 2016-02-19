@@ -32,11 +32,11 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
 
     public View generateView(final int position, ViewGroup parent) {
         View convertView = LayoutInflater.from(mContext).inflate(R.layout.sample_together, parent, false);
-        SwipeLayout sample2 = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));
-        sample2.setShowMode(SwipeLayout.ShowMode.LayDown);
-        sample2.addDrag(SwipeLayout.DragEdge.Right, sample2.findViewWithTag("Bottom2"));
-        sample2.setShowMode(SwipeLayout.ShowMode.PullOut);
-        sample2.getSurfaceView().setOnClickListener(new View.OnClickListener() {
+        SwipeLayout bookmarkSwipe = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));
+        bookmarkSwipe.setShowMode(SwipeLayout.ShowMode.LayDown);
+        bookmarkSwipe.addDrag(SwipeLayout.DragEdge.Right, bookmarkSwipe.findViewWithTag("Bottom2"));
+        bookmarkSwipe.setShowMode(SwipeLayout.ShowMode.PullOut);
+        bookmarkSwipe.getSurfaceView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
@@ -44,7 +44,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
                 }
             }
         });
-        convertView.findViewById(R.id.trash).setOnClickListener(new View.OnClickListener() {
+        convertView.findViewById(R.id.nobli_ll_trash).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final List<BookmarkCategory> nameOfBookmark = BookmarkCategoryUtils.getArrayOfCategoty();
@@ -56,7 +56,12 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
                 }
             }
         });
+        convertView.findViewById(R.id.nobli_ll_edit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+            }
+        });
         return convertView;
     }
 
@@ -97,7 +102,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return R.id.sample2;
+        return R.id.ll_name_of_bookmark;
     }
 
     public void setListener(BookmarkItemClickListener listener) {

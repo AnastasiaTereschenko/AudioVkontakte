@@ -11,7 +11,7 @@
         android:tag="Bottom2">
 
         <ImageView
-            android:id="@+id/star"
+            android:id="@+id/nobli_ll_edit"
             android:layout_width="70dp"
             android:layout_height="match_parent"
             android:background="#4cd964"
@@ -20,7 +20,7 @@
             android:src="@drawable/ic_mode_edit_black_48dp" />
 
         <ImageView
-            android:id="@+id/trash"
+            android:id="@+id/nobli_ll_trash"
             android:layout_width="65dp"
             android:layout_height="match_parent"
             android:paddingLeft="25dp"
@@ -38,6 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/ll_tv_name_of_bookmark_list"
+            android:paddingLeft="20dp"
             tools:text="text"
             android:textSize="20sp" />
     </LinearLayout>

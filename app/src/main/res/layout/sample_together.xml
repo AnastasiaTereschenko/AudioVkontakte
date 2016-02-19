@@ -1,13 +1,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingRight="20dp"
-    android:paddingLeft="20dp">
-
+    android:orientation="vertical">
     <include
-        android:id="@+id/sample2"
+        android:id="@+id/ll_name_of_bookmark"
         layout="@layout/name_of_bookmark_list_item"
         android:layout_width="match_parent"
         android:layout_height="85dp" />
+    <View
+        android:id="@+id/rli_v_separator_up"
+        android:layout_width="450dp"
+        android:layout_height="4px"
+        android:background="@android:color/darker_gray" />
 </LinearLayout>

@@ -29,7 +29,6 @@ public class NameOfBookmarkAdapterOnFeedFragment extends BaseAdapter{
         tvNameOfCategoryBookmark.setText(objectOfCategory.get(position).getNameOfCategory());
         return convertView;
     }
-
     @Override
     public int getCount() {
         return objectOfCategory.size();
