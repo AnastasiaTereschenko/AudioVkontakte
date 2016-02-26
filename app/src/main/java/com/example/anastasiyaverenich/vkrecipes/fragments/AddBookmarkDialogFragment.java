@@ -19,13 +19,13 @@ public class AddBookmarkDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        final View view = inflater.inflate(R.layout.fragment_add_name_of_bookmark, null);
-        builder.setTitle(R.string.change_bookmark);
+        final View view = inflater.inflate(R.layout.fragment_edit_name_of_bookmark, null);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.MyAlertDialogStyle ).
+        setTitle(R.string.write_new_bookmark);
         builder.setView(view);
         editTextInputNewBookmark = (EditText)view.findViewById(R.id.fab_add_new_bookmark);
-        builder.setPositiveButton(R.string.button_add_name_bookmark,new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.button_add_name_of_bookmark,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 BookmarkCategoryUtils.addCategory(editTextInputNewBookmark.getText().toString());

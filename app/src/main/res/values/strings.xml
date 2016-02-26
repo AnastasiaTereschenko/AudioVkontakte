@@ -18,13 +18,14 @@
         <item>Другое</item>
     </string-array>
     <string name="change_bookmark">Выберите закладку</string>
+    <string name="write_new_bookmark">Введите название</string>
     <string name="button_cancel">Отмена</string>
     <string name="button_add_bookmrk">Добавить закладку</string>
     <string name="name_new_bookmark">Название новой закладки</string>
-    <string name="button_add_name_bookmark">Добавить закладки</string>
+    <string name="name_edit_bookmark">Новое название закладки</string>
+    <string name="button_add_name_of_bookmark">Добавить закладку</string>
+    <string name="button_edit_name_of_bookmark">Изменить название закладки</string>
     <string name="save_image">Сохранить изображение</string>
     <string name="copy_link">Копировать ссылку</string>
     <string name="send_link_on_image">Поделиться ссылкой</string>
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

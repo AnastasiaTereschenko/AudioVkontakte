@@ -10,6 +10,6 @@
     <View
         android:id="@+id/rli_v_separator_up"
         android:layout_width="450dp"
-        android:layout_height="4px"
+        android:layout_height="1px"
         android:background="@android:color/darker_gray" />
 </LinearLayout>

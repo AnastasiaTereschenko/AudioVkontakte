@@ -1,6 +1,8 @@
 package com.example.anastasiyaverenich.vkrecipes.adapters;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.TextView;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.example.anastasiyaverenich.vkrecipes.R;
+import com.example.anastasiyaverenich.vkrecipes.fragments.EditBookmarkDialogFragment;
 import com.example.anastasiyaverenich.vkrecipes.modules.BookmarkCategory;
 import com.example.anastasiyaverenich.vkrecipes.ui.CustomSwipeItemMangerImpl;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
@@ -20,8 +23,9 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     private final int mResourceId;
     private List<BookmarkCategory> objectOfCategory;
     private boolean isEdit;
-    private int currentDeletePosition = -1;
+    private int currentDeleteAndEditPosition = -1;
     BookmarkItemClickListener listener;
+
     public NameOfBookmarkAdapter(Context context, int resource, List<BookmarkCategory> objects) {
         this.mContext = context;
         mResourceId = resource;
@@ -30,9 +34,9 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     }
 
 
-    public View generateView(final int position, ViewGroup parent) {
-        View convertView = LayoutInflater.from(mContext).inflate(R.layout.sample_together, parent, false);
-        SwipeLayout bookmarkSwipe = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));
+    public View generateView(final int position, final ViewGroup parent) {
+        final View convertView = LayoutInflater.from(mContext).inflate(R.layout.sample_together, parent, false);
+        final SwipeLayout bookmarkSwipe = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));
         bookmarkSwipe.setShowMode(SwipeLayout.ShowMode.LayDown);
         bookmarkSwipe.addDrag(SwipeLayout.DragEdge.Right, bookmarkSwipe.findViewWithTag("Bottom2"));
         bookmarkSwipe.setShowMode(SwipeLayout.ShowMode.PullOut);
@@ -51,7 +55,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
                 int idCategory = nameOfBookmark.get(position).getCategoryId();
                 if (BookmarkCategoryUtils.checkCategories(idCategory)) {
                     BookmarkCategoryUtils.deleteBookmark(idCategory);
-                    currentDeletePosition = position;
+                    currentDeleteAndEditPosition = position;
                     notifyDataSetChanged();
                 }
             }
@@ -59,7 +63,21 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
         convertView.findViewById(R.id.nobli_ll_edit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                FragmentActivity activity = (FragmentActivity) (mContext);
+                FragmentManager fm = activity.getSupportFragmentManager();
+                String lastNameOfCategory = objectOfCategory.get(position).getNameOfCategory();
+                EditBookmarkDialogFragment editBookmarkDialogFragment = new EditBookmarkDialogFragment
+                        (lastNameOfCategory, position);
+                editBookmarkDialogFragment.show(fm, "fragmentalert");
+                editBookmarkDialogFragment.setListener(new EditBookmarkDialogFragment.BookmarkItemEditListener() {
+                    @Override
+                    public void bookmarkEditClick(String nameOfCategory, int position) {
+                        BookmarkCategoryUtils.updateNameOfCategory(nameOfCategory, position);
+                        objectOfCategory.get(position).setNameOfCategory(nameOfCategory);
+                        currentDeleteAndEditPosition = position;
+                        notifyDataSetChanged();
+                    }
+                });
             }
         });
         return convertView;
@@ -69,8 +87,9 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     public void fillValues(int position, View convertView) {
         TextView tvNameOfCategoryBookmark = (TextView) convertView.findViewById(R.id.ll_tv_name_of_bookmark_list);
         tvNameOfCategoryBookmark.setText(objectOfCategory.get(position).getNameOfCategory());
-        if (currentDeletePosition == position) {
-            currentDeletePosition = -1;
+        //tvNameOfCategoryBookmark.invalidate();
+        if (currentDeleteAndEditPosition == position) {
+            currentDeleteAndEditPosition = -1;
             closeItem(position);
         }
     }
@@ -112,5 +131,4 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     public interface BookmarkItemClickListener {
         void BookmarkItemClick(int position);
     }
-
 }

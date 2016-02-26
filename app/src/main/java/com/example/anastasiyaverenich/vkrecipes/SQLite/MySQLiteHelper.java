@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    private static final int DATABASE_VERSION = 32;
+    private static final int DATABASE_VERSION = 38;
     private static final String DATABASE_NAME = "DB";
 
     public MySQLiteHelper(Context context) {
@@ -175,6 +175,19 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void updateNameOfCategory(String newNameOfCategory, int id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_NAME_OF_CATEGORY, newNameOfCategory);
+        String idString = Integer.toString(id);
+        db.update(TABLE_CATEGORIES, values, KEY_ID_CATEGORY + " = ?", new String[]{idString});
+    }
+
+    /*SQLiteDatabase db = this.getWritableDatabase();
+    String query = "UPDATE " + TABLE_CATEGORIES + " SET " + KEY_NAME_OF_CATEGORY + " = " + newNameOfCategory
+            + " WHERE " + KEY_ID_CATEGORY + " = " + id;
+    db.execSQL(query);*/
+
     public List<BookmarkCategory> getAllCategoties() {
         List<BookmarkCategory> arrayOfCategoty = new ArrayList<BookmarkCategory>();
         String query = "SELECT * FROM " + TABLE_CATEGORIES;
@@ -191,11 +204,13 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         }
         return arrayOfCategoty;
     }
+
     public void deleteCategory(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CATEGORIES, KEY_ID_CATEGORY + " = ?", new String[]{String.valueOf(id)});
         db.close();
     }
+
     public BookmarkCategory getLastCategoty() {
         BookmarkCategory lastCategoty = new BookmarkCategory();
         String query = "SELECT * FROM " + TABLE_CATEGORIES;
@@ -203,11 +218,11 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToLast()) {
-                BookmarkCategory objectOfCategory = new BookmarkCategory();
-                objectOfCategory.setCategoryId(cursor.getInt((cursor.getColumnIndex(KEY_ID_CATEGORY))));
-                objectOfCategory.setNameOfCategory(cursor.getString((cursor.getColumnIndex(KEY_NAME_OF_CATEGORY))));
+            BookmarkCategory objectOfCategory = new BookmarkCategory();
+            objectOfCategory.setCategoryId(cursor.getInt((cursor.getColumnIndex(KEY_ID_CATEGORY))));
+            objectOfCategory.setNameOfCategory(cursor.getString((cursor.getColumnIndex(KEY_NAME_OF_CATEGORY))));
             lastCategoty = objectOfCategory;
-            }
+        }
         return lastCategoty;
     }
 }

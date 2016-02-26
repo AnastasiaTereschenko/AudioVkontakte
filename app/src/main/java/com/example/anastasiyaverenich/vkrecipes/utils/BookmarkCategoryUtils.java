@@ -38,4 +38,8 @@ public class BookmarkCategoryUtils {
         }
         VkRApplication.get().getMySQLiteHelper().deleteCategory(idCategory);
     }
+    public static void updateNameOfCategory(String nameOfCategory, int id){
+        VkRApplication.get().getMySQLiteHelper().updateNameOfCategory(nameOfCategory,id);
+
+    }
 }
