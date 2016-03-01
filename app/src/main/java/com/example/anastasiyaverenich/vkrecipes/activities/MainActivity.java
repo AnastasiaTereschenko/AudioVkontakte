@@ -8,6 +8,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private Menu _menu;
     private FragmentManager fragmentManager;
     boolean needToHideTheMenu;
-
+    SearchView searchView;
+    MenuItem menuSearch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +101,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit, menu);
+        getMenuInflater().inflate(R.menu.menu_find_in_db, menu);
+        menuSearch = menu.findItem(R.id.action_search);
+        //SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+
+        //search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                bookmarkFragment.showSearchBookmark(query);
+                return true;
+            }
+
+        });
         _menu = menu;
         if (needToHideTheMenu == true) {
             getMenu().findItem(R.id.action_edit).setVisible(false);
@@ -253,9 +277,14 @@ public class MainActivity extends AppCompatActivity {
         if (bookmarkFragment != null && !bookmarkFragment.canGoBack() && R.id.drawer_bookmark == currentItem) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             getMenu().findItem(R.id.action_edit).setVisible(true);
+            getMenu().findItem(R.id.action_search).setVisible(false);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
             bookmarkFragment.goBack();
             return;
+        }
+        if (bookmarkFragment != null && !bookmarkFragment.canGoBack()&& R.id.drawer_bookmark == currentItem
+            && searchView!=null){
+            menuSearch.collapseActionView();
         }
         super.onBackPressed();
     }
@@ -263,6 +292,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBookmarkDetailsOpened() {
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+        getMenu().findItem(R.id.action_search).setVisible(true);
         if (getMenu() != null) {
             getMenu().findItem(R.id.action_edit).setVisible(false);
         } else {

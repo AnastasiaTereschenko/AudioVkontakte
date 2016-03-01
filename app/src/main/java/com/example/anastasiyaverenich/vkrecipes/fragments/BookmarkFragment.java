@@ -2,7 +2,7 @@ package com.example.anastasiyaverenich.vkrecipes.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -25,7 +25,8 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
     ListView lvBookmark;
     NameOfBookmarkAdapter adapterNameOfBookmark;
     int currentPosition = -1;
-    MenuItem menuItem;
+    FeedAdapter bookmarkAdapter;
+
     final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
             .getMySQLiteHelper().getAllCategoties();
 
@@ -37,13 +38,12 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
     public BookmarkFragment() {
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bookmark, container, false);
         lvBookmark = (ListView) view.findViewById(R.id.lvBookmark);
-        menuItem = (MenuItem) view.findViewById(R.id.action_edit);
+
         adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(), R.layout.sample_together,
                 nameOfBookmark);
         lvBookmark.setAdapter(adapterNameOfBookmark);
@@ -59,22 +59,20 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(CURRENT_POSITION);
             if (currentPosition != -1)
-
                 showCheckedCategory(currentPosition);
-
         }
-        /*lvBookmark.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                currentPosition = adapterNameOfBookmark.showCheckedCategory (position);
-            }
-        });*/
+        setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_search).setVisible(false);
     }
 
     public void showCheckedCategory(int position) {
         final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
                 .getMySQLiteHelper().getAllCategoties();
-        FeedAdapter bookmarkAdapter;
         BookmarkCategory checkedCategory = nameOfBookmark.get(position);
         BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper()
                 .getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
@@ -83,6 +81,12 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
         bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, allBookmarks);
         lvBookmark.setAdapter(bookmarkAdapter);
         ((MainActivity) getActivity()).onBookmarkDetailsOpened();
+    }
+    public void showSearchBookmark(String stringForSearchInDB){
+        List<Recipe.Feed> searchBookmarks = VkRApplication.get()
+                .getMySQLiteHelper().searchBookmark(stringForSearchInDB);
+        bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, searchBookmarks);
+        lvBookmark.setAdapter(bookmarkAdapter);
     }
 
     @Override

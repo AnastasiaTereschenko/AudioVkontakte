@@ -163,6 +163,19 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.delete(TABLE_BOOKMARKS, KEY_ID_BOOKMARK + " = ?", new String[]{String.valueOf(feed.id)});
         db.close();
     }
+    public List<Recipe.Feed> searchBookmark(String stringForSearch){
+        List<Recipe.Feed> feeds = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        String sql = " SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_CONTENT_BOOKMARK + " LIKE '%" +
+                stringForSearch +"%'" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC";
+        Cursor cursor = db.rawQuery(sql, null);
+        while(cursor.moveToNext()){
+            String tempVarForDisplay = cursor.getString(1);
+            Recipe.Feed tempFeed = gson.fromJson(tempVarForDisplay, Recipe.Feed.class);
+            feeds.add(tempFeed);
+        }
+        return feeds;
+    }
 
     //-----------------------------Categories-----------------------------------------------
     public void addCategories(String nameOfCategory) {

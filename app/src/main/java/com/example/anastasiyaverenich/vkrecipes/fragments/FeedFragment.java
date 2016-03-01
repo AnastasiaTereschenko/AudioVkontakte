@@ -105,6 +105,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_edit).setVisible(false);
+        menu.findItem(R.id.action_search).setVisible(false);
     }
 
     private void setCurrentParam(int groupId) {
