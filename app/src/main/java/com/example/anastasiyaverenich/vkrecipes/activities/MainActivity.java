@@ -1,6 +1,7 @@
 package com.example.anastasiyaverenich.vkrecipes.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,6 +11,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,6 +21,9 @@ import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFromInstagramFragment;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public static final String BOOKMARK_FRAGMENT_TAG = "BookmarkFragment";
@@ -44,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
     boolean needToHideTheMenu;
     SearchView searchView;
     MenuItem menuSearch;
+    Handler handlerDelayChangeText;
+    Object token;
+    List<Runnable> callStack;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         initToolbar();
         setupDrawerLayout();
         _menu = null;
+        handlerDelayChangeText = new Handler();
+        callStack = new ArrayList<Runnable>();
         if (savedInstanceState == null) {
             cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment,
                     FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
@@ -106,22 +117,35 @@ public class MainActivity extends AppCompatActivity {
         //SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-
-        //search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
             @Override
-            public boolean onQueryTextSubmit(String query) {
+            public boolean onQueryTextSubmit(final String query) {
+                if(query.length()<3) {
+                    bookmarkFragment.displaySearchBookmark(query);
+                }
                 return false;
             }
-
             @Override
-            public boolean onQueryTextChange(String query) {
-                bookmarkFragment.showSearchBookmark(query);
+            public boolean onQueryTextChange(final String query) {
+                if(query.length()==0){
+                    bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
+                }
+                if(query.length()>=3) {
+                    Runnable runChangeText = new Runnable() {
+                        @Override
+                        public void run() {
+                            //
+                            Log.e("handler ", "Search for query " + query );
+                            bookmarkFragment.displaySearchBookmark(query);
+                           //
+                        }
+                    };
+                    handlerDelayChangeText.removeCallbacksAndMessages(null);
+                    handlerDelayChangeText.postDelayed(runChangeText, 300);
+                }
                 return true;
             }
-
         });
         _menu = menu;
         if (needToHideTheMenu == true) {
@@ -285,6 +309,8 @@ public class MainActivity extends AppCompatActivity {
         if (bookmarkFragment != null && !bookmarkFragment.canGoBack()&& R.id.drawer_bookmark == currentItem
             && searchView!=null){
             menuSearch.collapseActionView();
+            //bookmarkFragment.showCheckedCategory(1);
+
         }
         super.onBackPressed();
     }

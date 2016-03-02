@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    private static final int DATABASE_VERSION = 38;
+    private static final int DATABASE_VERSION = 39;
     private static final String DATABASE_NAME = "DB";
 
     public MySQLiteHelper(Context context) {
@@ -147,7 +147,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         List<Recipe.Feed> feeds = new ArrayList<>();
         String id = Integer.toString(categoryId);
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_ID_CATEGORIES_FOR_BOOKMARK + " = ?" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC", new String[]{id});
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_ID_CATEGORIES_FOR_BOOKMARK +
+                " = ?" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC", new String[]{id});
         if (cursor.moveToFirst()) {
             do {
                 String tempVarForDisplay = cursor.getString(1);
@@ -163,16 +164,24 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.delete(TABLE_BOOKMARKS, KEY_ID_BOOKMARK + " = ?", new String[]{String.valueOf(feed.id)});
         db.close();
     }
-    public List<Recipe.Feed> searchBookmark(String stringForSearch){
+
+    public List<Recipe.Feed> searchBookmark(String stringForSearch, int bookmarkCategory){
         List<Recipe.Feed> feeds = new ArrayList<>();
+        int temp=222121;
+        String id = Integer.toString(bookmarkCategory);
+        //Integer.toString(bookmarkCategory);
         SQLiteDatabase db = this.getWritableDatabase();
-        String sql = " SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_CONTENT_BOOKMARK + " LIKE '%" +
-                stringForSearch +"%'" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC";
-        Cursor cursor = db.rawQuery(sql, null);
-        while(cursor.moveToNext()){
-            String tempVarForDisplay = cursor.getString(1);
-            Recipe.Feed tempFeed = gson.fromJson(tempVarForDisplay, Recipe.Feed.class);
-            feeds.add(tempFeed);
+        Cursor cursor = db.rawQuery(" SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_CONTENT_BOOKMARK +
+                " LIKE '%" + stringForSearch + "%'"+ " AND " +  KEY_ID_CATEGORIES_FOR_BOOKMARK
+                +" = ?" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC", new String[]{id}) ;
+        ///Log.e("handler ", "Search for query " + query );
+        //Cursor cursor= db.rawQuery(query,null);
+        if (cursor.moveToFirst()) {
+            do {
+                String tempVarForDisplay = cursor.getString(1);
+                Recipe.Feed tempFeed = gson.fromJson(tempVarForDisplay, Recipe.Feed.class);
+                feeds.add(tempFeed);
+            } while (cursor.moveToNext());
         }
         return feeds;
     }

@@ -24,7 +24,7 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
     public static final String CURRENT_POSITION = "CurrentPosition";
     ListView lvBookmark;
     NameOfBookmarkAdapter adapterNameOfBookmark;
-    int currentPosition = -1;
+    public int currentPosition = -1;
     FeedAdapter bookmarkAdapter;
 
     final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
@@ -82,9 +82,13 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
         lvBookmark.setAdapter(bookmarkAdapter);
         ((MainActivity) getActivity()).onBookmarkDetailsOpened();
     }
-    public void showSearchBookmark(String stringForSearchInDB){
+
+    public void displaySearchBookmark(String stringForSearchInDB){
+        final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
+                .getMySQLiteHelper().getAllCategoties();
+        BookmarkCategory checkedCategory = nameOfBookmark.get(currentPosition);
         List<Recipe.Feed> searchBookmarks = VkRApplication.get()
-                .getMySQLiteHelper().searchBookmark(stringForSearchInDB);
+                .getMySQLiteHelper().searchBookmark(stringForSearchInDB, checkedCategory.getCategoryId());
         bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, searchBookmarks);
         lvBookmark.setAdapter(bookmarkAdapter);
     }
@@ -107,6 +111,7 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
         lvBookmark.setAdapter(adapterNameOfBookmark);
         currentPosition = -1;
     }
+
 
     public void onEdit() {
         adapterNameOfBookmark.onEdit();
