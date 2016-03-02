@@ -14,6 +14,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     Handler handlerDelayChangeText;
     Object token;
     List<Runnable> callStack;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,10 +119,18 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_find_in_db, menu);
         menuSearch = menu.findItem(R.id.action_search);
         //SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        ImageView closeButton = (ImageView) this.searchView.findViewById(R.id.search_close_btn);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
+                EditText editText = (EditText) findViewById(R.id.search_src_text);
+                editText.setText("");
+                searchView.setQuery("", false);
+            }
+        });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
             @Override
             public boolean onQueryTextSubmit(final String query) {
                 if(query.length()<3) {
@@ -128,17 +140,12 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public boolean onQueryTextChange(final String query) {
-                if(query.length()==0){
-                    bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
-                }
                 if(query.length()>=3) {
                     Runnable runChangeText = new Runnable() {
                         @Override
                         public void run() {
-                            //
                             Log.e("handler ", "Search for query " + query );
                             bookmarkFragment.displaySearchBookmark(query);
-                           //
                         }
                     };
                     handlerDelayChangeText.removeCallbacksAndMessages(null);

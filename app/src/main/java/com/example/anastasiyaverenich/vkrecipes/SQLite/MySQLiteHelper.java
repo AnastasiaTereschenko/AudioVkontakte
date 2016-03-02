@@ -167,15 +167,11 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
     public List<Recipe.Feed> searchBookmark(String stringForSearch, int bookmarkCategory){
         List<Recipe.Feed> feeds = new ArrayList<>();
-        int temp=222121;
         String id = Integer.toString(bookmarkCategory);
-        //Integer.toString(bookmarkCategory);
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(" SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_CONTENT_BOOKMARK +
                 " LIKE '%" + stringForSearch + "%'"+ " AND " +  KEY_ID_CATEGORIES_FOR_BOOKMARK
                 +" = ?" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC", new String[]{id}) ;
-        ///Log.e("handler ", "Search for query " + query );
-        //Cursor cursor= db.rawQuery(query,null);
         if (cursor.moveToFirst()) {
             do {
                 String tempVarForDisplay = cursor.getString(1);
@@ -204,11 +200,6 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         String idString = Integer.toString(id);
         db.update(TABLE_CATEGORIES, values, KEY_ID_CATEGORY + " = ?", new String[]{idString});
     }
-
-    /*SQLiteDatabase db = this.getWritableDatabase();
-    String query = "UPDATE " + TABLE_CATEGORIES + " SET " + KEY_NAME_OF_CATEGORY + " = " + newNameOfCategory
-            + " WHERE " + KEY_ID_CATEGORY + " = " + id;
-    db.execSQL(query);*/
 
     public List<BookmarkCategory> getAllCategoties() {
         List<BookmarkCategory> arrayOfCategoty = new ArrayList<BookmarkCategory>();
