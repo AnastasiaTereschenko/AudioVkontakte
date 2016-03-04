@@ -6,6 +6,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +16,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
@@ -24,9 +27,6 @@ import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFromInstagramFragment;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public static final String BOOKMARK_FRAGMENT_TAG = "BookmarkFragment";
@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String HEALTH_FOOD_FRAGMENT_TAG = "HealthFoodFragment";
     public static final String INSTAGRAM_FRAGMENT_TAG = "InstagramFragment";
     public static final String CURRENT_ITEM = "ItemOfFragment";
+    private static final int LONG_DELAY = 3500;
+    private static final int SHORT_DELAY = 2000;
     private DrawerLayout drawerLayout;
     private int currentItem;
     String currentTag;
@@ -51,11 +53,10 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fragmentManager;
     boolean needToHideTheMenu;
     SearchView searchView;
-    MenuItem menuSearch;
+    MenuItem searchItem;
     Handler handlerDelayChangeText;
-    Object token;
-    List<Runnable> callStack;
-
+    private boolean isPressBackMenuSearch;
+    private boolean isQuryChangeShouldBeIgnored;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +67,9 @@ public class MainActivity extends AppCompatActivity {
         initToolbar();
         setupDrawerLayout();
         _menu = null;
+        isPressBackMenuSearch = false;
+        isQuryChangeShouldBeIgnored = false;
         handlerDelayChangeText = new Handler();
-        callStack = new ArrayList<Runnable>();
         if (savedInstanceState == null) {
             cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment,
                     FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
@@ -117,48 +119,103 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit, menu);
         getMenuInflater().inflate(R.menu.menu_find_in_db, menu);
-        menuSearch = menu.findItem(R.id.action_search);
+        searchItem = menu.findItem(R.id.action_search);
+        _menu = menu;
         //SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         ImageView closeButton = (ImageView) this.searchView.findViewById(R.id.search_close_btn);
-        closeButton.setOnClickListener(new View.OnClickListener() {
+        closeButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
-                EditText editText = (EditText) findViewById(R.id.search_src_text);
-                editText.setText("");
-                searchView.setQuery("", false);
+                if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
+                    bookmarkFragment.clearScreen();
+                    searchView.setOnQueryTextListener(null);
+                    searchView.setQuery("", false);
+                    // isQuryChangeShouldBeIgnored=false;
+                }
+                else{
+                    EditText editText = (EditText) findViewById(R.id.search_src_text);
+                    editText.setText("");
+                    searchView.setOnQueryTextListener(null);
+                    searchView.setQuery("", false);
+                    searchView.setOnQueryTextListener(searchViewTextChangeListener);
+                }
+
+
             }
         });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
-            public boolean onQueryTextSubmit(final String query) {
-                if(query.length()<3) {
-                    bookmarkFragment.displaySearchBookmark(query);
+            public void onClick(View v) {
+                if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
+                    bookmarkFragment.clearScreen();
+                    getMenu().findItem(R.id.action_edit).setVisible(false);
+                    searchView.setOnQueryTextListener(searchViewTextChangeListener);
                 }
-                return false;
             }
-            @Override
-            public boolean onQueryTextChange(final String query) {
-                if(query.length()>=3) {
-                    Runnable runChangeText = new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.e("handler ", "Search for query " + query );
-                            bookmarkFragment.displaySearchBookmark(query);
+        });
+
+        MenuItemCompat.setOnActionExpandListener(
+                searchItem, new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        if(currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()){
+                            searchView.setOnQueryTextListener(searchViewTextChangeListener);
                         }
-                    };
-                    handlerDelayChangeText.removeCallbacksAndMessages(null);
-                    handlerDelayChangeText.postDelayed(runChangeText, 300);
-                }
-                return true;
-            }
-        });
-        _menu = menu;
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        searchView.setOnQueryTextListener(null);
+                        if (bookmarkFragment.canGoBack()) {
+                            isPressBackMenuSearch = true;
+                            onBackPressed();
+                        }
+                        return true;
+                    }
+                });
+
         if (needToHideTheMenu == true) {
             getMenu().findItem(R.id.action_edit).setVisible(false);
         }
         return super.onCreateOptionsMenu(menu);
+    }
+
+    SearchView.OnQueryTextListener searchViewTextChangeListener
+            = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(final String query) {
+            searchInDB(query);
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(final String query) {
+            // if (isQuryChangeShouldBeIgnored == true) {
+            Toast.makeText(MainActivity.this, "onQueryTextChange", Toast.LENGTH_LONG)
+                    .show();
+            searchInDB(query);
+            //   isQuryChangeShouldBeIgnored = false;
+            //}
+            return true;
+        }
+    };
+
+    private void searchInDB(final String stringForSearch) {
+        if (stringForSearch.length() < 3) {
+            bookmarkFragment.displaySearchBookmark(stringForSearch);
+        } else {
+            Runnable runChangeText = new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("handler ", "Search for query " + stringForSearch);
+                    bookmarkFragment.displaySearchBookmark(stringForSearch);
+                }
+            };
+            handlerDelayChangeText.removeCallbacksAndMessages(null);
+            handlerDelayChangeText.postDelayed(runChangeText, 300);
+        }
     }
 
     private Menu getMenu() {
@@ -216,6 +273,11 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             if (currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()) {
+                onBackPressed();
+                return true;
+            }
+            if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()
+                    && isPressBackMenuSearch == true) {
                 onBackPressed();
                 return true;
             }
@@ -305,21 +367,39 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (bookmarkFragment != null && !bookmarkFragment.canGoBack() && R.id.drawer_bookmark == currentItem) {
+        if ((bookmarkFragment != null && !bookmarkFragment.canGoBack() &&
+                R.id.drawer_bookmark == currentItem) || (bookmarkFragment != null &&
+                bookmarkFragment.canGoBack() && R.id.drawer_bookmark == currentItem &&
+                isPressBackMenuSearch == true)) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             getMenu().findItem(R.id.action_edit).setVisible(true);
-            getMenu().findItem(R.id.action_search).setVisible(false);
+            getMenu().findItem(R.id.action_search).setVisible(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
             bookmarkFragment.goBack();
+            isPressBackMenuSearch = false;
             return;
         }
-        if (bookmarkFragment != null && !bookmarkFragment.canGoBack()&& R.id.drawer_bookmark == currentItem
-            && searchView!=null){
-            menuSearch.collapseActionView();
-            //bookmarkFragment.showCheckedCategory(1);
-
+        /*if (bookmarkFragment != null && !bookmarkFragment.canGoBack() &&
+                R.id.drawer_bookmark == currentItem && searchView != null) {
+            searchItem.collapseActionView();
         }
+        if (bookmarkFragment != null && !bookmarkFragment.canGoBack() &&
+                bookmarkFragment.currentPosition==-1 && R.id.drawer_bookmark == currentItem
+                && searchView != null) {
+            searchItem.collapseActionView();
+        }*/
+       /* if (bookmarkFragment != null && bookmarkFragment.currentPosition==-1){
+            bookmarkFragment.goBack();
+        }*/
         super.onBackPressed();
+    }
+
+    public void backPressedOnBookmarkMenu() {
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+        getMenu().findItem(R.id.action_search).setVisible(true);
+        getMenu().findItem(R.id.action_edit).setVisible(false);
+        bookmarkFragment.clearScreen();
     }
 
     public void onBookmarkDetailsOpened() {
@@ -333,4 +413,5 @@ public class MainActivity extends AppCompatActivity {
             needToHideTheMenu = true;
         }
     }
+
 }

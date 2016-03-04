@@ -2,7 +2,6 @@ package com.example.anastasiyaverenich.vkrecipes.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -18,14 +17,15 @@ import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class BookmarkFragment extends android.support.v4.app.Fragment {
+public class BookmarkFragment extends android.support.v4.app.Fragment  {
     public static final String CURRENT_POSITION = "CurrentPosition";
     ListView lvBookmark;
     NameOfBookmarkAdapter adapterNameOfBookmark;
     public int currentPosition = -1;
-    FeedAdapter bookmarkAdapter;
+    public FeedAdapter bookmarkAdapter;
 
     final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
             .getMySQLiteHelper().getAllCategoties();
@@ -43,7 +43,6 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bookmark, container, false);
         lvBookmark = (ListView) view.findViewById(R.id.lvBookmark);
-
         adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(), R.layout.sample_together,
                 nameOfBookmark);
         lvBookmark.setAdapter(adapterNameOfBookmark);
@@ -61,14 +60,14 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
             if (currentPosition != -1)
                 showCheckedCategory(currentPosition);
         }
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
         return view;
     }
 
-    @Override
+   /* @Override
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_search).setVisible(false);
-    }
+    }*/
 
     public void showCheckedCategory(int position) {
         final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
@@ -86,10 +85,23 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
     public void displaySearchBookmark(String stringForSearchInDB){
         final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
                 .getMySQLiteHelper().getAllCategoties();
-        BookmarkCategory checkedCategory = nameOfBookmark.get(currentPosition);
-        List<Recipe.Feed> searchBookmarks = VkRApplication.get()
-                .getMySQLiteHelper().searchBookmark(stringForSearchInDB, checkedCategory.getCategoryId());
-        bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, searchBookmarks);
+        if (currentPosition==-1){
+            List<Recipe.Feed> searchBookmarks = VkRApplication.get()
+                    .getMySQLiteHelper().searchBookmarkForALLCategory(stringForSearchInDB);
+            bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, searchBookmarks);
+            lvBookmark.setAdapter(bookmarkAdapter);
+        }
+        else {
+            BookmarkCategory checkedCategory = nameOfBookmark.get(currentPosition);
+            List<Recipe.Feed> searchBookmarks = VkRApplication.get()
+                    .getMySQLiteHelper().searchBookmarkForCertainCategory(stringForSearchInDB, checkedCategory.getCategoryId());
+            bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, searchBookmarks);
+            lvBookmark.setAdapter(bookmarkAdapter);
+        }
+    }
+    public void clearScreen(){
+        List<Recipe.Feed> clearArray =  new ArrayList<>();
+        bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, clearArray);
         lvBookmark.setAdapter(bookmarkAdapter);
     }
 

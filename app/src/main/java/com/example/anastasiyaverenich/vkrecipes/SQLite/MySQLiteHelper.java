@@ -165,13 +165,28 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<Recipe.Feed> searchBookmark(String stringForSearch, int bookmarkCategory){
+    public List<Recipe.Feed> searchBookmarkForCertainCategory(String stringForSearch, int bookmarkCategory){
         List<Recipe.Feed> feeds = new ArrayList<>();
         String id = Integer.toString(bookmarkCategory);
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(" SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_CONTENT_BOOKMARK +
                 " LIKE '%" + stringForSearch + "%'"+ " AND " +  KEY_ID_CATEGORIES_FOR_BOOKMARK
                 +" = ?" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC", new String[]{id}) ;
+        if (cursor.moveToFirst()) {
+            do {
+                String tempVarForDisplay = cursor.getString(1);
+                Recipe.Feed tempFeed = gson.fromJson(tempVarForDisplay, Recipe.Feed.class);
+                feeds.add(tempFeed);
+            } while (cursor.moveToNext());
+        }
+        return feeds;
+    }
+    public List<Recipe.Feed> searchBookmarkForALLCategory(String stringForSearch){
+        List<Recipe.Feed> feeds = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = " SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_CONTENT_BOOKMARK +
+                " LIKE '%" + stringForSearch + "%'"+ " ORDER BY " + KEY_ID_BOOKMARK + " DESC";
+        Cursor cursor = db.rawQuery(query,null);
         if (cursor.moveToFirst()) {
             do {
                 String tempVarForDisplay = cursor.getString(1);
