@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapter;
@@ -57,7 +58,8 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
     private List<Recipe.Feed> feedList;
     private SwipeRefreshLayout swipeRefresh;
     private int currentGroupId;
-    private MenuItem menuItem;
+    MenuItem menuItem;
+    int offsetErrorLoading;
 
     public static FeedFragment newInstance(int position) {
         FeedFragment fragment = new FeedFragment();
@@ -86,6 +88,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
         imageLoader.init(ImageLoaderConfiguration.createDefault(getActivity()));
         lvMain = (ListView) view.findViewById(R.id.lvMain);
         footerView = (View) inflater.inflate(R.layout.footer, null);
+        setHasOptionsMenu(true);
         if (isBestRecipe()) {
             setCurrentParam(BEST_RECIPE_ID);
         } else if (isCookGood())
@@ -98,7 +101,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
             setCurrentParam(USEFUL_RECIPE_ID);
         FeedUtils.setFeeds(VkRApplication.get().getMySQLiteHelper().getAllFeeds(currentGroupId));
         loadingFeeds();
-        setHasOptionsMenu(true);
         return view;
     }
 
@@ -148,37 +150,48 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
 
             @Override
             public void failure(RetrofitError retrofitError) {
-                retrofitError.printStackTrace();
-                endlessScrollListener.setLoading(false);
-                swipeRefresh.setRefreshing(false);
                 Log.e("TAG", "ERROR ");
+                OFFSET = offsetErrorLoading;
+                    swipeRefresh.post(new Runnable() {
+                                          @Override
+                                          public void run() {
+                                              swipeRefresh.setRefreshing(false);
+                                          }
+                                      }
+                    );
+                    retrofitError.printStackTrace();
+                    endlessScrollListener.setLoading(false);
+                    Toast.makeText(getActivity(), "Невозможно обновить ленту ", Toast.LENGTH_LONG)
+                            .show();
+            }
+        }
+
+        ;
+        methods.getFeeds(currentGroupId,OFFSET,COUNT,FILTER, VERSION, callback);
+        lvMain.setOnScrollListener(endlessScrollListener);
+        }
+
+        @Override
+        public void onRefresh () {
+            if (lvMain.getFooterViewsCount() != 0) {
+                lvMain.removeFooterView(footerView);
+            }
+            offsetErrorLoading = OFFSET;
+            OFFSET = 0;
+            methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
+
+        }
+
+        EndlessScrollListener endlessScrollListener = new EndlessScrollListener() {
+            @Override
+            public void loadData() {
+                if (lvMain.getFooterViewsCount() == 0) {
+                    lvMain.addFooterView(footerView);
+                }
+                OFFSET = OFFSET + COUNT;
+                methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
             }
         };
-        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-        lvMain.setOnScrollListener(endlessScrollListener);
-    }
-
-    @Override
-    public void onRefresh() {
-        if (lvMain.getFooterViewsCount() != 0) {
-            lvMain.removeFooterView(footerView);
-        }
-        feedList.clear();
-        OFFSET = 0;
-        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-        swipeRefresh.setRefreshing(false);
-    }
-
-    EndlessScrollListener endlessScrollListener = new EndlessScrollListener() {
-        @Override
-        public void loadData() {
-            if (lvMain.getFooterViewsCount() == 0) {
-                lvMain.addFooterView(footerView);
-            }
-            OFFSET = OFFSET + COUNT;
-            methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-        }
-    };
 
     private void initAdapter(List<Recipe.Feed> feeds) {
         if (lvMain.getFooterViewsCount() != 0) {

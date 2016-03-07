@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
@@ -37,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String HEALTH_FOOD_FRAGMENT_TAG = "HealthFoodFragment";
     public static final String INSTAGRAM_FRAGMENT_TAG = "InstagramFragment";
     public static final String CURRENT_ITEM = "ItemOfFragment";
-    private static final int LONG_DELAY = 3500;
-    private static final int SHORT_DELAY = 2000;
     private DrawerLayout drawerLayout;
     private int currentItem;
     String currentTag;
@@ -56,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     MenuItem searchItem;
     Handler handlerDelayChangeText;
     private boolean isPressBackMenuSearch;
-    private boolean isQuryChangeShouldBeIgnored;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         setupDrawerLayout();
         _menu = null;
         isPressBackMenuSearch = false;
-        isQuryChangeShouldBeIgnored = false;
         handlerDelayChangeText = new Handler();
         if (savedInstanceState == null) {
             cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment,
@@ -121,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_find_in_db, menu);
         searchItem = menu.findItem(R.id.action_search);
         _menu = menu;
-        //SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         ImageView closeButton = (ImageView) this.searchView.findViewById(R.id.search_close_btn);
         closeButton.setOnClickListener(new OnClickListener() {
@@ -131,17 +126,16 @@ public class MainActivity extends AppCompatActivity {
                     bookmarkFragment.clearScreen();
                     searchView.setOnQueryTextListener(null);
                     searchView.setQuery("", false);
-                    // isQuryChangeShouldBeIgnored=false;
+                    searchView.setOnQueryTextListener(searchViewTextChangeListener);
                 }
                 else{
+                    bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
                     EditText editText = (EditText) findViewById(R.id.search_src_text);
                     editText.setText("");
                     searchView.setOnQueryTextListener(null);
                     searchView.setQuery("", false);
                     searchView.setOnQueryTextListener(searchViewTextChangeListener);
                 }
-
-
             }
         });
         searchView.setOnSearchClickListener(new View.OnClickListener() {
@@ -186,26 +180,21 @@ public class MainActivity extends AppCompatActivity {
             = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(final String query) {
-            searchInDB(query);
+            if (query.length() < 3) {
+                bookmarkFragment.displaySearchBookmark(query);
+            }
             return false;
         }
 
         @Override
         public boolean onQueryTextChange(final String query) {
-            // if (isQuryChangeShouldBeIgnored == true) {
-            Toast.makeText(MainActivity.this, "onQueryTextChange", Toast.LENGTH_LONG)
-                    .show();
             searchInDB(query);
-            //   isQuryChangeShouldBeIgnored = false;
-            //}
             return true;
         }
     };
 
     private void searchInDB(final String stringForSearch) {
-        if (stringForSearch.length() < 3) {
-            bookmarkFragment.displaySearchBookmark(stringForSearch);
-        } else {
+        if(stringForSearch.length() >= 3){
             Runnable runChangeText = new Runnable() {
                 @Override
                 public void run() {
@@ -379,27 +368,7 @@ public class MainActivity extends AppCompatActivity {
             isPressBackMenuSearch = false;
             return;
         }
-        /*if (bookmarkFragment != null && !bookmarkFragment.canGoBack() &&
-                R.id.drawer_bookmark == currentItem && searchView != null) {
-            searchItem.collapseActionView();
-        }
-        if (bookmarkFragment != null && !bookmarkFragment.canGoBack() &&
-                bookmarkFragment.currentPosition==-1 && R.id.drawer_bookmark == currentItem
-                && searchView != null) {
-            searchItem.collapseActionView();
-        }*/
-       /* if (bookmarkFragment != null && bookmarkFragment.currentPosition==-1){
-            bookmarkFragment.goBack();
-        }*/
         super.onBackPressed();
-    }
-
-    public void backPressedOnBookmarkMenu() {
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
-        getMenu().findItem(R.id.action_search).setVisible(true);
-        getMenu().findItem(R.id.action_edit).setVisible(false);
-        bookmarkFragment.clearScreen();
     }
 
     public void onBookmarkDetailsOpened() {

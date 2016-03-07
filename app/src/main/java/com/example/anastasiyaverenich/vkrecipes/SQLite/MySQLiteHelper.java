@@ -91,9 +91,11 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public List<Recipe.Feed> getAllFeeds(int groupId) {
         List<Recipe.Feed> feeds;
         String id = Integer.toString(groupId);
-        Log.e("getAllFeeds()", "SELECT  * FROM " + TABLE_FEEDS + " WHERE " + KEY_ID_GROUP + " = '" + groupId + "'");
+        Log.e("getAllFeeds()", "SELECT  * FROM " + TABLE_FEEDS + " WHERE " + KEY_ID_GROUP + " = '"
+                + groupId + "'");
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT  * FROM " + TABLE_FEEDS + " WHERE " + KEY_ID_GROUP + " = ?", new String[]{id});
+        Cursor cursor = db.rawQuery("SELECT  * FROM " + TABLE_FEEDS + " WHERE " + KEY_ID_GROUP +
+                " = ?", new String[]{id});
         if (cursor.moveToFirst()) {
             String tempVarForDisplay = cursor.getString(1);
             Type listType = new TypeToken<ArrayList<Recipe.Feed>>() {
