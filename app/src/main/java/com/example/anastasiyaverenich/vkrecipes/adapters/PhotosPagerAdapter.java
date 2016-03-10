@@ -18,14 +18,19 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import java.util.ArrayList;
 
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class PhotosPagerAdapter extends PagerAdapter {
     private ArrayList<Recipe.Photo> photos;
     Context context;
     DisplayImageOptions options;
-    public PhotosPagerAdapter(ArrayList<Recipe.Photo> photos, Context context){
+    PhotoViewAttacher.OnViewTapListener mListener;
+
+    public PhotosPagerAdapter(ArrayList<Recipe.Photo> photos, Context context,
+                              PhotoViewAttacher.OnViewTapListener listener ){
         this.photos = photos;
         this.context = context;
+        mListener = listener;
         options = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
@@ -42,7 +47,8 @@ public class PhotosPagerAdapter extends PagerAdapter {
         View view = (View) inflater.inflate(R.layout.progress_bar_for_image, container, false);
         final PhotoView photoView = (PhotoView) view.findViewById(R.id.iv_photo);
         final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-
+        PhotoViewAttacher mAttacher = new PhotoViewAttacher(photoView);
+        mAttacher.setOnViewTapListener(mListener);
         ImageLoader.getInstance().loadImage(photos.get(position).src_big, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {

@@ -9,7 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +25,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import java.io.File;
 import java.util.ArrayList;
 
-public class ImageActivity extends AppCompatActivity {
+import uk.co.senab.photoview.PhotoViewAttacher;
+
+public class ImageActivity extends AppCompatActivity implements PhotoViewAttacher.OnViewTapListener {
     public static final String PHOTOS = "Photos";
     public static final String POSITION = "Position";
     public static final String FEED = "Feeds";
@@ -32,11 +36,15 @@ public class ImageActivity extends AppCompatActivity {
     ImageButton backButton;
     HackyViewPager viewPager;
     int currentPosition;
+    RelativeLayout imageActionBar;
+    FrameLayout activityImage;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
+        imageActionBar = (RelativeLayout) findViewById(R.id.image_action_bar);
+        activityImage = (FrameLayout) findViewById(R.id.activity_image);
         menuButton = (ImageButton) findViewById(R.id.menu_for_image);
         countImages = (TextView) findViewById(R.id.count_images);
         final Intent intent = getIntent();
@@ -49,7 +57,7 @@ public class ImageActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
-        PhotosPagerAdapter photosPagerAdapter = new PhotosPagerAdapter(photos, this);
+        PhotosPagerAdapter photosPagerAdapter = new PhotosPagerAdapter(photos, this, this);
         viewPager.setAdapter(photosPagerAdapter);
         viewPager.setCurrentItem(position);
         currentPosition = position;
@@ -80,6 +88,15 @@ public class ImageActivity extends AppCompatActivity {
 
     }
 
+    public void onViewTap(View view, float x, float y) {
+        if (imageActionBar.getVisibility()==View.INVISIBLE){
+            imageActionBar.setVisibility(View.VISIBLE);
+        }
+        else {
+            imageActionBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
     View.OnClickListener viewClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -90,7 +107,7 @@ public class ImageActivity extends AppCompatActivity {
     private void showPopupMenu(View v) {
         final Intent intent = getIntent();
         final ArrayList<Recipe.Photo> photos = (ArrayList<Recipe.Photo>) intent.getSerializableExtra(ImageActivity.PHOTOS);
-        final Recipe.Feed feed =  (Recipe.Feed) intent.getSerializableExtra(ImageActivity.FEED);
+        final Recipe.Feed feed = (Recipe.Feed) intent.getSerializableExtra(ImageActivity.FEED);
         PopupMenu popupMenu = new PopupMenu(this, v);
         popupMenu.inflate(R.menu.menu_for_image);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -111,7 +128,7 @@ public class ImageActivity extends AppCompatActivity {
                         return true;
                     case R.id.send_link_on_image:
                         int index = feed.text.toString().indexOf("<br>");
-                        FileUtils.shareLink(feed,index,photos,getApplicationContext());
+                        FileUtils.shareLink(feed, index, photos, getApplicationContext());
                         return true;
                     default:
                         return false;

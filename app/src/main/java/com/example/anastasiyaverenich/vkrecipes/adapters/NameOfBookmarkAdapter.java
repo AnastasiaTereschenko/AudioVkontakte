@@ -33,7 +33,6 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
         mItemManger = new CustomSwipeItemMangerImpl(this);
     }
 
-
     public View generateView(final int position, final ViewGroup parent) {
         final View convertView = LayoutInflater.from(mContext).inflate(R.layout.sample_together, parent, false);
         final SwipeLayout bookmarkSwipe = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));

@@ -20,7 +20,9 @@
                 android:id="@+id/rli_tv_name_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                android:textSize="17sp"
+                android:typeface="serif"/>
 
             <org.apmem.tools.layouts.FlowLayout
                 android:id="@+id/rli_ll_images_container"
@@ -40,12 +42,14 @@
                 android:id="@+id/rli_tv_description_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="5"/>
+                android:maxLines="5"
+                android:textSize="15sp"/>
                 <ImageView
                     android:id="@+id/rli_im_more"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_more_horiz_black_24dp"
+                    android:tint="@color/color_image"
                     android:layout_below="@+id/rli_tv_description_list"/>
            </RelativeLayout>
 
@@ -72,6 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_marginTop="9dp"
+                    android:tint="@color/color_image"
                     android:src="@drawable/ic_save_black_24dp" />
             </FrameLayout>
 
@@ -89,6 +94,7 @@
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="9dp"
+                    android:tint="@color/color_image"
                     android:src="@drawable/ic_star_border_black_24dp" />
             </FrameLayout>
 
@@ -107,6 +113,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_marginTop="9dp"
+                    android:tint="@color/color_image"
                     android:src="@drawable/ic_share_black_24dp" />
             </FrameLayout>
         </RelativeLayout>
