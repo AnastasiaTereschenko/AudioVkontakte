@@ -30,17 +30,30 @@
                 android:gravity="fill"
                 android:orientation="horizontal"></org.apmem.tools.layouts.FlowLayout>
 
+            <RelativeLayout
+                android:id="@+id/rli_rl_more"
+                android:background="?attr/selectableItemBackground"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/rli_ll_images_container">
             <TextView
                 android:id="@+id/rli_tv_description_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/rli_ll_images_container" />
+                android:maxLines="5"/>
+                <ImageView
+                    android:id="@+id/rli_im_more"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_more_horiz_black_24dp"
+                    android:layout_below="@+id/rli_tv_description_list"/>
+           </RelativeLayout>
 
             <View
                 android:id="@+id/rli_v_separator"
                 android:layout_width="wrap_content"
                 android:layout_height="1px"
-                android:layout_below="@+id/rli_tv_description_list"
+                android:layout_below="@+id/rli_rl_more"
                 android:layout_marginTop="8dp"
                 android:background="@android:color/darker_gray" />
 

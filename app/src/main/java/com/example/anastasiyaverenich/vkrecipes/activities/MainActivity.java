@@ -124,18 +124,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
                     bookmarkFragment.clearScreen();
-                    searchView.setOnQueryTextListener(null);
-                    searchView.setQuery("", false);
-                    searchView.setOnQueryTextListener(searchViewTextChangeListener);
                 }
                 else{
                     bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
                     EditText editText = (EditText) findViewById(R.id.search_src_text);
                     editText.setText("");
-                    searchView.setOnQueryTextListener(null);
-                    searchView.setQuery("", false);
-                    searchView.setOnQueryTextListener(searchViewTextChangeListener);
                 }
+                searchView.setOnQueryTextListener(null);
+                searchView.setQuery("", false);
+                searchView.setOnQueryTextListener(searchViewTextChangeListener);
             }
         });
         searchView.setOnSearchClickListener(new View.OnClickListener() {
@@ -248,8 +245,8 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.drawer_bookmark:
                         bookmarkFragment = (BookmarkFragment) changeFragmentOnClick(bookmarkFragment, 0, R.id.drawer_bookmark);
                         break;
-                    case R.id.drawer_instagram_recipes:
-                        feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);
+                    //case R.id.drawer_instagram_recipes:
+                      //  feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);
                 }
                 drawerLayout.closeDrawers();
                 return true;
@@ -291,9 +288,9 @@ public class MainActivity extends AppCompatActivity {
             return FITNESS_RECIPE_FRAGMENT_TAG;
         } else if (R.id.drawer_health_food == currentId) {
             return HEALTH_FOOD_FRAGMENT_TAG;
-        } else if (R.id.drawer_instagram_recipes == currentId) {
-            return INSTAGRAM_FRAGMENT_TAG;
-        } else return BOOKMARK_FRAGMENT_TAG;
+        } //else if (R.id.drawer_instagram_recipes == currentId) {
+           // return INSTAGRAM_FRAGMENT_TAG;
+            else return BOOKMARK_FRAGMENT_TAG;
     }
 
     private Fragment changeFragmentOnClick(Fragment newFragment, int newInstanceOfFragment, int groupId) {
@@ -313,12 +310,12 @@ public class MainActivity extends AppCompatActivity {
             fragmentManager.beginTransaction()
                     .add(R.id.container, newFragment, newTag)
                     .commit();
-        } else if (newFragment == null && R.id.drawer_instagram_recipes == groupId) {
-            newFragment = FeedFromInstagramFragment.newInstance();
-            fragmentManager.beginTransaction()
-                    .add(R.id.container, newFragment, newTag)
-                    .commit();
-        } else if (newFragment == null) {
+        } //else if (newFragment == null && R.id.drawer_instagram_recipes == groupId) {
+           // newFragment = FeedFromInstagramFragment.newInstance();
+            //fragmentManager.beginTransaction()
+                    //.add(R.id.container, newFragment, newTag)
+                   // .commit();}
+        else if (newFragment == null) {
             newFragment = FeedFragment.newInstance(newInstanceOfFragment);
             fragmentManager.beginTransaction()
                     .add(R.id.container, newFragment, newTag)
@@ -343,9 +340,9 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.fitness_recipe));
         } else if (R.id.drawer_health_food == groupId) {
             getSupportActionBar().setTitle(getString(R.string.health_food));
-        } else if (R.id.drawer_instagram_recipes == groupId) {
-            getSupportActionBar().setTitle(getString(R.string.recipes_from_instagram));
-        } else getSupportActionBar().setTitle(getString(R.string.bookmark));
+        }// else if (R.id.drawer_instagram_recipes == groupId) {
+            //getSupportActionBar().setTitle(getString(R.string.recipes_from_instagram));}
+        else getSupportActionBar().setTitle(getString(R.string.bookmark));
     }
 
     private void setCurrentItem(int groupId) {

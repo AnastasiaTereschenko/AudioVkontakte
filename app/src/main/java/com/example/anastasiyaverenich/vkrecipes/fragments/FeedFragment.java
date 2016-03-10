@@ -33,7 +33,8 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
-public class FeedFragment extends android.support.v4.app.Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class FeedFragment extends android.support.v4.app.Fragment implements
+        SwipeRefreshLayout.OnRefreshListener {
     public static final int COOK_GOOD = 0;
     public static final int FITNESS_RECIPE = 1;
     public static final int HEALTH_FOOD = 2;
@@ -177,9 +178,9 @@ public class FeedFragment extends android.support.v4.app.Fragment implements Swi
                 lvMain.removeFooterView(footerView);
             }
             offsetErrorLoading = OFFSET;
+            adapter.removeAllKeys();
             OFFSET = 0;
             methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-
         }
 
         EndlessScrollListener endlessScrollListener = new EndlessScrollListener() {

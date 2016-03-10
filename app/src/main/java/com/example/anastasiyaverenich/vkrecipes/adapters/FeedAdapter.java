@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
@@ -34,7 +35,9 @@ import org.apmem.tools.layouts.FlowLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     private final Context mContext;
@@ -42,6 +45,9 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     private DisplayImageOptions options;
     private List<Recipe.Feed> feeds;
     private int widthSize;
+    String descriptionOfFeed;
+    boolean isOpenMore;
+    Set <Integer> keyOpenFeed = new HashSet<>();
 
     public FeedAdapter(Context context, int resource, List<Recipe.Feed> objects) {
         super(context, resource, objects);
@@ -61,6 +67,8 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         FrameLayout flBookmarkImage;
         FrameLayout flShareImage;
         FrameLayout flSaveImage;
+        RelativeLayout ibMoreInformation;
+        ImageView imMoreInformation;
     }
 
     @Override
@@ -81,9 +89,22 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             viewHolder.flBookmarkImage = (FrameLayout) convertView.findViewById(R.id.rli_fl_panel_favourite_item);
             viewHolder.flShareImage = (FrameLayout) convertView.findViewById(R.id.rli_fl_panel_share_item);
             viewHolder.flSaveImage = (FrameLayout) convertView.findViewById(R.id.rli_fl_panel_save_images);
+            viewHolder.ibMoreInformation = (RelativeLayout) convertView.findViewById(R.id.rli_rl_more);
+            viewHolder.imMoreInformation = (ImageView) convertView.findViewById(R.id.rli_im_more);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
+            if(keyOpenFeed.contains(position)){
+                viewHolder.textDescription.setMaxLines(viewHolder.textDescription.getLineCount());
+                isOpenMore = true;
+                viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
+            }
+            else{
+                viewHolder.textDescription.setMaxLines(5);
+                isOpenMore = false;
+                viewHolder.imMoreInformation.setVisibility(View.VISIBLE);
+            }
+
         }
         final Recipe.Feed feed = feeds.get(position);
         int size = feed.text.toString().length();
@@ -94,10 +115,10 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                 viewHolder.textDescription.setText(" ");
 
             } else {
-                String Name = feed.text.substring(0, index);
-                String Description = feed.text.substring(index, size);
-                viewHolder.textName.setText(Html.fromHtml(Name.toString()));
-                viewHolder.textDescription.setText(Html.fromHtml(Description.toString()));
+                String nameOfFeed = feed.text.substring(0, index);
+                descriptionOfFeed = feed.text.substring(index, size);
+                viewHolder.textName.setText(Html.fromHtml(nameOfFeed.toString()));
+                viewHolder.textDescription.setText(Html.fromHtml(descriptionOfFeed.toString()));
             }
         } else {
             viewHolder.textName.setText(" ");
@@ -118,9 +139,27 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                 }
             }
         });
+        viewHolder.ibMoreInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isOpenMore == false) {
+                    keyOpenFeed.add(position);
+                    viewHolder.textDescription.setMaxLines(viewHolder.textDescription.getLineCount());
+                    isOpenMore = true;
+                    viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
+                } else {
+                    if(keyOpenFeed.contains(position)){
+                        keyOpenFeed.remove(position);
+                    }
+                    viewHolder.textDescription.setMaxLines(5);
+                    isOpenMore = false;
+                    viewHolder.imMoreInformation.setVisibility(View.VISIBLE);
+                }
+            }
+        });
         viewHolder.flShareImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                FileUtils.shareLink(feed, index, photos,mContext);
+                FileUtils.shareLink(feed, index, photos, mContext);
             }
         });
         if (BookmarkUtils.checkBookmarks(feed.id)) {
@@ -154,6 +193,9 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         viewHolder.container.requestLayout();
 
         return convertView;
+    }
+    public void removeAllKeys(){
+        keyOpenFeed.removeAll(keyOpenFeed);
     }
 
     private void setFeedImages(final ViewHolder viewHolder, final ArrayList<Recipe.Photo> photos, final Recipe.Feed feed) {
