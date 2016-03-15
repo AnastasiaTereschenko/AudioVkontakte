@@ -31,9 +31,10 @@ public class FileUtils {
         inStream.close();
         outStream.close();
     }
-    public static void saveImagesOnDisk(final File src, final Context context, String loadPhoto)
-    {
-        DisplayImageOptions options  = VkRApplication.get().getOptions();
+
+    public static void saveImagesOrImageOnDisk(final File src, final Context context,
+                                               String loadPhoto, final int numberOfPhoto) {
+        DisplayImageOptions options = VkRApplication.get().getOptions();
         File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes");
         if (dst.exists() == false) {
             dst.mkdirs();
@@ -66,51 +67,11 @@ public class FileUtils {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                Toast.makeText(context, "Изображения сохранены в папку Recipes.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-
-            public void onLoadingCancelled(String imageUri, View view) {
-            }
-        });
-    }
-    public static void saveImageOnDisk(final File src, final Context context, String loadPhoto)
-    {
-        DisplayImageOptions options  = VkRApplication.get().getOptions();
-        File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes");
-        if (dst.exists() == false) {
-            dst.mkdirs();
-            File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                    File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
-            dst = dst1;
-        } else {
-            File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                    File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
-            dst = dst1;
-        }
-        final File finalDst = dst;
-
-        ImageLoader.getInstance().loadImage(loadPhoto, options, new ImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-
-            }
-
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason
-                    failReason) {
-
-            }
-
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                try {
-                    copy(src, finalDst);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                if (numberOfPhoto == 1) {
+                    Toast.makeText(context, "Изображение сохранено в папку Recipes.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Изображения сохранены в папку Recipes.", Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(context, "Изображение сохранено в папку Recipes.", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -119,10 +80,12 @@ public class FileUtils {
             }
         });
     }
-    public static void copyLink(String link,  android.text.ClipboardManager clipboard){
+
+    public static void copyLink(String link, android.text.ClipboardManager clipboard) {
         clipboard.setText(link);
     }
-    public static void shareLink(Recipe.Feed feed, int index, ArrayList<Recipe.Photo> photos, Context context ){
+
+    public static void shareLink(Recipe.Feed feed, int index, ArrayList<Recipe.Photo> photos, Context context) {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_TEXT, feed.text.substring(0, index) + " \n" + photos.get(0).src_big);

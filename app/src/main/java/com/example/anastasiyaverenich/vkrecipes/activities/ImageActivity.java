@@ -85,14 +85,12 @@ public class ImageActivity extends AppCompatActivity implements PhotoViewAttache
 
             }
         });
-
     }
 
     public void onViewTap(View view, float x, float y) {
-        if (imageActionBar.getVisibility()==View.INVISIBLE){
+        if (imageActionBar.getVisibility() == View.INVISIBLE) {
             imageActionBar.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             imageActionBar.setVisibility(View.INVISIBLE);
         }
     }
@@ -106,21 +104,24 @@ public class ImageActivity extends AppCompatActivity implements PhotoViewAttache
 
     private void showPopupMenu(View v) {
         final Intent intent = getIntent();
-        final ArrayList<Recipe.Photo> photos = (ArrayList<Recipe.Photo>) intent.getSerializableExtra(ImageActivity.PHOTOS);
+        final ArrayList<Recipe.Photo> photos = (ArrayList<Recipe.Photo>) intent.getSerializableExtra
+                (ImageActivity.PHOTOS);
         final Recipe.Feed feed = (Recipe.Feed) intent.getSerializableExtra(ImageActivity.FEED);
-        PopupMenu popupMenu = new PopupMenu(this, v);
+        PopupMenu popupMenu = new PopupMenu(this , v);
         popupMenu.inflate(R.menu.menu_for_image);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.save_image:
                         String savePhoto = photos.get(currentPosition).src_big;
-                        File src = ImageLoader.getInstance().getDiskCache().get(photos.get(currentPosition).src_big);
-                        FileUtils.saveImageOnDisk(src, getApplicationContext(), savePhoto);
+                        File src = ImageLoader.getInstance().getDiskCache().get(photos.get(
+                                currentPosition).src_big);
+                        FileUtils.saveImagesOrImageOnDisk(src, getApplicationContext(), savePhoto,1);
                         return true;
                     case R.id.copy_link:
                         String copyPhoto = photos.get(currentPosition).src_big;
-                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager)
+                                getSystemService(Context.CLIPBOARD_SERVICE);
                         FileUtils.copyLink(copyPhoto, clipboard);
                         Toast.makeText(getApplicationContext(),
                                 "Ссылка скопирована в буфер обмена",

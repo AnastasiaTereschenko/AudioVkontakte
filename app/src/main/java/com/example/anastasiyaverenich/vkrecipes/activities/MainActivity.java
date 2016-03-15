@@ -122,32 +122,16 @@ public class MainActivity extends AppCompatActivity {
         closeButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
-                    bookmarkFragment.clearScreen();
-                }
-                else{
-                    bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
-                    EditText editText = (EditText) findViewById(R.id.search_src_text);
-                    editText.setText("");
-                }
-                searchView.setOnQueryTextListener(null);
-                searchView.setQuery("", false);
-                searchView.setOnQueryTextListener(searchViewTextChangeListener);
+                closeButtonOnBookmarkMenu();
             }
         });
         searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
-                    bookmarkFragment.clearScreen();
-                    getMenu().findItem(R.id.action_edit).setVisible(false);
-                    searchView.setOnQueryTextListener(searchViewTextChangeListener);
-                }
+            public void onClick(View v) {searchClickOnBookmarkMenu();
             }
         });
 
-        MenuItemCompat.setOnActionExpandListener(
-                searchItem, new MenuItemCompat.OnActionExpandListener() {
+        MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
                     @Override
                     public boolean onMenuItemActionExpand(MenuItem item) {
                         if(currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()){
@@ -172,6 +156,26 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onCreateOptionsMenu(menu);
     }
+    private void searchClickOnBookmarkMenu(){
+        if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
+            bookmarkFragment.clearScreen();
+            getMenu().findItem(R.id.action_edit).setVisible(false);
+            searchView.setOnQueryTextListener(searchViewTextChangeListener);
+        }
+    }
+    private void closeButtonOnBookmarkMenu(){
+        if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
+            bookmarkFragment.clearScreen();
+        }
+        else{
+            bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
+            EditText editText = (EditText) findViewById(R.id.search_src_text);
+            editText.setText("");
+        }
+        searchView.setOnQueryTextListener(null);
+        searchView.setQuery("", false);
+        searchView.setOnQueryTextListener(searchViewTextChangeListener);
+    }
 
     SearchView.OnQueryTextListener searchViewTextChangeListener
             = new SearchView.OnQueryTextListener() {
@@ -192,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void searchInDB(final String stringForSearch) {
         if(stringForSearch.length() >= 3){
-            Runnable runChangeText = new Runnable() {
+            Runnable startChangeText = new Runnable() {
                 @Override
                 public void run() {
                     Log.e("handler ", "Search for query " + stringForSearch);
@@ -200,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             handlerDelayChangeText.removeCallbacksAndMessages(null);
-            handlerDelayChangeText.postDelayed(runChangeText, 300);
+            handlerDelayChangeText.postDelayed(startChangeText, 300);
         }
     }
 
@@ -215,8 +219,6 @@ public class MainActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
             actionBar.setDisplayHomeAsUpEnabled(true);
-            //actionBar.setDisplayShowTitleEnabled(true);
-            //actionBar.setHomeButtonEnabled(true);
         }
     }
 
@@ -228,22 +230,28 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.drawer_cook_good:
-                        cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment, FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
+                        cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment,
+                                FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
                         break;
                     case R.id.drawer_fitness_recipe:
-                        fitnessRecipeFragment = (FeedFragment) changeFragmentOnClick(fitnessRecipeFragment, FeedFragment.FITNESS_RECIPE, R.id.drawer_fitness_recipe);
+                        fitnessRecipeFragment = (FeedFragment) changeFragmentOnClick(fitnessRecipeFragment,
+                                FeedFragment.FITNESS_RECIPE, R.id.drawer_fitness_recipe);
                         break;
                     case R.id.drawer_health_food:
-                        healthFoodFragment = (FeedFragment) changeFragmentOnClick(healthFoodFragment, FeedFragment.HEALTH_FOOD, R.id.drawer_health_food);
+                        healthFoodFragment = (FeedFragment) changeFragmentOnClick(healthFoodFragment,
+                                FeedFragment.HEALTH_FOOD, R.id.drawer_health_food);
                         break;
                     case R.id.drawer_best_recipe:
-                        bestRecipeFragment = (FeedFragment) changeFragmentOnClick(bestRecipeFragment, FeedFragment.BEST_RECIPE, R.id.drawer_best_recipe);
+                        bestRecipeFragment = (FeedFragment) changeFragmentOnClick(bestRecipeFragment,
+                                FeedFragment.BEST_RECIPE, R.id.drawer_best_recipe);
                         break;
                     case R.id.drawer_useful_recipe:
-                        usefulRecipeFragment = (FeedFragment) changeFragmentOnClick(usefulRecipeFragment, FeedFragment.USEFUL_RECIPE, R.id.drawer_useful_recipe);
+                        usefulRecipeFragment = (FeedFragment) changeFragmentOnClick(usefulRecipeFragment,
+                                FeedFragment.USEFUL_RECIPE, R.id.drawer_useful_recipe);
                         break;
                     case R.id.drawer_bookmark:
-                        bookmarkFragment = (BookmarkFragment) changeFragmentOnClick(bookmarkFragment, 0, R.id.drawer_bookmark);
+                        bookmarkFragment = (BookmarkFragment) changeFragmentOnClick(bookmarkFragment,
+                                0, R.id.drawer_bookmark);
                         break;
                     //case R.id.drawer_instagram_recipes:
                       //  feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);

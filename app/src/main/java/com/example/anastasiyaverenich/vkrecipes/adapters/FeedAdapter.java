@@ -2,6 +2,7 @@ package com.example.anastasiyaverenich.vkrecipes.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Html;
@@ -47,7 +48,10 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     private int widthSize;
     String descriptionOfFeed;
     boolean isOpenMore;
-    Set <Integer> keyOpenFeed = new HashSet<>();
+    Set<Integer> keyOpenFeed = new HashSet<>();
+    boolean isEmptyOrLessFiveString;
+    Handler handlerDelayChangeText;
+    int textViewLineCount;
 
     public FeedAdapter(Context context, int resource, List<Recipe.Feed> objects) {
         super(context, resource, objects);
@@ -94,18 +98,17 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
-            if(keyOpenFeed.contains(position)){
+            if (keyOpenFeed.contains(position)) {
                 viewHolder.textDescription.setMaxLines(viewHolder.textDescription.getLineCount());
                 isOpenMore = true;
                 viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
-            }
-            else{
+            } else {
                 viewHolder.textDescription.setMaxLines(5);
                 isOpenMore = false;
                 viewHolder.imMoreInformation.setVisibility(View.VISIBLE);
             }
-
         }
+        handlerDelayChangeText = new Handler();
         final Recipe.Feed feed = feeds.get(position);
         int size = feed.text.toString().length();
         final int index = feed.text.toString().indexOf("<br>");
@@ -113,48 +116,42 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             if (index == -1) {
                 viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
                 viewHolder.textDescription.setText(" ");
-
+                showOrHideAndEnableOrDisableMoreInformation(viewHolder);
             } else {
                 String nameOfFeed = feed.text.substring(0, index);
                 descriptionOfFeed = feed.text.substring(index, size);
                 viewHolder.textName.setText(Html.fromHtml(nameOfFeed.toString()));
                 viewHolder.textDescription.setText(Html.fromHtml(descriptionOfFeed.toString()));
+                Runnable startChangeText = new Runnable() {
+                    @Override
+                    public void run() {
+                        showOrHideAndEnableOrDisableMoreInformation(viewHolder);
+                    }
+                };
+                handlerDelayChangeText.postDelayed(startChangeText, 300);
             }
         } else {
             viewHolder.textName.setText(" ");
             viewHolder.textDescription.setText(" ");
+            showOrHideAndEnableOrDisableMoreInformation(viewHolder);
         }
         final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
         setFeedImages(viewHolder, photos, feed);
         viewHolder.flSaveImage.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                for (int i = 0; i < photos.size(); i++) {
+                int numberOfPhotos = photos.size();
+                for (int i = 0; i < numberOfPhotos; i++) {
                     final File src = ImageLoader.getInstance().getDiskCache().get(photos.get(i).src_big);
                     String loadPhoto = photos.get(i).src_big;
-                    if (i == 1) {
-                        FileUtils.saveImageOnDisk(src, mContext, loadPhoto);
-                    } else {
-                        FileUtils.saveImagesOnDisk(src, mContext, loadPhoto);
-                    }
+                    FileUtils.saveImagesOrImageOnDisk(src, mContext, loadPhoto, numberOfPhotos);
                 }
             }
         });
         viewHolder.ibMoreInformation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isOpenMore == false) {
-                    keyOpenFeed.add(position);
-                    viewHolder.textDescription.setMaxLines(viewHolder.textDescription.getLineCount());
-                    isOpenMore = true;
-                    viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
-                } else {
-                    if(keyOpenFeed.contains(position)){
-                        keyOpenFeed.remove(position);
-                    }
-                    viewHolder.textDescription.setMaxLines(5);
-                    isOpenMore = false;
-                    viewHolder.imMoreInformation.setVisibility(View.VISIBLE);
-                }
+
+                hideAndShowDescriptionBookmark(position, viewHolder);
             }
         });
         viewHolder.flShareImage.setOnClickListener(new View.OnClickListener() {
@@ -170,31 +167,62 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         viewHolder.flBookmarkImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (BookmarkUtils.checkBookmarks(feed.id)) {
-                    BookmarkUtils.deleteBookmark(feed);
-                    viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_border_black_24dp);
-                    notifyDataSetChanged();
-                } else {
-                    FragmentActivity activity = (FragmentActivity) (mContext);
-                    FragmentManager fm = activity.getSupportFragmentManager();
-                    BookmarkDialogFragment bookmarkDialog = new BookmarkDialogFragment(feeds.get(position));
-                    bookmarkDialog.setListener(new BookmarkDialogFragment.OnBookmarkItemClickListener() {
-                        @Override
-                        public void onBookmarkItemClick() {
-                            viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_black_24dp);
-                        }
-                    });
-                    bookmarkDialog.show(fm, "fragmentalert");
-                }
+                long feedId = feed.id;
+                saveBookmarkOnCheck(feedId, viewHolder, position, feed);
             }
         });
-
-
         viewHolder.container.requestLayout();
-
         return convertView;
     }
-    public void removeAllKeys(){
+
+    private void saveBookmarkOnCheck(long feedId, final ViewHolder viewHolder, int position, Recipe.Feed feed) {
+        if (BookmarkUtils.checkBookmarks(feedId)) {
+            BookmarkUtils.deleteBookmark(feed);
+            viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_border_black_24dp);
+            notifyDataSetChanged();
+        } else {
+            FragmentActivity activity = (FragmentActivity) (mContext);
+            FragmentManager fm = activity.getSupportFragmentManager();
+            BookmarkDialogFragment bookmarkDialog = new BookmarkDialogFragment(feeds.get(position));
+            bookmarkDialog.setListener(new BookmarkDialogFragment.OnBookmarkItemClickListener() {
+                @Override
+                public void onBookmarkItemClick() {
+                    viewHolder.imageViewBM.setImageResource(R.drawable.ic_star_black_24dp);
+                }
+            });
+            bookmarkDialog.show(fm, "fragmentalert");
+        }
+    }
+
+    private void hideAndShowDescriptionBookmark(int position, ViewHolder viewHolder) {
+        if(showOrHideAndEnableOrDisableMoreInformation(viewHolder)){
+            return;
+        }
+        if ((!isOpenMore) && (!isEmptyOrLessFiveString)) {
+            keyOpenFeed.add(position);
+            viewHolder.textDescription.setMaxLines(viewHolder.textDescription.getLineCount());
+            isOpenMore = true;
+            viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
+        } else if ((isOpenMore) && (!isEmptyOrLessFiveString)) {
+            if (keyOpenFeed.contains(position)) {
+                keyOpenFeed.remove(position);
+            }
+            viewHolder.textDescription.setMaxLines(5);
+            isOpenMore = false;
+            viewHolder.imMoreInformation.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private boolean showOrHideAndEnableOrDisableMoreInformation(ViewHolder viewHolder) {
+        if (viewHolder.textDescription.getLineCount() <= 5) {
+            viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
+            return  true;
+        } else {
+           return false;
+        }
+    }
+
+    public void removeAllKeys() {
         keyOpenFeed.removeAll(keyOpenFeed);
     }
 
