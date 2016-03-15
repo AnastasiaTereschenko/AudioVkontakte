@@ -19,8 +19,6 @@ public class CustomSwipeItemMangerImpl extends SwipeItemAdapterMangerImpl {
 
         if (this.mBaseAdapter != null) {
             this.mBaseAdapter.notifyDataSetChanged();
-        } else if (this.mRecyclerAdapter != null) {
-            // this.mRecyclerAdapter.notifyDataSetChanged();
         }
     }
 
@@ -33,8 +31,6 @@ public class CustomSwipeItemMangerImpl extends SwipeItemAdapterMangerImpl {
 
         if (this.mBaseAdapter != null) {
             this.mBaseAdapter.notifyDataSetChanged();
-        } else if (this.mRecyclerAdapter != null) {
-            // this.mRecyclerAdapter.notifyDataSetChanged();
         }
     }
 }

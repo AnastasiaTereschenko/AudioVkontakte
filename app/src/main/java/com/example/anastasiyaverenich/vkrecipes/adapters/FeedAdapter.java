@@ -108,33 +108,9 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
                 viewHolder.imMoreInformation.setVisibility(View.VISIBLE);
             }
         }
-        handlerDelayChangeText = new Handler();
         final Recipe.Feed feed = feeds.get(position);
-        int size = feed.text.toString().length();
         final int index = feed.text.toString().indexOf("<br>");
-        if (!feed.text.toString().equals("")) {
-            if (index == -1) {
-                viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
-                viewHolder.textDescription.setText(" ");
-                showOrHideAndEnableOrDisableMoreInformation(viewHolder);
-            } else {
-                String nameOfFeed = feed.text.substring(0, index);
-                descriptionOfFeed = feed.text.substring(index, size);
-                viewHolder.textName.setText(Html.fromHtml(nameOfFeed.toString()));
-                viewHolder.textDescription.setText(Html.fromHtml(descriptionOfFeed.toString()));
-                Runnable startChangeText = new Runnable() {
-                    @Override
-                    public void run() {
-                        showOrHideAndEnableOrDisableMoreInformation(viewHolder);
-                    }
-                };
-                handlerDelayChangeText.postDelayed(startChangeText, 300);
-            }
-        } else {
-            viewHolder.textName.setText(" ");
-            viewHolder.textDescription.setText(" ");
-            showOrHideAndEnableOrDisableMoreInformation(viewHolder);
-        }
+        setTextOnTextView(feed,viewHolder,index);
         final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
         setFeedImages(viewHolder, photos, feed);
         viewHolder.flSaveImage.setOnClickListener(new View.OnClickListener() {
@@ -150,7 +126,6 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         viewHolder.ibMoreInformation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 hideAndShowDescriptionBookmark(position, viewHolder);
             }
         });
@@ -175,6 +150,34 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         return convertView;
     }
 
+    private void setTextOnTextView(final Recipe.Feed feed, final ViewHolder viewHolder, int index) {
+        handlerDelayChangeText = new Handler();
+        int size = feed.text.toString().length();
+        if (!feed.text.toString().equals("")) {
+            if (index == -1) {
+                viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
+                viewHolder.textDescription.setText(" ");
+                enableOrDisableMoreInformation(viewHolder);
+            } else {
+                String nameOfFeed = feed.text.substring(0, index);
+                descriptionOfFeed = feed.text.substring(index, size);
+                viewHolder.textName.setText(Html.fromHtml(nameOfFeed.toString()));
+                viewHolder.textDescription.setText(Html.fromHtml(descriptionOfFeed.toString()));
+                Runnable startChangeText = new Runnable() {
+                    @Override
+                    public void run() {
+                        enableOrDisableMoreInformation(viewHolder);
+                    }
+                };
+                handlerDelayChangeText.postDelayed(startChangeText, 300);
+            }
+        } else {
+            viewHolder.textName.setText(" ");
+            viewHolder.textDescription.setText(" ");
+            enableOrDisableMoreInformation(viewHolder);
+        }
+    }
+
     private void saveBookmarkOnCheck(long feedId, final ViewHolder viewHolder, int position, Recipe.Feed feed) {
         if (BookmarkUtils.checkBookmarks(feedId)) {
             BookmarkUtils.deleteBookmark(feed);
@@ -195,7 +198,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
     }
 
     private void hideAndShowDescriptionBookmark(int position, ViewHolder viewHolder) {
-        if(showOrHideAndEnableOrDisableMoreInformation(viewHolder)){
+        if (enableOrDisableMoreInformation(viewHolder)) {
             return;
         }
         if ((!isOpenMore) && (!isEmptyOrLessFiveString)) {
@@ -213,12 +216,12 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
         }
     }
 
-    private boolean showOrHideAndEnableOrDisableMoreInformation(ViewHolder viewHolder) {
+    private boolean enableOrDisableMoreInformation(ViewHolder viewHolder) {
         if (viewHolder.textDescription.getLineCount() <= 5) {
             viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
-            return  true;
+            return true;
         } else {
-           return false;
+            return false;
         }
     }
 

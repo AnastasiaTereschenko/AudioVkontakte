@@ -60,14 +60,9 @@ public class BookmarkFragment extends android.support.v4.app.Fragment  {
             if (currentPosition != -1)
                 showCheckedCategory(currentPosition);
         }
-        //setHasOptionsMenu(true);
         return view;
     }
 
-   /* @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_search).setVisible(false);
-    }*/
 
     public void showCheckedCategory(int position) {
         final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()

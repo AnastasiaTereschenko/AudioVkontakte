@@ -24,10 +24,10 @@ public class PhotosPagerAdapter extends PagerAdapter {
     private ArrayList<Recipe.Photo> photos;
     Context context;
     DisplayImageOptions options;
-    PhotoViewAttacher.OnViewTapListener mListener;
+    PhotoViewAttacher.OnPhotoTapListener mListener;
 
     public PhotosPagerAdapter(ArrayList<Recipe.Photo> photos, Context context,
-                              PhotoViewAttacher.OnViewTapListener listener ){
+                              PhotoViewAttacher.OnPhotoTapListener listener) {
         this.photos = photos;
         this.context = context;
         mListener = listener;
@@ -36,6 +36,7 @@ public class PhotosPagerAdapter extends PagerAdapter {
                 .cacheOnDisk(true)
                 .considerExifParams(true).build();
     }
+
     @Override
     public int getCount() {
         return photos.size();
@@ -47,8 +48,7 @@ public class PhotosPagerAdapter extends PagerAdapter {
         View view = (View) inflater.inflate(R.layout.progress_bar_for_image, container, false);
         final PhotoView photoView = (PhotoView) view.findViewById(R.id.iv_photo);
         final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        PhotoViewAttacher mAttacher = new PhotoViewAttacher(photoView);
-        mAttacher.setOnViewTapListener(mListener);
+        photoView.setOnPhotoTapListener(mListener);
         ImageLoader.getInstance().loadImage(photos.get(position).src_big, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
@@ -62,10 +62,8 @@ public class PhotosPagerAdapter extends PagerAdapter {
 
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-
                 progressBar.setVisibility(View.INVISIBLE);
                 photoView.setImageBitmap(loadedImage);
-
             }
 
             @Override

@@ -23,6 +23,8 @@ public class BookmarkDialogFragment extends DialogFragment{
     private Recipe.Feed feedsFromAdapter;
     NameOfBookmarkAdapterOnFeedFragment adapterNameOfBookmark;
     OnBookmarkItemClickListener listener;
+    final List<BookmarkCategory> nameOfBookmark = VkRApplication.get().getMySQLiteHelper()
+            .getAllCategoties();
 
     public BookmarkDialogFragment(Recipe.Feed feeds) {
         feedsFromAdapter = feeds;
@@ -30,20 +32,9 @@ public class BookmarkDialogFragment extends DialogFragment{
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final List<BookmarkCategory> nameOfBookmark = VkRApplication.get().getMySQLiteHelper().getAllCategoties();
         adapterNameOfBookmark = new NameOfBookmarkAdapterOnFeedFragment(getActivity(),
                 R.layout.name_of_bookmark_list_item, nameOfBookmark);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.MyAlertDialogStyle ).
-        setTitle(R.string.change_bookmark)
-                .setAdapter(adapterNameOfBookmark, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        BookmarkCategory checkedCategory = nameOfBookmark.get(which);
-                        BookmarkUtils.addBookmark(feedsFromAdapter, checkedCategory.getCategoryId());
-                        if (listener != null) {
-                            listener.onBookmarkItemClick();
-                        }
-                    }
-                });
+        final AlertDialog.Builder builder = builderDialogAddBookmark;
         builder.setPositiveButton(R.string.button_add_bookmrk, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 FragmentActivity activity = (FragmentActivity) (getActivity());
@@ -59,6 +50,18 @@ public class BookmarkDialogFragment extends DialogFragment{
         });
       return builder.create();
     }
+    AlertDialog.Builder builderDialogAddBookmark = new AlertDialog.Builder(getActivity(), R.style.MyAlertDialogStyle).
+            setTitle(R.string.change_bookmark)
+            .setAdapter(adapterNameOfBookmark, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    BookmarkCategory checkedCategory = nameOfBookmark.get(which);
+                    BookmarkUtils.addBookmark(feedsFromAdapter, checkedCategory.getCategoryId());
+                    if (listener != null) {
+                        listener.onBookmarkItemClick();
+                    }
+                }
+            });
+
     @Override
     public void onStart() {
         super.onStart();

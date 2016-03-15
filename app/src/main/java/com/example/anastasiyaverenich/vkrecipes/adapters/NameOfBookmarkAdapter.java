@@ -20,7 +20,7 @@ import java.util.List;
 
 public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     private final Context mContext;
-    private final int mResourceId;
+    public final int mResourceId;
     private List<BookmarkCategory> objectOfCategory;
     private boolean isEdit;
     private int currentDeleteAndEditPosition = -1;
@@ -37,7 +37,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
         final View convertView = LayoutInflater.from(mContext).inflate(R.layout.sample_together, parent, false);
         final SwipeLayout bookmarkSwipe = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));
         bookmarkSwipe.setShowMode(SwipeLayout.ShowMode.LayDown);
-        bookmarkSwipe.addDrag(SwipeLayout.DragEdge.Right, bookmarkSwipe.findViewWithTag("Bottom2"));
+        bookmarkSwipe.addDrag(SwipeLayout.DragEdge.Right, bookmarkSwipe.findViewWithTag("Top"));
         bookmarkSwipe.setShowMode(SwipeLayout.ShowMode.PullOut);
         bookmarkSwipe.getSurfaceView().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,46 +47,61 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
                 }
             }
         });
-        convertView.findViewById(R.id.nobli_ll_trash).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final List<BookmarkCategory> nameOfBookmark = BookmarkCategoryUtils.getArrayOfCategoty();
-                int idCategory = nameOfBookmark.get(position).getCategoryId();
-                if (BookmarkCategoryUtils.checkCategories(idCategory)) {
-                    BookmarkCategoryUtils.deleteBookmark(idCategory);
+        convertView.findViewById(R.id.nobli_ll_trash).setOnClickListener(new OnBookmarkDeleteClick(position));
+        convertView.findViewById(R.id.nobli_ll_edit).setOnClickListener(new OnBookmarkEditClick(position));
+        return convertView;
+    }
+
+    private class OnBookmarkEditClick implements View.OnClickListener {
+        private int position;
+
+        public OnBookmarkEditClick(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            FragmentActivity activity = (FragmentActivity) (mContext);
+            FragmentManager fm = activity.getSupportFragmentManager();
+            String lastNameOfCategory = objectOfCategory.get(position).getNameOfCategory();
+            EditBookmarkDialogFragment editBookmarkDialogFragment = new EditBookmarkDialogFragment
+                    (lastNameOfCategory, position);
+            editBookmarkDialogFragment.show(fm, "fragmentalert");
+            editBookmarkDialogFragment.setListener(new EditBookmarkDialogFragment.BookmarkItemEditListener() {
+                @Override
+                public void bookmarkEditClick(String nameOfCategory, int position) {
+                    BookmarkCategoryUtils.updateNameOfCategory(nameOfCategory, position);
+                    objectOfCategory.get(position).setNameOfCategory(nameOfCategory);
                     currentDeleteAndEditPosition = position;
                     notifyDataSetChanged();
                 }
+            });
+        }
+    }
+
+    private class OnBookmarkDeleteClick implements View.OnClickListener {
+        private int position;
+
+        public OnBookmarkDeleteClick(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            final List<BookmarkCategory> nameOfBookmark = BookmarkCategoryUtils.getArrayOfCategoty();
+            int idCategory = nameOfBookmark.get(position).getCategoryId();
+            if (BookmarkCategoryUtils.checkCategories(idCategory)) {
+                BookmarkCategoryUtils.deleteBookmark(idCategory);
+                currentDeleteAndEditPosition = position;
+                notifyDataSetChanged();
             }
-        });
-        convertView.findViewById(R.id.nobli_ll_edit).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentActivity activity = (FragmentActivity) (mContext);
-                FragmentManager fm = activity.getSupportFragmentManager();
-                String lastNameOfCategory = objectOfCategory.get(position).getNameOfCategory();
-                EditBookmarkDialogFragment editBookmarkDialogFragment = new EditBookmarkDialogFragment
-                        (lastNameOfCategory, position);
-                editBookmarkDialogFragment.show(fm, "fragmentalert");
-                editBookmarkDialogFragment.setListener(new EditBookmarkDialogFragment.BookmarkItemEditListener() {
-                    @Override
-                    public void bookmarkEditClick(String nameOfCategory, int position) {
-                        BookmarkCategoryUtils.updateNameOfCategory(nameOfCategory, position);
-                        objectOfCategory.get(position).setNameOfCategory(nameOfCategory);
-                        currentDeleteAndEditPosition = position;
-                        notifyDataSetChanged();
-                    }
-                });
-            }
-        });
-        return convertView;
+        }
     }
 
     @Override
     public void fillValues(int position, View convertView) {
         TextView tvNameOfCategoryBookmark = (TextView) convertView.findViewById(R.id.ll_tv_name_of_bookmark_list);
         tvNameOfCategoryBookmark.setText(objectOfCategory.get(position).getNameOfCategory());
-        //tvNameOfCategoryBookmark.invalidate();
         if (currentDeleteAndEditPosition == position) {
             currentDeleteAndEditPosition = -1;
             closeItem(position);

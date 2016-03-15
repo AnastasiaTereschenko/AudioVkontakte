@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -27,7 +26,7 @@ import java.util.ArrayList;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class ImageActivity extends AppCompatActivity implements PhotoViewAttacher.OnViewTapListener {
+public class ImageActivity extends AppCompatActivity implements PhotoViewAttacher.OnPhotoTapListener {
     public static final String PHOTOS = "Photos";
     public static final String POSITION = "Position";
     public static final String FEED = "Feeds";
@@ -37,14 +36,12 @@ public class ImageActivity extends AppCompatActivity implements PhotoViewAttache
     HackyViewPager viewPager;
     int currentPosition;
     RelativeLayout imageActionBar;
-    FrameLayout activityImage;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
         imageActionBar = (RelativeLayout) findViewById(R.id.image_action_bar);
-        activityImage = (FrameLayout) findViewById(R.id.activity_image);
         menuButton = (ImageButton) findViewById(R.id.menu_for_image);
         countImages = (TextView) findViewById(R.id.count_images);
         final Intent intent = getIntent();
@@ -87,7 +84,8 @@ public class ImageActivity extends AppCompatActivity implements PhotoViewAttache
         });
     }
 
-    public void onViewTap(View view, float x, float y) {
+    @Override
+    public void onPhotoTap(View view, float v, float v1) {
         if (imageActionBar.getVisibility() == View.INVISIBLE) {
             imageActionBar.setVisibility(View.VISIBLE);
         } else {

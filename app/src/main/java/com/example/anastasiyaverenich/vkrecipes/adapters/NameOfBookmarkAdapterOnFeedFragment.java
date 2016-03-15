@@ -14,7 +14,7 @@ import java.util.List;
 
 public class NameOfBookmarkAdapterOnFeedFragment extends BaseAdapter{
     private final Context mContext;
-    private final int mResourceId;
+    public final int mResourceId;
     private List<BookmarkCategory> objectOfCategory;
 
     public NameOfBookmarkAdapterOnFeedFragment(Context context, int resource, List<BookmarkCategory> objects) {
