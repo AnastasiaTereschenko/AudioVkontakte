@@ -1,10 +1,11 @@
 package com.example.anastasiyaverenich.vkrecipes.fragments;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import com.daimajia.swipe.util.Attributes;
 import com.example.anastasiyaverenich.vkrecipes.R;
@@ -16,13 +17,16 @@ import com.example.anastasiyaverenich.vkrecipes.modules.BookmarkCategory;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
+import com.github.ksoichiro.android.observablescrollview.ObservableListView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookmarkFragment extends android.support.v4.app.Fragment  {
+public class BookmarkFragment extends android.support.v4.app.Fragment implements ObservableScrollViewCallbacks {
     public static final String CURRENT_POSITION = "CurrentPosition";
-    ListView lvBookmark;
+    ObservableListView lvBookmark;
     NameOfBookmarkAdapter adapterNameOfBookmark;
     public int currentPosition = -1;
     public FeedAdapter bookmarkAdapter;
@@ -42,7 +46,8 @@ public class BookmarkFragment extends android.support.v4.app.Fragment  {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bookmark, container, false);
-        lvBookmark = (ListView) view.findViewById(R.id.lvBookmark);
+        lvBookmark = (ObservableListView) view.findViewById(R.id.lvBookmark);
+        lvBookmark.setScrollViewCallbacks(this);
         adapterNameOfBookmark = new NameOfBookmarkAdapter(getActivity(), R.layout.sample_together,
                 nameOfBookmark);
         lvBookmark.setAdapter(adapterNameOfBookmark);
@@ -77,16 +82,15 @@ public class BookmarkFragment extends android.support.v4.app.Fragment  {
         ((MainActivity) getActivity()).onBookmarkDetailsOpened();
     }
 
-    public void displaySearchBookmark(String stringForSearchInDB){
+    public void displaySearchBookmark(String stringForSearchInDB) {
         final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
                 .getMySQLiteHelper().getAllCategoties();
-        if (currentPosition==-1){
+        if (currentPosition == -1) {
             List<Recipe.Feed> searchBookmarks = VkRApplication.get()
                     .getMySQLiteHelper().searchBookmarkForALLCategory(stringForSearchInDB);
             bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, searchBookmarks);
             lvBookmark.setAdapter(bookmarkAdapter);
-        }
-        else {
+        } else {
             BookmarkCategory checkedCategory = nameOfBookmark.get(currentPosition);
             List<Recipe.Feed> searchBookmarks = VkRApplication.get()
                     .getMySQLiteHelper().searchBookmarkForCertainCategory(stringForSearchInDB, checkedCategory.getCategoryId());
@@ -94,8 +98,9 @@ public class BookmarkFragment extends android.support.v4.app.Fragment  {
             lvBookmark.setAdapter(bookmarkAdapter);
         }
     }
-    public void clearScreen(){
-        List<Recipe.Feed> clearArray =  new ArrayList<>();
+
+    public void clearScreen() {
+        List<Recipe.Feed> clearArray = new ArrayList<>();
         bookmarkAdapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, clearArray);
         lvBookmark.setAdapter(bookmarkAdapter);
     }
@@ -124,4 +129,30 @@ public class BookmarkFragment extends android.support.v4.app.Fragment  {
         adapterNameOfBookmark.onEdit();
     }
 
+    @Override
+    public void onScrollChanged(int i, boolean b, boolean b1) {
+
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        if (scrollState == ScrollState.UP) {
+            if (actionBar.isShowing()) {
+                actionBar.hide();
+            }
+        } else if (scrollState == ScrollState.DOWN) {
+            if (!actionBar.isShowing()) {
+                actionBar.show();
+            }
+        }
+    }
 }

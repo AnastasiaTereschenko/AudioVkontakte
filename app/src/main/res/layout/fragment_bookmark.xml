@@ -3,10 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <ListView
+    <com.github.ksoichiro.android.observablescrollview.ObservableListView
         android:id="@+id/lvBookmark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:divider="#FFFFFF">
-    </ListView>
+        android:divider="#FFFFFF"/>
 </LinearLayout>
