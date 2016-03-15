@@ -37,5 +37,6 @@ dependencies {
     compile 'com.daimajia.androidanimations:library:1.1.2@aar'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.github.ksoichiro:android-observablescrollview:1.6.0'
 }
 

@@ -2,13 +2,14 @@ package com.example.anastasiyaverenich.vkrecipes.fragments;
 
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
@@ -19,6 +20,9 @@ import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethods;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.ui.EndlessScrollListener;
 import com.example.anastasiyaverenich.vkrecipes.utils.FeedUtils;
+import com.github.ksoichiro.android.observablescrollview.ObservableListView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -34,7 +38,7 @@ import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
 public class FeedFragment extends android.support.v4.app.Fragment implements
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
     public static final int COOK_GOOD = 0;
     public static final int FITNESS_RECIPE = 1;
     public static final int HEALTH_FOOD = 2;
@@ -54,7 +58,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     private Callback callback;
     private ImageLoader imageLoader;
     private FeedAdapter adapter;
-    ListView lvMain;
+    ObservableListView lvMain;
     View footerView;
     private List<Recipe.Feed> feedList;
     private SwipeRefreshLayout swipeRefresh;
@@ -87,7 +91,8 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
         menuItem = (MenuItem) view.findViewById(R.id.action_edit);
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(getActivity()));
-        lvMain = (ListView) view.findViewById(R.id.lvMain);
+        lvMain = (ObservableListView) view.findViewById(R.id.lvMain);
+        lvMain.setScrollViewCallbacks(this);
         footerView = (View) inflater.inflate(R.layout.footer, null);
         setHasOptionsMenu(true);
         if (isBestRecipe()) {
@@ -168,7 +173,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
         }
 
         ;
-        methods.getFeeds(currentGroupId,OFFSET,COUNT,FILTER, VERSION, callback);
+        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
         lvMain.setOnScrollListener(endlessScrollListener);
         }
 
@@ -231,6 +236,33 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
 
     private boolean isUsefulRecipe() {
         return getPosition() == USEFUL_RECIPE;
+    }
+
+    @Override
+    public void onScrollChanged(int i, boolean b, boolean b1) {
+
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        if (scrollState == ScrollState.UP) {
+            if (actionBar.isShowing()) {
+                actionBar.hide();
+            }
+        } else if (scrollState == ScrollState.DOWN) {
+            if (!actionBar.isShowing()) {
+                actionBar.show();
+            }
+        }
     }
 }
 

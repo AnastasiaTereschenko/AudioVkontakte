@@ -26,8 +26,10 @@ import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFromInstagramFragment;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ObservableScrollViewCallbacks{
     public static final String BOOKMARK_FRAGMENT_TAG = "BookmarkFragment";
     public static final String COOK_GOOD_FRAGMENT_TAG = "CookGoodFragment";
     public static final String USEFUL_RECIPE_FRAGMENT_TAG = "UsefulRecipeFragment";
@@ -127,47 +129,49 @@ public class MainActivity extends AppCompatActivity {
         });
         searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {searchClickOnBookmarkMenu();
+            public void onClick(View v) {
+                searchClickOnBookmarkMenu();
             }
         });
 
         MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionExpand(MenuItem item) {
-                        if(currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()){
-                            searchView.setOnQueryTextListener(searchViewTextChangeListener);
-                        }
-                        return true;
-                    }
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                if (currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()) {
+                    searchView.setOnQueryTextListener(searchViewTextChangeListener);
+                }
+                return true;
+            }
 
-                    @Override
-                    public boolean onMenuItemActionCollapse(MenuItem item) {
-                        searchView.setOnQueryTextListener(null);
-                        if (bookmarkFragment.canGoBack()) {
-                            isPressBackMenuSearch = true;
-                            onBackPressed();
-                        }
-                        return true;
-                    }
-                });
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                searchView.setOnQueryTextListener(null);
+                if (bookmarkFragment.canGoBack()) {
+                    isPressBackMenuSearch = true;
+                    onBackPressed();
+                }
+                return true;
+            }
+        });
 
         if (needToHideTheMenu == true) {
             getMenu().findItem(R.id.action_edit).setVisible(false);
         }
         return super.onCreateOptionsMenu(menu);
     }
-    private void searchClickOnBookmarkMenu(){
+
+    private void searchClickOnBookmarkMenu() {
         if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
             bookmarkFragment.clearScreen();
             getMenu().findItem(R.id.action_edit).setVisible(false);
             searchView.setOnQueryTextListener(searchViewTextChangeListener);
         }
     }
-    private void closeButtonOnBookmarkMenu(){
+
+    private void closeButtonOnBookmarkMenu() {
         if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
             bookmarkFragment.clearScreen();
-        }
-        else{
+        } else {
             bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
             EditText editText = (EditText) findViewById(R.id.search_src_text);
             editText.setText("");
@@ -195,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void searchInDB(final String stringForSearch) {
-        if(stringForSearch.length() >= 3){
+        if (stringForSearch.length() >= 3) {
             Runnable startChangeText = new Runnable() {
                 @Override
                 public void run() {
@@ -254,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
                                 0, R.id.drawer_bookmark);
                         break;
                     //case R.id.drawer_instagram_recipes:
-                      //  feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);
+                    //  feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);
                 }
                 drawerLayout.closeDrawers();
                 return true;
@@ -297,8 +301,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (R.id.drawer_health_food == currentId) {
             return HEALTH_FOOD_FRAGMENT_TAG;
         } //else if (R.id.drawer_instagram_recipes == currentId) {
-           // return INSTAGRAM_FRAGMENT_TAG;
-            else return BOOKMARK_FRAGMENT_TAG;
+        // return INSTAGRAM_FRAGMENT_TAG;
+        else return BOOKMARK_FRAGMENT_TAG;
     }
 
     private Fragment changeFragmentOnClick(Fragment newFragment, int newInstanceOfFragment, int groupId) {
@@ -319,10 +323,10 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.container, newFragment, newTag)
                     .commit();
         } //else if (newFragment == null && R.id.drawer_instagram_recipes == groupId) {
-           // newFragment = FeedFromInstagramFragment.newInstance();
-            //fragmentManager.beginTransaction()
-                    //.add(R.id.container, newFragment, newTag)
-                   // .commit();}
+        // newFragment = FeedFromInstagramFragment.newInstance();
+        //fragmentManager.beginTransaction()
+        //.add(R.id.container, newFragment, newTag)
+        // .commit();}
         else if (newFragment == null) {
             newFragment = FeedFragment.newInstance(newInstanceOfFragment);
             fragmentManager.beginTransaction()
@@ -349,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (R.id.drawer_health_food == groupId) {
             getSupportActionBar().setTitle(getString(R.string.health_food));
         }// else if (R.id.drawer_instagram_recipes == groupId) {
-            //getSupportActionBar().setTitle(getString(R.string.recipes_from_instagram));}
+        //getSupportActionBar().setTitle(getString(R.string.recipes_from_instagram));}
         else getSupportActionBar().setTitle(getString(R.string.bookmark));
     }
 
@@ -388,4 +392,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onScrollChanged(int i, boolean b, boolean b1) {
+
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+
+    }
 }
