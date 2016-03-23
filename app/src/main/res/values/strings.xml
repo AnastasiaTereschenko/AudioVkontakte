@@ -2,21 +2,36 @@
 <resources>
     <string name="app_name">VkRecipes</string>
     <string name="action_settings">Settings</string>
+    <string name="label_name">Recipes</string>
     <string name="cook_good">Cook Good</string>
     <string name="fitness_recipe">Фитнес рецепты</string>
     <string name="health_food">Здоровое питание</string>
     <string name="best_recipe">Лучшие рецепты</string>
     <string name="useful_recipe">Полезные рецепты</string>
     <string name="bookmark">Закладки</string>
-    <string name="recipes_from_instagram">Рецепты из инстаграм</string>
-    <string-array name="bookmark">
-        <item>Первые блюда</item>
-        <item>Вторые блюда</item>
-        <item>Салаты</item>
-        <item>Десерты</item>
-        <item>Напитки</item>
-        <item>Другое</item>
+    <string name="cook_good_id">-39009769</string>
+    <string name="fitness_recipe_id">-80410546</string>
+    <string name="health_food_id">-77109534</string>
+    <string name="best_recipe_id">-32194285</string>
+    <string name="useful_recipe_id">-76882174</string>
+    <string name="bookmark_id">1</string>
+    <string-array name="array_drawer_item_name">
+        <item>Cook Good</item>
+        <item>Фитнес рецепты</item>
+        <item>Здоровое питание</item>
+        <item>Лучшие рецепты</item>
+        <item>Полезные рецепты</item>
+        <item>Закладки</item>
     </string-array>
+
+    <integer-array name="array_drawer_item_id">
+        <item>-39009769</item>
+        <item>-80410546</item>
+        <item>-77109534</item>
+        <item>-32194285</item>
+        <item>-76882174</item>
+        <item>1</item>
+    </integer-array>
     <string name="change_bookmark">Выберите закладку</string>
     <string name="write_new_bookmark">Введите название</string>
     <string name="button_cancel">Отмена</string>

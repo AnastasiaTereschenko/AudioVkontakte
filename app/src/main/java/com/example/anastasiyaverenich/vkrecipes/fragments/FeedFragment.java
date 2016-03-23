@@ -39,17 +39,7 @@ import retrofit.converter.GsonConverter;
 
 public class FeedFragment extends android.support.v4.app.Fragment implements
         SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
-    public static final int COOK_GOOD = 0;
-    public static final int FITNESS_RECIPE = 1;
-    public static final int HEALTH_FOOD = 2;
-    public static final int BEST_RECIPE = 3;
-    public static final int USEFUL_RECIPE = 4;
     private static final String API_URL = "https://api.vk.com";
-    private static final int COOK_GOOD_ID = -39009769;
-    private static final int FITNESS_RECIPE_ID = -80410546;
-    private static final int HEALTH_FOOD_ID = -77109534;
-    private static final int BEST_RECIPE_ID = -32194285;
-    private static final int USEFUL_RECIPE_ID = -76882174;
     private int OFFSET = 0;
     private static final int COUNT = 15;
     private static final String FILTER = "all";
@@ -95,16 +85,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
         lvMain.setScrollViewCallbacks(this);
         footerView = (View) inflater.inflate(R.layout.footer, null);
         setHasOptionsMenu(true);
-        if (isBestRecipe()) {
-            setCurrentParam(BEST_RECIPE_ID);
-        } else if (isCookGood())
-            setCurrentParam(COOK_GOOD_ID);
-        else if (isHealthFood())
-            setCurrentParam(HEALTH_FOOD_ID);
-        else if (isFitnessRecipe())
-            setCurrentParam(FITNESS_RECIPE_ID);
-        else if (isUsefulRecipe())
-            setCurrentParam(USEFUL_RECIPE_ID);
+        setCurrentParam(getPosition());
         FeedUtils.setFeeds(VkRApplication.get().getMySQLiteHelper().getAllFeeds(currentGroupId));
         loadingFeeds();
         return view;
@@ -171,7 +152,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                             .show();
             }
         }
-
         ;
         methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
         lvMain.setOnScrollListener(endlessScrollListener);
@@ -218,26 +198,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
 
     }
 
-    private boolean isCookGood() {
-        return getPosition() == COOK_GOOD;
-    }
-
-    private boolean isFitnessRecipe() {
-        return getPosition() == FITNESS_RECIPE;
-    }
-
-    private boolean isHealthFood() {
-        return getPosition() == HEALTH_FOOD;
-    }
-
-    private boolean isBestRecipe() {
-        return getPosition() == BEST_RECIPE;
-    }
-
-    private boolean isUsefulRecipe() {
-        return getPosition() == USEFUL_RECIPE;
-    }
-
     @Override
     public void onScrollChanged(int i, boolean b, boolean b1) {
 
@@ -264,5 +224,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
             }
         }
     }
+
 }
 

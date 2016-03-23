@@ -34,7 +34,17 @@ public class BookmarkDialogFragment extends DialogFragment{
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         adapterNameOfBookmark = new NameOfBookmarkAdapterOnFeedFragment(getActivity(),
                 R.layout.name_of_bookmark_list_item, nameOfBookmark);
-        final AlertDialog.Builder builder = builderDialogAddBookmark;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
+                R.style.MyAlertDialogStyle).setTitle(R.string.change_bookmark)
+                .setAdapter(adapterNameOfBookmark, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        BookmarkCategory checkedCategory = nameOfBookmark.get(which);
+                        BookmarkUtils.addBookmark(feedsFromAdapter, checkedCategory.getCategoryId());
+                        if (listener != null) {
+                            listener.onBookmarkItemClick();
+                        }
+                    }
+                });
         builder.setPositiveButton(R.string.button_add_bookmrk, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 FragmentActivity activity = (FragmentActivity) (getActivity());
@@ -50,17 +60,7 @@ public class BookmarkDialogFragment extends DialogFragment{
         });
       return builder.create();
     }
-    AlertDialog.Builder builderDialogAddBookmark = new AlertDialog.Builder(getActivity(), R.style.MyAlertDialogStyle).
-            setTitle(R.string.change_bookmark)
-            .setAdapter(adapterNameOfBookmark, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    BookmarkCategory checkedCategory = nameOfBookmark.get(which);
-                    BookmarkUtils.addBookmark(feedsFromAdapter, checkedCategory.getCategoryId());
-                    if (listener != null) {
-                        listener.onBookmarkItemClick();
-                    }
-                }
-            });
+
 
     @Override
     public void onStart() {

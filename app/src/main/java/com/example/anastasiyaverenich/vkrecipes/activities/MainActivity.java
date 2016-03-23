@@ -24,30 +24,21 @@ import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
-import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFromInstagramFragment;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 
-public class MainActivity extends AppCompatActivity implements ObservableScrollViewCallbacks{
-    public static final String BOOKMARK_FRAGMENT_TAG = "BookmarkFragment";
-    public static final String COOK_GOOD_FRAGMENT_TAG = "CookGoodFragment";
-    public static final String USEFUL_RECIPE_FRAGMENT_TAG = "UsefulRecipeFragment";
-    public static final String BEST_RECIPE_FRAGMENT_TAG = "BestRecipeFragment";
-    public static final String FITNESS_RECIPE_FRAGMENT_TAG = "FitnessRecipeFragment";
-    public static final String HEALTH_FOOD_FRAGMENT_TAG = "HealthFoodFragment";
-    public static final String INSTAGRAM_FRAGMENT_TAG = "InstagramFragment";
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements ObservableScrollViewCallbacks {
     public static final String CURRENT_ITEM = "ItemOfFragment";
     private DrawerLayout drawerLayout;
     private int currentItem;
     String currentTag;
-    FeedFragment cookGoodFragment;
-    FeedFragment fitnessRecipeFragment;
-    FeedFragment healthFoodFragment;
-    FeedFragment bestRecipeFragment;
-    FeedFragment usefulRecipeFragment;
+    FeedFragment feedFragment;
     BookmarkFragment bookmarkFragment;
-    FeedFromInstagramFragment feedFromInstagramFragment;
     private Menu _menu;
     private FragmentManager fragmentManager;
     boolean needToHideTheMenu;
@@ -55,36 +46,51 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
     MenuItem searchItem;
     Handler handlerDelayChangeText;
     private boolean isPressBackMenuSearch;
-
+    List<MenuItem> items;
+    int indexOfBookmark;
+    int idBookmark;
+    String nameBookmark;
+    List<Integer> itemMenuId;
+    List<String> itemMenuName;
+    NavigationView view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fragmentManager = getSupportFragmentManager();
+        view = (NavigationView) findViewById(R.id.navigation_view);
+        items = new ArrayList<>();
         BookmarkUtils.setBookmarks(VkRApplication.get().getMySQLiteHelper().getAllBookmarks());
         setContentView(R.layout.activity_main);
         initToolbar();
+        itemMenuId = new ArrayList<>();
+        itemMenuName = new ArrayList<>();
+        setNameAndIdOfCategory();
+        indexOfBookmark = itemMenuId.size() - 1;
+        idBookmark = itemMenuId.get(indexOfBookmark);
+        nameBookmark = itemMenuName.get(indexOfBookmark);
         setupDrawerLayout();
         _menu = null;
         isPressBackMenuSearch = false;
         handlerDelayChangeText = new Handler();
         if (savedInstanceState == null) {
-            cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment,
-                    FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
+            feedFragment = (FeedFragment) changeFragmentOnClick(feedFragment, itemMenuId.get(0),
+                    view.getMenu().getItem(0));
         } else {
             currentItem = savedInstanceState.getInt(CURRENT_ITEM);
             setTitleOnFragment(currentItem);
-            setCurrentItem(currentItem);
             currentTag = getTagById(currentItem);
             Fragment currentFragment = fragmentManager.findFragmentByTag(currentTag);
-            hideFragmentByTag(BOOKMARK_FRAGMENT_TAG);
-            hideFragmentByTag(COOK_GOOD_FRAGMENT_TAG);
-            hideFragmentByTag(USEFUL_RECIPE_FRAGMENT_TAG);
-            hideFragmentByTag(HEALTH_FOOD_FRAGMENT_TAG);
-            hideFragmentByTag(INSTAGRAM_FRAGMENT_TAG);
-            hideFragmentByTag(FITNESS_RECIPE_FRAGMENT_TAG);
-            hideFragmentByTag(BEST_RECIPE_FRAGMENT_TAG);
-            bookmarkFragment = (BookmarkFragment) fragmentManager.findFragmentByTag(BOOKMARK_FRAGMENT_TAG);
+            for (int i = 0; i < itemMenuId.size(); i++) {
+                if(currentItem == itemMenuId.get(i)){
+                    setCurrentItem(currentItem, view.getMenu().getItem(i));
+                    break;
+                }
+            }
+            for (int i = 0; i < itemMenuId.size(); i++) {
+                hideFragmentByTag(itemMenuName.get(i));
+            }
+            bookmarkFragment = (BookmarkFragment) fragmentManager.findFragmentByTag(nameBookmark);
             if (currentFragment != null) {
                 fragmentManager.beginTransaction()
                         .show(currentFragment)
@@ -137,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
         MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                if (currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()) {
+                if (currentItem == idBookmark && !bookmarkFragment.canGoBack()) {
                     searchView.setOnQueryTextListener(searchViewTextChangeListener);
                 }
                 return true;
@@ -154,14 +160,14 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
             }
         });
 
-        if (needToHideTheMenu == true) {
+        if (needToHideTheMenu) {
             getMenu().findItem(R.id.action_edit).setVisible(false);
         }
         return super.onCreateOptionsMenu(menu);
     }
 
     private void searchClickOnBookmarkMenu() {
-        if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
+        if (currentItem == idBookmark && bookmarkFragment.canGoBack()) {
             bookmarkFragment.clearScreen();
             getMenu().findItem(R.id.action_edit).setVisible(false);
             searchView.setOnQueryTextListener(searchViewTextChangeListener);
@@ -169,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
     }
 
     private void closeButtonOnBookmarkMenu() {
-        if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()) {
+        if (currentItem == idBookmark && bookmarkFragment.canGoBack()) {
             bookmarkFragment.clearScreen();
         } else {
             bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
@@ -227,38 +233,25 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
     }
 
     private void setupDrawerLayout() {
+        view = (NavigationView) findViewById(R.id.navigation_view);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        NavigationView view = (NavigationView) findViewById(R.id.navigation_view);
-        view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        final Menu menu = view.getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            items.add(menu.getItem(i));
+        }
+        view.setNavigationItemSelectedListener(new NavigationView.
+                OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.drawer_cook_good:
-                        cookGoodFragment = (FeedFragment) changeFragmentOnClick(cookGoodFragment,
-                                FeedFragment.COOK_GOOD, R.id.drawer_cook_good);
-                        break;
-                    case R.id.drawer_fitness_recipe:
-                        fitnessRecipeFragment = (FeedFragment) changeFragmentOnClick(fitnessRecipeFragment,
-                                FeedFragment.FITNESS_RECIPE, R.id.drawer_fitness_recipe);
-                        break;
-                    case R.id.drawer_health_food:
-                        healthFoodFragment = (FeedFragment) changeFragmentOnClick(healthFoodFragment,
-                                FeedFragment.HEALTH_FOOD, R.id.drawer_health_food);
-                        break;
-                    case R.id.drawer_best_recipe:
-                        bestRecipeFragment = (FeedFragment) changeFragmentOnClick(bestRecipeFragment,
-                                FeedFragment.BEST_RECIPE, R.id.drawer_best_recipe);
-                        break;
-                    case R.id.drawer_useful_recipe:
-                        usefulRecipeFragment = (FeedFragment) changeFragmentOnClick(usefulRecipeFragment,
-                                FeedFragment.USEFUL_RECIPE, R.id.drawer_useful_recipe);
-                        break;
-                    case R.id.drawer_bookmark:
-                        bookmarkFragment = (BookmarkFragment) changeFragmentOnClick(bookmarkFragment,
-                                0, R.id.drawer_bookmark);
-                        break;
-                    //case R.id.drawer_instagram_recipes:
-                    //  feedFromInstagramFragment = (FeedFromInstagramFragment) changeFragmentOnClick(feedFromInstagramFragment, 0, R.id.drawer_instagram_recipes);
+                int position = items.indexOf(menuItem);
+                int checkedItemId = itemMenuId.get(position);
+                currentTag = getTagById(checkedItemId);
+                Fragment newFragment = fragmentManager.findFragmentByTag(currentTag);
+                if (itemMenuId.size() - 1 == position) {
+                    bookmarkFragment = (BookmarkFragment) changeFragmentOnClick(newFragment,
+                            checkedItemId, menuItem);
+                } else {
+                    feedFragment = (FeedFragment) changeFragmentOnClick(newFragment, checkedItemId, menuItem);
                 }
                 drawerLayout.closeDrawers();
                 return true;
@@ -270,12 +263,12 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            if (currentItem == R.id.drawer_bookmark && !bookmarkFragment.canGoBack()) {
+            if (currentItem == idBookmark && !bookmarkFragment.canGoBack()) {
                 onBackPressed();
                 return true;
             }
-            if (currentItem == R.id.drawer_bookmark && bookmarkFragment.canGoBack()
-                    && isPressBackMenuSearch == true) {
+            if (currentItem == idBookmark && bookmarkFragment.canGoBack()
+                    && isPressBackMenuSearch) {
                 onBackPressed();
                 return true;
             }
@@ -290,23 +283,17 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
     }
 
     public String getTagById(int currentId) {
-        if (R.id.drawer_cook_good == currentId) {
-            return COOK_GOOD_FRAGMENT_TAG;
-        } else if (R.id.drawer_useful_recipe == currentId) {
-            return USEFUL_RECIPE_FRAGMENT_TAG;
-        } else if (R.id.drawer_best_recipe == currentId) {
-            return BEST_RECIPE_FRAGMENT_TAG;
-        } else if (R.id.drawer_fitness_recipe == currentId) {
-            return FITNESS_RECIPE_FRAGMENT_TAG;
-        } else if (R.id.drawer_health_food == currentId) {
-            return HEALTH_FOOD_FRAGMENT_TAG;
-        } //else if (R.id.drawer_instagram_recipes == currentId) {
-        // return INSTAGRAM_FRAGMENT_TAG;
-        else return BOOKMARK_FRAGMENT_TAG;
+        String nameOfCurrentFragment = "";
+        for (int i = 0; i < itemMenuId.size(); i++) {
+            if (itemMenuId.get(i) == currentId) {
+                nameOfCurrentFragment = itemMenuName.get(i);
+                break;
+            }
+        }
+        return nameOfCurrentFragment;
     }
 
-    private Fragment changeFragmentOnClick(Fragment newFragment, int newInstanceOfFragment, int groupId) {
-        // todo change to getTagByCurrentItem and fragmentManager.findFragmentByTag
+    private Fragment changeFragmentOnClick(Fragment newFragment, int groupId, MenuItem menuItem) {
         currentTag = getTagById(currentItem);
         Fragment currentFragment = fragmentManager.findFragmentByTag(currentTag);
         setTitleOnFragment(groupId);
@@ -317,18 +304,13 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
             hideFragment(currentFragment);
         }
         String newTag = getTagById(groupId);
-        if (newFragment == null && R.id.drawer_bookmark == groupId) {
+        if (newFragment == null && idBookmark == groupId) {
             newFragment = BookmarkFragment.newInstance();
             fragmentManager.beginTransaction()
                     .add(R.id.container, newFragment, newTag)
                     .commit();
-        } //else if (newFragment == null && R.id.drawer_instagram_recipes == groupId) {
-        // newFragment = FeedFromInstagramFragment.newInstance();
-        //fragmentManager.beginTransaction()
-        //.add(R.id.container, newFragment, newTag)
-        // .commit();}
-        else if (newFragment == null) {
-            newFragment = FeedFragment.newInstance(newInstanceOfFragment);
+        } else if (newFragment == null) {
+            newFragment = FeedFragment.newInstance(groupId);
             fragmentManager.beginTransaction()
                     .add(R.id.container, newFragment, newTag)
                     .commit();
@@ -337,38 +319,30 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
                     .show(newFragment)
                     .commit();
         }
-        setCurrentItem(groupId);
+        setCurrentItem(groupId, menuItem);
         return newFragment;
     }
 
     private void setTitleOnFragment(int groupId) {
-        if (R.id.drawer_cook_good == groupId) {
-            getSupportActionBar().setTitle(getString(R.string.cook_good));
-        } else if (R.id.drawer_useful_recipe == groupId) {
-            getSupportActionBar().setTitle(getString(R.string.useful_recipe));
-        } else if (R.id.drawer_best_recipe == groupId) {
-            getSupportActionBar().setTitle(getString(R.string.best_recipe));
-        } else if (R.id.drawer_fitness_recipe == groupId) {
-            getSupportActionBar().setTitle(getString(R.string.fitness_recipe));
-        } else if (R.id.drawer_health_food == groupId) {
-            getSupportActionBar().setTitle(getString(R.string.health_food));
-        }// else if (R.id.drawer_instagram_recipes == groupId) {
-        //getSupportActionBar().setTitle(getString(R.string.recipes_from_instagram));}
-        else getSupportActionBar().setTitle(getString(R.string.bookmark));
+        for (int i = 0; i < itemMenuId.size(); i++) {
+            if (itemMenuId.get(i) == groupId) {
+                getSupportActionBar().setTitle(itemMenuName.get(i));
+                break;
+            }
+        }
     }
 
-    private void setCurrentItem(int groupId) {
+    private void setCurrentItem(int groupId, MenuItem menuItem) {
         currentItem = groupId;
-        NavigationView view = (NavigationView) findViewById(R.id.navigation_view);
-        view.getMenu().findItem(groupId).setChecked(true);
+        menuItem.setChecked(true);
     }
 
     @Override
     public void onBackPressed() {
         if ((bookmarkFragment != null && !bookmarkFragment.canGoBack() &&
-                R.id.drawer_bookmark == currentItem) || (bookmarkFragment != null &&
-                bookmarkFragment.canGoBack() && R.id.drawer_bookmark == currentItem &&
-                isPressBackMenuSearch == true)) {
+                idBookmark == currentItem) || (bookmarkFragment != null &&
+                bookmarkFragment.canGoBack() && idBookmark == currentItem &&
+                isPressBackMenuSearch )) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             getMenu().findItem(R.id.action_edit).setVisible(true);
             getMenu().findItem(R.id.action_search).setVisible(true);
@@ -387,9 +361,17 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
         if (getMenu() != null) {
             getMenu().findItem(R.id.action_edit).setVisible(false);
         } else {
-            currentItem = R.id.drawer_bookmark;
+            currentItem = idBookmark;
             needToHideTheMenu = true;
         }
+    }
+
+    public void setNameAndIdOfCategory() {
+        int[] old = (getResources().getIntArray(R.array.array_drawer_item_id));
+        for (int x : old) {
+            itemMenuId.add(x);
+        }
+        itemMenuName = Arrays.asList(getResources().getStringArray(R.array.array_drawer_item_name));
     }
 
     @Override
