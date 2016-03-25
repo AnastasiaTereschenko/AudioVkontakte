@@ -25,14 +25,12 @@ import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
-import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
-import com.github.ksoichiro.android.observablescrollview.ScrollState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ObservableScrollViewCallbacks {
+public class MainActivity extends AppCompatActivity {
     public static final String CURRENT_ITEM = "ItemOfFragment";
     private DrawerLayout drawerLayout;
     private int currentItem;
@@ -97,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
                         .commit();
             }
         }
+
     }
 
     public void hideFragmentByTag(String tag) {
@@ -372,20 +371,5 @@ public class MainActivity extends AppCompatActivity implements ObservableScrollV
             itemMenuId.add(x);
         }
         itemMenuName = Arrays.asList(getResources().getStringArray(R.array.array_drawer_item_name));
-    }
-
-    @Override
-    public void onScrollChanged(int i, boolean b, boolean b1) {
-
-    }
-
-    @Override
-    public void onDownMotionEvent() {
-
-    }
-
-    @Override
-    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
-
     }
 }

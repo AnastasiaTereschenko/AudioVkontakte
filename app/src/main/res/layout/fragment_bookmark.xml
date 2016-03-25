@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <com.github.ksoichiro.android.observablescrollview.ObservableListView
+    <RecyclerView
         android:id="@+id/lvBookmark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

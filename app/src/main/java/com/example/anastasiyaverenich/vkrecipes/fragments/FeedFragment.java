@@ -1,9 +1,10 @@
 package com.example.anastasiyaverenich.vkrecipes.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,16 +14,13 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
-import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapter;
+import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapterRecycler;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.gsonFactories.RecipeTypeAdapterFactory;
 import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethods;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
-import com.example.anastasiyaverenich.vkrecipes.ui.EndlessScrollListener;
+import com.example.anastasiyaverenich.vkrecipes.ui.OnLoadMoreListener;
 import com.example.anastasiyaverenich.vkrecipes.utils.FeedUtils;
-import com.github.ksoichiro.android.observablescrollview.ObservableListView;
-import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
-import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -38,7 +36,7 @@ import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
 public class FeedFragment extends android.support.v4.app.Fragment implements
-        SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
+        SwipeRefreshLayout.OnRefreshListener {
     private static final String API_URL = "https://api.vk.com";
     private int OFFSET = 0;
     private static final int COUNT = 15;
@@ -47,14 +45,15 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     private IApiMethods methods;
     private Callback callback;
     private ImageLoader imageLoader;
-    private FeedAdapter adapter;
-    ObservableListView lvMain;
-    View footerView;
+    public FeedAdapterRecycler adapter;
+    RecyclerView recyclerView;
     private List<Recipe.Feed> feedList;
     private SwipeRefreshLayout swipeRefresh;
     private int currentGroupId;
     MenuItem menuItem;
     int offsetErrorLoading;
+    protected Handler handler;
+    private LinearLayoutManager mLayoutManager;
 
     public static FeedFragment newInstance(int position) {
         FeedFragment fragment = new FeedFragment();
@@ -81,13 +80,31 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
         menuItem = (MenuItem) view.findViewById(R.id.action_edit);
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(getActivity()));
-        lvMain = (ObservableListView) view.findViewById(R.id.lvMain);
-        lvMain.setScrollViewCallbacks(this);
-        footerView = (View) inflater.inflate(R.layout.footer, null);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        handler = new Handler();
         setHasOptionsMenu(true);
         setCurrentParam(getPosition());
         FeedUtils.setFeeds(VkRApplication.get().getMySQLiteHelper().getAllFeeds(currentGroupId));
+
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
         loadingFeeds();
+        adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                feedList.add(null);
+                adapter.notifyItemInserted(feedList.size() - 1);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        feedList.remove(feedList.size()-1);
+                        adapter.notifyItemRemoved(feedList.size());
+                        OFFSET = OFFSET + COUNT;
+                        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
+                    }
+                }, 3000);
+            }
+        });
         return view;
     }
 
@@ -128,10 +145,8 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                 feedList.addAll(feedNew);
                 adapter.notifyDataSetChanged();
                 swipeRefresh.setRefreshing(false);
-                if ((results.response.size() == 0) || (results.response.size() < COUNT)) {
-                    lvMain.removeFooterView(footerView);
-                } else {
-                    endlessScrollListener.setLoading(false);
+                if ((results.response.size() != 0) || (results.response.size() == COUNT)) {
+                    adapter.setLoaded();
                 }
             }
 
@@ -139,91 +154,43 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
             public void failure(RetrofitError retrofitError) {
                 Log.e("TAG", "ERROR ");
                 OFFSET = offsetErrorLoading;
-                    swipeRefresh.post(new Runnable() {
-                                          @Override
-                                          public void run() {
-                                              swipeRefresh.setRefreshing(false);
-                                          }
+                swipeRefresh.post(new Runnable() {
+                                      @Override
+                                      public void run() {
+                                          swipeRefresh.setRefreshing(false);
                                       }
-                    );
-                    retrofitError.printStackTrace();
-                    endlessScrollListener.setLoading(false);
-                    Toast.makeText(getActivity(), "Невозможно обновить ленту ", Toast.LENGTH_LONG)
-                            .show();
-            }
-        }
-        ;
-        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-        lvMain.setOnScrollListener(endlessScrollListener);
-        }
-
-        @Override
-        public void onRefresh () {
-            if (lvMain.getFooterViewsCount() != 0) {
-                lvMain.removeFooterView(footerView);
-            }
-            offsetErrorLoading = OFFSET;
-            adapter.removeAllKeys();
-            OFFSET = 0;
-            methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-        }
-
-        EndlessScrollListener endlessScrollListener = new EndlessScrollListener() {
-            @Override
-            public void loadData() {
-                if (lvMain.getFooterViewsCount() == 0) {
-                    lvMain.addFooterView(footerView);
-                }
-                OFFSET = OFFSET + COUNT;
-                methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
+                                  }
+                );
+                retrofitError.printStackTrace();
+                adapter.setLoaded();
+                Toast.makeText(getActivity(), "Невозможно обновить ленту ", Toast.LENGTH_LONG)
+                        .show();
             }
         };
+        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
+        adapter.setLoaded();
+    }
+
+    @Override
+    public void onRefresh() {
+        offsetErrorLoading = OFFSET;
+        adapter.removeAllKeys();
+        OFFSET = 0;
+        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
+    }
+
 
     private void initAdapter(List<Recipe.Feed> feeds) {
-        if (lvMain.getFooterViewsCount() != 0) {
-            lvMain.removeFooterView(footerView);
-        }
         swipeRefresh.post(new Runnable() {
                               @Override
                               public void run() {
-
                                   swipeRefresh.setRefreshing(true);
                               }
                           }
         );
-        lvMain.addFooterView(footerView);
-
-        adapter = new FeedAdapter(getActivity(), R.layout.recipe_list_item, feeds);
-        lvMain.setAdapter(adapter);
+        adapter = new FeedAdapterRecycler(getActivity(), R.layout.recipe_list_item, feeds, recyclerView);
+        recyclerView.setAdapter(adapter);
 
     }
-
-    @Override
-    public void onScrollChanged(int i, boolean b, boolean b1) {
-
-    }
-
-    @Override
-    public void onDownMotionEvent() {
-
-    }
-
-    @Override
-    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar == null) {
-            return;
-        }
-        if (scrollState == ScrollState.UP) {
-            if (actionBar.isShowing()) {
-                actionBar.hide();
-            }
-        } else if (scrollState == ScrollState.DOWN) {
-            if (!actionBar.isShowing()) {
-                actionBar.show();
-            }
-        }
-    }
-
 }
 

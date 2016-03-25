@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"></uk.co.senab.photoview.PhotoView>
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/progressBarImage"
         style="@style/Widget.AppCompat.ProgressBar"
         android:layout_gravity="center"
         android:layout_width="60dp"
