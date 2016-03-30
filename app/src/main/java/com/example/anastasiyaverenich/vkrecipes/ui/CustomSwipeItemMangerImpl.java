@@ -5,7 +5,6 @@ import android.widget.BaseAdapter;
 import com.daimajia.swipe.implments.SwipeItemAdapterMangerImpl;
 
 public class CustomSwipeItemMangerImpl extends SwipeItemAdapterMangerImpl {
-
     public CustomSwipeItemMangerImpl(BaseAdapter adapter) {
         super(adapter);
     }
@@ -34,4 +33,3 @@ public class CustomSwipeItemMangerImpl extends SwipeItemAdapterMangerImpl {
         }
     }
 }
-

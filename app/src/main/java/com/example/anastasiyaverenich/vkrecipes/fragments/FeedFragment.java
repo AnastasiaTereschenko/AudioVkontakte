@@ -53,7 +53,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     MenuItem menuItem;
     int offsetErrorLoading;
     protected Handler handler;
-    private LinearLayoutManager mLayoutManager;
+    private LinearLayoutManager linearLayoutManager;
 
     public static FeedFragment newInstance(int position) {
         FeedFragment fragment = new FeedFragment();
@@ -80,14 +80,13 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
         menuItem = (MenuItem) view.findViewById(R.id.action_edit);
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(getActivity()));
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_feed);
         handler = new Handler();
         setHasOptionsMenu(true);
         setCurrentParam(getPosition());
         FeedUtils.setFeeds(VkRApplication.get().getMySQLiteHelper().getAllFeeds(currentGroupId));
-
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(linearLayoutManager);
         loadingFeeds();
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
@@ -97,7 +96,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        feedList.remove(feedList.size()-1);
+                        feedList.remove(feedList.size() - 1);
                         adapter.notifyItemRemoved(feedList.size());
                         OFFSET = OFFSET + COUNT;
                         methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);

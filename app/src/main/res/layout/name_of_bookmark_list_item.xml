@@ -1,45 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:swipe="http://schemas.android.com/apk/res-auto"
     android:id="@+id/swipe"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="80dp">
+   <!-- swipe:rightEdgeSwipeOffset="0dp"
+    swipe:leftEdgeSwipeOffset="0dp"-->
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:tag="Top">
+        android:layout_height="80dp"
+        android:background="#ffffff"
+        android:tag="Bottom2">
+
+        <ImageView
+            android:id="@+id/nobli_ll_trash"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:background="#e00106"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:src="@drawable/trash" />
 
         <ImageView
             android:id="@+id/nobli_ll_edit"
             android:layout_width="70dp"
             android:layout_height="match_parent"
-            android:background="#4cd964"
+            android:background="#e00106"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:src="@drawable/ic_mode_edit_black_48dp" />
-
-        <ImageView
-            android:id="@+id/nobli_ll_trash"
-            android:layout_width="65dp"
-            android:layout_height="match_parent"
-            android:paddingLeft="25dp"
-            android:paddingRight="25dp"
-            android:src="@drawable/trash" />
     </LinearLayout>
-    <LinearLayout
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/nobli_ll_menu"
+
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_vertical">
+        android:background="#ffffff"
+        android:gravity="center_horizontal">
+
         <TextView
+            android:id="@+id/ll_tv_name_of_bookmark_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/ll_tv_name_of_bookmark_list"
-            android:paddingLeft="20dp"
-            tools:text="text"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:paddingTop="20dp"
+            tools:text="text" />
     </LinearLayout>
-</com.daimajia.swipe.SwipeLayout>
+</com.daimajia.swipe.SwipeLayout><!--android:paddingLeft="20dp"  -->

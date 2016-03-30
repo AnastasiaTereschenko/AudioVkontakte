@@ -34,7 +34,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
     }
 
     public View generateView(final int position, final ViewGroup parent) {
-        final View convertView = LayoutInflater.from(mContext).inflate(R.layout.sample_together, parent, false);
+        final View convertView = LayoutInflater.from(mContext).inflate(R.layout.name_of_bookmark_list_item, parent, false);
         final SwipeLayout bookmarkSwipe = (SwipeLayout) convertView.findViewById(getSwipeLayoutResourceId(position));
         bookmarkSwipe.setShowMode(SwipeLayout.ShowMode.LayDown);
         bookmarkSwipe.addDrag(SwipeLayout.DragEdge.Right, bookmarkSwipe.findViewWithTag("Top"));
@@ -115,7 +115,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
         } else {
             ((CustomSwipeItemMangerImpl) mItemManger).openAllItems();
         }
-        isEdit = !isEdit;
+        //isEdit = !isEdit;
     }
 
     @Override
