@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:swipe="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/swipe"
+    android:id="@+id/nobli_swipe"
     android:layout_width="match_parent"
-    android:layout_height="80dp">
-   <!-- swipe:rightEdgeSwipeOffset="0dp"
-    swipe:leftEdgeSwipeOffset="0dp"-->
+    android:layout_height="80dp"
+    swipe:rightEdgeSwipeOffset="0dp"
+    swipe:leftEdgeSwipeOffset="0dp">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="80dp"
@@ -16,7 +16,7 @@
             android:id="@+id/nobli_ll_trash"
             android:layout_width="70dp"
             android:layout_height="match_parent"
-            android:background="#e00106"
+            android:background="@color/background_bookmark_swipe"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:src="@drawable/trash" />
@@ -25,7 +25,7 @@
             android:id="@+id/nobli_ll_edit"
             android:layout_width="70dp"
             android:layout_height="match_parent"
-            android:background="#e00106"
+            android:background="@color/background_bookmark_swipe"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:src="@drawable/ic_mode_edit_black_48dp" />
@@ -34,15 +34,16 @@
     <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffff"
-        android:gravity="center_horizontal">
+        android:background="#ffffff">
 
         <TextView
             android:id="@+id/ll_tv_name_of_bookmark_list"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:paddingTop="20dp"
-            tools:text="text" />
+            tools:text="text"
+            android:paddingLeft="97dp"
+            android:textColor="@color/text_color"/>
     </LinearLayout>
 </com.daimajia.swipe.SwipeLayout><!--android:paddingLeft="20dp"  -->

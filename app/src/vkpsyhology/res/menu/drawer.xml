@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/psychology"
+            android:icon="@drawable/psyhology5"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/psychology" />
+        <item
+            android:id="@+id/be_smart"
+            android:icon="@drawable/psyhology4"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/be_smart" />
+        <item
+            android:id="@+id/psychology_of_life"
+            android:icon="@drawable/psyhology1"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/psychology_of_life" />
+        <item
+            android:id="@+id/psychology_esoteric_philosophy"
+            android:icon="@drawable/motivation"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/psychology_esoteric_philosophy" />
+        <item
+            android:id="@+id/philosophy_psychology_selfdevelopment"
+            android:icon="@drawable/psyhology6"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/philosophy_psychology_selfdevelopment" />
+        <item
+            android:id="@+id/psychology_of_relationships"
+            android:icon="@drawable/psyhology7"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/psychology_of_relationships" />
+        <item
+            android:id="@+id/practice_psychology"
+            android:icon="@drawable/psyhology2"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/practice_psychology" />
+        <item
+            android:id="@+id/psychology_of_the_soul"
+            android:icon="@drawable/psyhology8"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/psychology_of_the_soul" />
+        <item
+            android:id="@+id/motivation"
+            android:icon="@drawable/psyhology3"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/motivation" />
+        <item
+            android:id="@+id/drawer_bookmark"
+            android:icon="@drawable/ic_star_border_black_24dp"
+            android:state_focused="true"
+            android:state_pressed="false"
+            android:textColor="@color/text_color"
+            android:title="@string/bookmark" />
+    </group>
+</menu>

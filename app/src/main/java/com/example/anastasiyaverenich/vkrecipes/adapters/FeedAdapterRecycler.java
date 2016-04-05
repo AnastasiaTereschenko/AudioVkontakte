@@ -39,11 +39,14 @@ import org.apmem.tools.layouts.FlowLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class FeedAdapterRecycler extends RecyclerView.Adapter {
+    public static final int MAX_LINES_IS_MORE = 5;
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
     private final Context mContext;
@@ -54,8 +57,9 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
     String descriptionOfFeed;
     boolean isOpenMore;
     Set<Integer> keyOpenFeed = new HashSet<>();
+    Map<Integer, Integer> countOpenPosition = new HashMap<>();
     boolean isEmptyOrLessFiveString;
-    Handler handlerDelayChangeText;
+    Handler handler;
     private int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
     private boolean loading = true;
@@ -107,7 +111,7 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
                     parent, false);
             vh = new FeedViewHolder(view);
         } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.footer, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.progress_bar_on_feed, parent, false);
             vh = new ProgressViewHolder(view);
         }
         return vh;
@@ -116,12 +120,26 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof FeedViewHolder) {
-            final FeedViewHolder feedViewHolder = (FeedViewHolder) holder;
             final Recipe.Feed feed = feeds.get(position);
-            final int index = feed.text.toString().indexOf("<br>");
+            final FeedViewHolder feedViewHolder = (FeedViewHolder) holder;
+            final int index = feed.text.indexOf("<br>");
             setTextOnTextView(feed, ((FeedViewHolder) holder), index);
             final ArrayList<Recipe.Photo> photos = FeedUtils.getPhotosFromAttachments(feed.attachments);
-            setFeedImages(feedViewHolder, photos, feed);
+            if (photos != null) {
+                setFeedImages(feedViewHolder, photos, feed);
+            }
+            if (keyOpenFeed.contains(position)) {
+                feedViewHolder.textDescription.setMaxLines(countOpenPosition.get(position));
+                isOpenMore = true;
+                feedViewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
+            } else {
+                if(enableMoreInformation(feedViewHolder)){
+                    return;
+                }
+                feedViewHolder.textDescription.setMaxLines(MAX_LINES_IS_MORE);
+                isOpenMore = false;
+                feedViewHolder.imMoreInformation.setVisibility(View.VISIBLE);
+            }
             holder.itemView.setTag(feed);
             feedViewHolder.flSaveImage.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -133,10 +151,11 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
                     }
                 }
             });
+            final FeedViewHolder finalFeedViewHolder1 = feedViewHolder;
             feedViewHolder.ibMoreInformation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    hideAndShowDescriptionBookmark(position, feedViewHolder);
+                    hideAndShowDescriptionBookmark(position, finalFeedViewHolder1);
                 }
             });
             feedViewHolder.flShareImage.setOnClickListener(new View.OnClickListener() {
@@ -149,11 +168,12 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
             } else {
                 feedViewHolder.imageViewBM.setImageResource(R.drawable.ic_star_border_black_24dp);
             }
+            final FeedViewHolder finalFeedViewHolder = feedViewHolder;
             feedViewHolder.flBookmarkImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     long feedId = feed.id;
-                    saveBookmarkOnCheck(feedId, feedViewHolder, position, feed);
+                    saveBookmarkOnCheck(feedId, finalFeedViewHolder, position, feed);
                 }
             });
             feedViewHolder.container.requestLayout();
@@ -209,32 +229,24 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
         }
     }
 
-    private void setTextOnTextView(final Recipe.Feed feed, final FeedViewHolder viewHolder, int index) {
-        handlerDelayChangeText = new Handler();
-        int size = feed.text.toString().length();
-        if (!feed.text.toString().equals("")) {
+    private void setTextOnTextView(final Recipe.Feed feed, final FeedViewHolder viewHolder,
+                                   int index) {
+        int size = feed.text.length();
+        if (!feed.text.equals("")) {
             if (index == -1) {
-                viewHolder.textName.setText(Html.fromHtml(feed.text.toString()));
+                viewHolder.textName.setText(Html.fromHtml(feed.text));
                 viewHolder.textDescription.setText(" ");
-                enableOrDisableMoreInformation(viewHolder);
             } else {
                 String nameOfFeed = feed.text.substring(0, index);
                 descriptionOfFeed = feed.text.substring(index, size);
-                viewHolder.textName.setText(Html.fromHtml(nameOfFeed.toString()));
-                viewHolder.textDescription.setText(Html.fromHtml(descriptionOfFeed.toString()));
-                Runnable startChangeText = new Runnable() {
-                    @Override
-                    public void run() {
-                        enableOrDisableMoreInformation(viewHolder);
-                    }
-                };
-                handlerDelayChangeText.postDelayed(startChangeText, 300);
+                viewHolder.textName.setText(Html.fromHtml(nameOfFeed));
+                viewHolder.textDescription.setText(Html.fromHtml(descriptionOfFeed));
             }
         } else {
             viewHolder.textName.setText(" ");
             viewHolder.textDescription.setText(" ");
-            enableOrDisableMoreInformation(viewHolder);
         }
+        enableMoreInformation(viewHolder);
     }
 
     private void saveBookmarkOnCheck(long feedId, final FeedViewHolder viewHolder, int position, Recipe.Feed feed) {
@@ -257,31 +269,39 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
     }
 
     private void hideAndShowDescriptionBookmark(int position, FeedViewHolder viewHolder) {
-        if (enableOrDisableMoreInformation(viewHolder)) {
+        if(enableMoreInformation(viewHolder)){
             return;
         }
-        if ((!isOpenMore) && (!isEmptyOrLessFiveString)) {
+        if (!isOpenMore) {
             keyOpenFeed.add(position);
+            countOpenPosition.put(position, viewHolder.textDescription.getLineCount());
             viewHolder.textDescription.setMaxLines(viewHolder.textDescription.getLineCount());
             isOpenMore = true;
             viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
-        } else if ((isOpenMore) && (!isEmptyOrLessFiveString)) {
+        } else {
             if (keyOpenFeed.contains(position)) {
                 keyOpenFeed.remove(position);
+                countOpenPosition.remove(position);
             }
-            viewHolder.textDescription.setMaxLines(5);
+            viewHolder.textDescription.setMaxLines(MAX_LINES_IS_MORE);
             isOpenMore = false;
             viewHolder.imMoreInformation.setVisibility(View.VISIBLE);
         }
     }
 
-    private boolean enableOrDisableMoreInformation(FeedViewHolder viewHolder) {
-        if (viewHolder.textDescription.getLineCount() <= 5) {
-            viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
-            return true;
-        } else {
-            return false;
-        }
+    private boolean enableMoreInformation(final FeedViewHolder viewHolder) {
+        final boolean[] flagEnable = new boolean[1];
+        Runnable startChangeText = new Runnable() {
+            @Override
+            public void run() {
+                if (viewHolder.textDescription.getLineCount() <= 5) {
+                    viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
+                    flagEnable[0] =true;
+                }
+            }
+        };
+        viewHolder.textDescription.post(startChangeText);
+        return flagEnable[0];
     }
 
     public void removeAllKeys() {

@@ -11,5 +11,5 @@
         android:layout_marginLeft="22dp"
         android:layout_marginRight="22dp"
         android:layout_marginBottom="4dp"/>
-<!--        android:hint="@string/name_edit_bookmark"-->
+       android:hint="@string/name_edit_bookmark"
 </LinearLayout>

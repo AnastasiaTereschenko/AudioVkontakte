@@ -3,10 +3,19 @@
     <color name="list_background">#000</color>
     <color name="list_background_pressed">#ccc</color>
     <color name="drawer_item_color">#fff</color>
-    <color name="list_divider">#5e5e5e</color>
-    <color name="light_blue">#AFEEEE</color>
-    <color name="middle_blue">#6495ED</color>
-    <color name="deep_blue">#0000FF</color>
-    <color name="fun_blue">#0097A7</color>
-    <color name="color_image">#8b1114</color>
+    <color name="text_color">#000</color>
+    <color name="list_divider">#73f7b7</color>
+    <color name="light_blue">#73f7b7</color>
+    <color name="middle_blue">#21fd93</color>
+    <color name="deep_blue">#10f787</color>
+    <color name="fun_blue">#73f7b7</color>
+    <color name="color_image">#73f7b7</color>
+    <color name="background_bookmark_swipe">#73f7b7</color>
+
+    <color name="primary">#73f7b7</color>
+    <color name="text">#73f7b7</color>
+    <color name="accent">#73f7b7</color>
+    <color name="accent_translucent">#ffffff</color>
+    <color name="accent_bright">#f6ebec</color>
+    <color name="popup_menu_background">#000000</color>
 </resources>

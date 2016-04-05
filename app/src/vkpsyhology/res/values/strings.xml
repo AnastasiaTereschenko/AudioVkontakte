@@ -2,4 +2,38 @@
 <resources>
     <string name="app_name">VkPsyhology</string>
     <string name="label_name">Psyhology</string>
+    <string name="psychology">Психология</string>
+    <string name="psychology_of_relationships">Психология отношений</string>
+    <string name="psychology_of_the_soul">Психология души</string>
+    <string name="be_smart">Be smart - умный журнал!</string>
+    <string name="practice_psychology">Практическая психология</string>
+    <string name="psychology_esoteric_philosophy">Философия|Эзотерика|Психология</string>
+    <string name="philosophy_psychology_selfdevelopment">Философия|Психология|Саморазвития</string>
+    <string name="psychology_of_life">Психология о жизни</string>
+    <string name="motivation">Мотивация</string>
+    <string name="bookmark">Закладки</string>
+    <string-array name="array_drawer_item_name">
+        <item>Психология</item>
+        <item>Be smart - умный журнал!</item>
+        <item>Психология о жизни</item>
+        <item>Философия|Психология|Саморазвития</item>
+        <item>Психология отношений</item>
+        <item>Философия|Эзотерика|Психология</item>
+        <item>Практическая психология</item>
+        <item>Психология отношений</item>
+        <item>Мотивация</item>
+        <item>Закладки</item>
+    </string-array>
+    <integer-array name="array_drawer_item_id">
+        <item>-55662720</item>
+        <item>-47679753</item>
+        <item>-31478728</item>
+        <item>-14305889</item>
+        <item>-33080201</item>
+        <item>-40498005</item>
+        <item>-41538339</item>
+        <item>-54343520</item>
+        <item>-37859969</item>
+        <item>1</item>
+    </integer-array>
 </resources>

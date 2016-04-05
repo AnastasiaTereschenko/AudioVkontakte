@@ -210,7 +210,7 @@ public class FeedAdapter extends ArrayAdapter<Recipe.Feed> {
             if (keyOpenFeed.contains(position)) {
                 keyOpenFeed.remove(position);
             }
-            viewHolder.textDescription.setMaxLines(5);
+            viewHolder.textDescription.setMaxLines(4);
             isOpenMore = false;
             viewHolder.imMoreInformation.setVisibility(View.VISIBLE);
         }

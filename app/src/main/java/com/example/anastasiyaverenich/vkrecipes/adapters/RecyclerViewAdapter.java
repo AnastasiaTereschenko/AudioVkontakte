@@ -31,7 +31,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
 
         public SimpleViewHolder(View itemView) {
             super(itemView);
-            swipeLayout = (SwipeLayout) itemView.findViewById(R.id.swipe);
+            swipeLayout = (SwipeLayout) itemView.findViewById(R.id.nobli_swipe);
             textViewData = (TextView) itemView.findViewById(R.id.ll_tv_name_of_bookmark_list);
             buttonDelete = (ImageView) itemView.findViewById(R.id.nobli_ll_trash);
             buttonEdit = (ImageView) itemView.findViewById(R.id.nobli_ll_edit);
@@ -84,6 +84,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
             public void onClick(View view) {
                 if (BookmarkCategoryUtils.checkCategories(idCategory)) {
                     BookmarkCategoryUtils.deleteBookmark(idCategory);
+                    closeItem(position);
                     notifyDatasetChanged();
                     Toast.makeText(view.getContext(), "Удалена категория " +
                                     simpleViewHolder.textViewData.getText().toString().toLowerCase() + ".",
@@ -137,7 +138,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return R.id.swipe;
+        return R.id.nobli_swipe;
     }
 
     public void setListener(BookmarkItemClickListener listener) {

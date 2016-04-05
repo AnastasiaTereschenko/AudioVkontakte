@@ -22,7 +22,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:textSize="17sp"
-                android:typeface="serif"/>
+                android:typeface="serif"
+                android:textColor="@color/text_color"/>
 
             <org.apmem.tools.layouts.FlowLayout
                 android:id="@+id/rli_ll_images_container"
@@ -41,8 +42,8 @@
                 android:id="@+id/rli_tv_description_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="5"
-                android:textSize="15sp"/>
+                android:textSize="15sp"
+                android:textColor="@color/text_color"/>
                 <ImageView
                     android:id="@+id/rli_im_more"
                     android:layout_width="match_parent"

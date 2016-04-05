@@ -238,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < menu.size(); i++) {
             items.add(menu.getItem(i));
         }
+        view.setItemIconTintList(null);
         view.setNavigationItemSelectedListener(new NavigationView.
                 OnNavigationItemSelectedListener() {
             @Override

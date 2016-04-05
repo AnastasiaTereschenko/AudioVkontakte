@@ -10,17 +10,8 @@
 
     <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item> 
-        <item name="colorPrimaryDark">@color/primary_dark</item> 
         <item name="colorControlHighlight">@color/accent_translucent</item> 
         <item name="android:titleTextStyle">@color/drawer_item_color</item> 
         <item name="colorAccent">@color/accent</item>
     </style>
-
-    <color name="primary">#e00106</color>
-    <color name="text">#b6ff7c3b</color>
-    <color name="primary_dark">#0097A7</color>
-    <color name="accent">#f6ebec</color>
-    <color name="accent_translucent">#fff</color>
-    <color name="accent_bright">#f6ebec</color>
-    <color name="popup_menu_background">#000000</color>
 </resources>

@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -15,20 +17,23 @@ import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
 
 
 public class AddBookmarkDialogFragment extends DialogFragment {
-    EditText editTextInputNewBookmark;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View view = inflater.inflate(R.layout.fragment_edit_name_of_bookmark, null);
+        final EditText editTextInputNewBookmark = (EditText) view.findViewById(R.id.feb_edit_bookmark);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.MyAlertDialogStyle ).
         setTitle(R.string.write_new_bookmark);
         builder.setView(view);
-        editTextInputNewBookmark = (EditText)view.findViewById(R.id.fab_add_new_bookmark);
         builder.setPositiveButton(R.string.button_add_name_of_bookmark,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                BookmarkCategoryUtils.addCategory(editTextInputNewBookmark.getText().toString());
+                if(editTextInputNewBookmark!=null) {
+                    Editable name = editTextInputNewBookmark.getText();
+                    Log.v("EditText value=", editTextInputNewBookmark.getText().toString());
+                    BookmarkCategoryUtils.addCategory(editTextInputNewBookmark.getText().toString());
+                }
             }
         });
         builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {

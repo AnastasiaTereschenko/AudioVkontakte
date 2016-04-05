@@ -31,8 +31,12 @@ public class FeedUtils {
             updateFeeds(feeds, groupId);
         }
     }
+
     public static ArrayList<Recipe.Photo> getPhotosFromAttachments(List<Recipe.Attach> attaches) {
         ArrayList<Recipe.Photo> photos = new ArrayList<>();
+        if (attaches==null){
+            return null;
+        }
         for (int i = 0; i < attaches.size(); i++) {
             Recipe.Attach attach = attaches.get(i);
             if (attach.photo != null) {
@@ -41,6 +45,7 @@ public class FeedUtils {
         }
         return photos;
     }
+
     public static Boolean isPhotosFromAttachments(List<Recipe.Attach> attaches) {
         Boolean isPhoto = false;
         for (int i = 0; i < 1; i++) {
@@ -53,16 +58,17 @@ public class FeedUtils {
         }
         return isPhoto;
     }
+
     public static ArrayList<Recipe.Feed> getFeedsWithoutAds(List<Recipe.Feed> feeds) {
         ArrayList<Recipe.Feed> feedsNew = new ArrayList<>();
         if (!feeds.equals(null)) {
             for (int i = 0; i < feeds.size(); i++) {
                 Recipe.Feed feed = feeds.get(i);
-                String text = feed.text.toString();
-                if (!text.equals("")) {
+                String text = feed.text;
+               if (!text.equals("")) {
                     if (text.charAt(0) == '#'){
                         int index = feed.text.indexOf("<br>");
-                        int size = feed.text.toString().length();
+                        int size = feed.text.length();
                         String feedTextNew = feed.text.substring(index+8,size);
                         feed.text = feedTextNew;
                         feedsNew.add(feed);
@@ -79,12 +85,15 @@ public class FeedUtils {
                             (text.toUpperCase().contains("ЛАЙК"))) {
                         feedsNew.remove(feed);
                     }
-                    if(!isPhotosFromAttachments(feed.attachments)){
-                        feedsNew.remove(feed);
-                    }
-                }
+                   if(feed.attachments != null){
+                       if(!isPhotosFromAttachments(feed.attachments)){
+                           feedsNew.remove(feed);
+                       }
+                   }
+
+               }
             }
-        }
+       }
         return feedsNew;
     }
 }

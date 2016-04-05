@@ -92,12 +92,13 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
             @Override
             public void onLoadMore() {
                 feedList.add(null);
-                adapter.notifyItemInserted(feedList.size() - 1);
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        adapter.notifyItemInserted(feedList.size() - 1);
                         feedList.remove(feedList.size() - 1);
                         adapter.notifyItemRemoved(feedList.size());
+                        adapter.notifyDataSetChanged();
                         OFFSET = OFFSET + COUNT;
                         methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
                     }

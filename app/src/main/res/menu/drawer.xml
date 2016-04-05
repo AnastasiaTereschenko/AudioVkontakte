@@ -2,16 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-
         <item
             android:id="@+id/drawer_cook_good"
             android:icon="@drawable/hotdrink24"
             android:state_focused="true"
             android:state_pressed="false"
+            android:textColor="@color/text_color"
             android:title="@string/cook_good" />
         <item
             android:id="@+id/drawer_fitness_recipe"
             android:icon="@drawable/chef15"
+            android:textColor="@color/text_color"
             android:state_focused="true"
             android:state_pressed="false"
             android:title="@string/fitness_recipe" />
@@ -20,26 +21,29 @@
             android:icon="@drawable/heart177"
             android:state_focused="true"
             android:state_pressed="false"
+            android:textColor="@color/text_color"
             android:title="@string/health_food" />
         <item
             android:id="@+id/drawer_best_recipe"
             android:icon="@drawable/tray29"
             android:state_focused="true"
             android:state_pressed="false"
+            android:textColor="@color/text_color"
             android:title="@string/best_recipe" />
         <item
             android:id="@+id/drawer_useful_recipe"
             android:icon="@drawable/restaurant23"
             android:state_focused="true"
             android:state_pressed="false"
+            android:tint="@color/text_color"
+            android:textColor="@color/text_color"
             android:title="@string/useful_recipe" />
         <item
             android:id="@+id/drawer_bookmark"
             android:icon="@drawable/ic_star_border_black_24dp"
             android:state_focused="true"
             android:state_pressed="false"
+            android:textColor="@color/text_color"
             android:title="@string/bookmark" />
     </group>
-
-
 </menu>

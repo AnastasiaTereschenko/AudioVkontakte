@@ -135,7 +135,8 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return R.id.ll_name_of_bookmark;
+        //return R.id.ll_name_of_bookmark;
+        return 5;
     }
 
     public void setListener(BookmarkItemClickListener listener) {
