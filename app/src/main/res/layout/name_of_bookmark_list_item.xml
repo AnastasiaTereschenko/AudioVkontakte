@@ -34,16 +34,15 @@
     <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffff">
-
+        android:background="#ffffff"
+        android:gravity="center_vertical">
         <TextView
             android:id="@+id/ll_tv_name_of_bookmark_list"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            android:paddingTop="20dp"
             tools:text="text"
-            android:paddingLeft="97dp"
-            android:textColor="@color/text_color"/>
+            android:paddingLeft="20dp"
+            android:textColor="@color/text_color" />
     </LinearLayout>
 </com.daimajia.swipe.SwipeLayout><!--android:paddingLeft="20dp"  -->

@@ -9,19 +9,19 @@ import android.widget.ImageView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
-import com.example.anastasiyaverenich.vkrecipes.modules.RecipesFromInstagram;
+import com.example.anastasiyaverenich.vkrecipes.modules.RecipeFromInstagram;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
 
-public class FeedFromInstagramAdapter extends ArrayAdapter<RecipesFromInstagram.Feed> {
+public class FeedFromInstagramAdapter extends ArrayAdapter<RecipeFromInstagram.Feed> {
     private final Context mContext;
     private final int mResourceId;
     private DisplayImageOptions options;
-    public List<RecipesFromInstagram.Feed> feeds;
+    public List<RecipeFromInstagram.Feed> feeds;
 
-    public FeedFromInstagramAdapter(Context context, int resource, List<RecipesFromInstagram.Feed> objects){
+    public FeedFromInstagramAdapter(Context context, int resource, List<RecipeFromInstagram.Feed> objects){
         super(context,resource,objects);
         mContext = context;
         mResourceId = resource;
@@ -41,7 +41,7 @@ public class FeedFromInstagramAdapter extends ArrayAdapter<RecipesFromInstagram.
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        final RecipesFromInstagram.Feed feed = feeds.get(position);
+        final RecipeFromInstagram.Feed feed = feeds.get(position);
             //viewHolder.imageView.setBackgroundColor(0xfff0f0f0);
             ImageLoader.getInstance().displayImage(feed.images.standardResolution.url,viewHolder.imageView, options);
         return convertView;

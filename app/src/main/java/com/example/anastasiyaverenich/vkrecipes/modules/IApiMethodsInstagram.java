@@ -9,6 +9,6 @@ public interface IApiMethodsInstagram {
     @GET("/v1/users/351730456/media/recent")
     void getPhotosFromInst(
             @Query("client_id") String client_id,
-            Callback<RecipesFromInstagram> cb
+            Callback<RecipeFromInstagram> cb
     );
 }

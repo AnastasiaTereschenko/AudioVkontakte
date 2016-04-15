@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.anastasiyaverenich.vkrecipes.R;
+import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.modules.BookmarkCategory;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.google.gson.Gson;
@@ -14,12 +16,15 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    private static final int DATABASE_VERSION = 49;
+    private static final int DATABASE_VERSION = 53 ;
     private static final String DATABASE_NAME = "DB";
+    Context context = VkRApplication.get();
+
 
     public MySQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -27,6 +32,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        List<String> arrayDrawer = Arrays.asList(context.getResources().getStringArray(R.array.array_bookmark_item_name));
+        List<String> itemBookmarkName = new ArrayList<>();
         String CREATE_FEED_TABLE = "CREATE TABLE feeds ( " +
                 "groupId INTEGER PRIMARY KEY, " +
                 "contentFeed TEXT )";
@@ -39,21 +46,11 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_FEED_TABLE);
         db.execSQL(CREATE_BOOKMARK_TABLE);
         db.execSQL(CREATE_CATEGORY_TABLE);
-        String INSERT_CATEGORY_TABLE_1 = "INSERT INTO categories (nameOfCategory, categoryId) " +
-                "VALUES ('Цитаты', 0)";
-        db.execSQL(INSERT_CATEGORY_TABLE_1);
-        String INSERT_CATEGORY_TABLE_2 = "INSERT INTO categories (nameOfCategory, categoryId) " +
-                "VALUES ('Высказывания', 1)";
-        db.execSQL(INSERT_CATEGORY_TABLE_2);
-        String INSERT_CATEGORY_TABLE_3 = "INSERT INTO categories (nameOfCategory, categoryId) " +
-                "VALUES ('Статьи', 2)";
-        db.execSQL(INSERT_CATEGORY_TABLE_3);
-        String INSERT_CATEGORY_TABLE_4 = "INSERT INTO categories (nameOfCategory, categoryId) " +
-                "VALUES ('Стихи', 3)";
-        db.execSQL(INSERT_CATEGORY_TABLE_4);
-        String INSERT_CATEGORY_TABLE_5 = "INSERT INTO categories (nameOfCategory, categoryId) " +
-                "VALUES ('Важные мысли', 4)";
-        db.execSQL(INSERT_CATEGORY_TABLE_5);
+       for (int i =0; i < arrayDrawer.size(); i++) {
+            itemBookmarkName.add("INSERT INTO categories (nameOfCategory, categoryId) " +
+                    "VALUES ('"+ arrayDrawer.get(i) +"','" + i + "')");
+            db.execSQL(itemBookmarkName.get(i));
+        }
     }
 
     @Override
@@ -218,12 +215,25 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.update(TABLE_CATEGORIES, values, KEY_ID_CATEGORY + " = ?", new String[]{idString});
     }
 
+    public String getNameOfCategory(int categoryId){
+        String nameOfCategory = new String();
+        String id = Integer.toString(categoryId);
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_CATEGORIES + " WHERE " + KEY_ID_CATEGORY +
+                " = ?" + " ORDER BY " + KEY_NAME_OF_CATEGORY + " DESC", new String[]{id});
+        if (cursor.moveToFirst()) {
+            do {
+                nameOfCategory = cursor.getString(1);
+            } while (cursor.moveToNext());
+        }
+        return nameOfCategory;
+    }
+
     public List<BookmarkCategory> getAllCategoties() {
         List<BookmarkCategory> arrayOfCategoty = new ArrayList<BookmarkCategory>();
         String query = "SELECT * FROM " + TABLE_CATEGORIES;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
-
         if (cursor.moveToFirst()) {
             do {
                 BookmarkCategory objectOfCategory = new BookmarkCategory();

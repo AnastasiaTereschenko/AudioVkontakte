@@ -42,4 +42,12 @@
     <string name="save_image">Сохранить изображение</string>
     <string name="copy_link">Копировать ссылку</string>
     <string name="send_link_on_image">Поделиться ссылкой</string>
+    <string-array name="array_bookmark_item_name">
+        <item>Первые блюда</item>
+        <item>Вторые блюда</item>
+        <item>Салаты</item>
+        <item>Десерты</item>
+        <item>Напитки</item>
+    </string-array>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>

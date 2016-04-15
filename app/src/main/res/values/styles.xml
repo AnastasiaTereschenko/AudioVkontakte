@@ -6,6 +6,7 @@
     </style>
     <style name="MyAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowTitleStyle">@style/MyTitleTextStyle</item>
+        <item name="android:textColorPrimary">@color/list_background</item>
     </style>
 
     <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">

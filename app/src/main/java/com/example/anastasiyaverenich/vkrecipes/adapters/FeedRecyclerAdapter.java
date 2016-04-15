@@ -2,7 +2,6 @@ package com.example.anastasiyaverenich.vkrecipes.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.activities.ImageActivity;
@@ -26,12 +26,18 @@ import com.example.anastasiyaverenich.vkrecipes.attachments.Attachment;
 import com.example.anastasiyaverenich.vkrecipes.attachments.ImagesLayoutManager;
 import com.example.anastasiyaverenich.vkrecipes.attachments.ThumbAttachment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkDialogFragment;
+import com.example.anastasiyaverenich.vkrecipes.modules.Ads;
+import com.example.anastasiyaverenich.vkrecipes.modules.ProgreesBar;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.ui.OnLoadMoreListener;
+import com.example.anastasiyaverenich.vkrecipes.ui.RecyclerViewPauseOnScrollListener;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.CommonUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.FeedUtils;
 import com.example.anastasiyaverenich.vkrecipes.utils.FileUtils;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -45,27 +51,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FeedAdapterRecycler extends RecyclerView.Adapter {
+public class FeedRecyclerAdapter extends RecyclerView.Adapter {
     public static final int MAX_LINES_IS_MORE = 5;
-    private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
+    private final int VIEW_ITEM = 1;
+    private final int VIEW_AD = 2;
     private final Context mContext;
-    private final int mResourceId;
+    public final int mResourceId;
     private DisplayImageOptions options;
-    private List<Recipe.Feed> feeds;
+    private List<Object> feeds;
     private int widthSize;
     String descriptionOfFeed;
     boolean isOpenMore;
     Set<Integer> keyOpenFeed = new HashSet<>();
     Map<Integer, Integer> countOpenPosition = new HashMap<>();
-    boolean isEmptyOrLessFiveString;
-    Handler handler;
     private int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
     private boolean loading = true;
-    public OnLoadMoreListener onLoadMoreListener;
+    public static OnLoadMoreListener onLoadMoreListener;
+    boolean isLoaded;
+    boolean pauseOnScroll = false; // or true
+    boolean pauseOnFling = true; // or false
+    ImageLoader imageLoader;
 
-    public FeedAdapterRecycler(Context context, int resource, List<Recipe.Feed> objects,
+    public FeedRecyclerAdapter(Context context, int resource, List<Object> objects,
                                RecyclerView recyclerView) {
         mContext = context;
         mResourceId = resource;
@@ -82,37 +91,57 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
                 public void onScrolled(RecyclerView recyclerView,
                                        int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
-
                     totalItemCount = linearLayoutManager.getItemCount();
                     lastVisibleItem = linearLayoutManager
                             .findLastVisibleItemPosition();
-                    if (!loading
-                            && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                        if (onLoadMoreListener != null) {
+                    if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                        if ((onLoadMoreListener != null)) {
                             onLoadMoreListener.onLoadMore();
                         }
                         loading = true;
                     }
                 }
             });
+            recyclerView.setOnScrollListener(new RecyclerViewPauseOnScrollListener(ImageLoader.
+                    getInstance(),pauseOnScroll,pauseOnFling));
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        return feeds.get(position) != null ? VIEW_ITEM : VIEW_PROG;
+        if (feeds.get(position) instanceof Ads) {
+            return VIEW_AD;
+        }
+        if (feeds.get(position) instanceof ProgreesBar) {
+            return VIEW_PROG;
+        } else {
+            return VIEW_ITEM;
+        }
+        //return feeds.get(position) != null ? VIEW_ITEM : VIEW_PROG;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder vh;
+        RecyclerView.ViewHolder vh = null;
         if (viewType == VIEW_ITEM) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recipe_list_item,
                     parent, false);
             vh = new FeedViewHolder(view);
-        } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.progress_bar_on_feed, parent, false);
+        } else if (viewType == VIEW_PROG) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.progress_bar_on_feed,
+                    parent, false);
             vh = new ProgressViewHolder(view);
+        } else if (viewType == VIEW_AD) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.ad_embedde_in_feed,
+                    parent, false);
+            /*AdView adview = new AdView(mContext);
+            adview.setAdSize(AdSize.MEDIUM_RECTANGLE);
+            adview.setAdUnitId(mContext.getString(R.string.banner_ad_unit_id));
+            float density = mContext.getResources().getDisplayMetrics().density;
+            int height = Math.round(AdSize.MEDIUM_RECTANGLE.getHeight() * density);
+            AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.FILL_PARENT, height);
+            adview.setLayoutParams(params);*/
+            vh = new AdViewHolder(view);
         }
         return vh;
     }
@@ -120,7 +149,7 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof FeedViewHolder) {
-            final Recipe.Feed feed = feeds.get(position);
+            final Recipe.Feed feed = (Recipe.Feed) feeds.get(position);
             final FeedViewHolder feedViewHolder = (FeedViewHolder) holder;
             final int index = feed.text.indexOf("<br>");
             setTextOnTextView(feed, ((FeedViewHolder) holder), index);
@@ -133,7 +162,7 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
                 isOpenMore = true;
                 feedViewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
             } else {
-                if(enableMoreInformation(feedViewHolder)){
+                if (enableMoreInformation(feedViewHolder)) {
                     return;
                 }
                 feedViewHolder.textDescription.setMaxLines(MAX_LINES_IS_MORE);
@@ -177,9 +206,50 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
                 }
             });
             feedViewHolder.container.requestLayout();
-        } else {
+        } else if (holder instanceof ProgressViewHolder) {
             ((ProgressViewHolder) holder).progressBar.setIndeterminate(true);
+        } else if (holder instanceof AdViewHolder) {
+            AdRequest request = new AdRequest.Builder().build();
+            ((AdViewHolder) holder).adView.setAdListener(new AdListener() {
+                private void showToast(String message) {
+
+                    Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onAdLoaded() {
+                    showToast("Ad loaded.");
+                    isLoaded = true;
+
+                }
+
+                @Override
+                public void onAdFailedToLoad(int errorCode) {
+                    showToast(String.format("Ad failed to load with error code %d.", errorCode));
+                }
+
+                @Override
+                public void onAdOpened() {
+                    showToast("Ad opened.");
+                }
+
+                @Override
+                public void onAdClosed() {
+                    showToast("Ad closed.");
+                }
+
+                @Override
+                public void onAdLeftApplication() {
+                    showToast("Ad left application.");
+                }
+            });
+
+            //AdRequest adRequest = new AdRequest.Builder().build();
+            if (!isLoaded) {
+                ((AdViewHolder) holder).adView.loadAd(request);
+            }
         }
+        //((AdViewHolder) holder).adView.loadAd(request);
     }
 
     public void setLoaded() {
@@ -229,8 +299,17 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
         }
     }
 
-    private void setTextOnTextView(final Recipe.Feed feed, final FeedViewHolder viewHolder,
-                                   int index) {
+    public static class AdViewHolder extends RecyclerView.ViewHolder {
+        public AdView adView;
+
+        public AdViewHolder(View itemView) {
+            super(itemView);
+            adView = (AdView) itemView.findViewById(R.id.adView);
+        }
+    }
+
+
+    private void setTextOnTextView(final Recipe.Feed feed, final FeedViewHolder viewHolder, int index) {
         int size = feed.text.length();
         if (!feed.text.equals("")) {
             if (index == -1) {
@@ -257,7 +336,7 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
         } else {
             FragmentActivity activity = (FragmentActivity) (mContext);
             FragmentManager fm = activity.getSupportFragmentManager();
-            BookmarkDialogFragment bookmarkDialog = new BookmarkDialogFragment(feeds.get(position));
+            BookmarkDialogFragment bookmarkDialog = new BookmarkDialogFragment((Recipe.Feed) feeds.get(position));
             bookmarkDialog.setListener(new BookmarkDialogFragment.OnBookmarkItemClickListener() {
                 @Override
                 public void onBookmarkItemClick() {
@@ -269,7 +348,7 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
     }
 
     private void hideAndShowDescriptionBookmark(int position, FeedViewHolder viewHolder) {
-        if(enableMoreInformation(viewHolder)){
+        if (enableMoreInformation(viewHolder)) {
             return;
         }
         if (!isOpenMore) {
@@ -296,7 +375,7 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
             public void run() {
                 if (viewHolder.textDescription.getLineCount() <= 5) {
                     viewHolder.imMoreInformation.setVisibility(View.INVISIBLE);
-                    flagEnable[0] =true;
+                    flagEnable[0] = true;
                 }
             }
         };
@@ -324,6 +403,7 @@ public class FeedAdapterRecycler extends RecyclerView.Adapter {
             image.setBackgroundColor(0xfff0f0f0);
             final Recipe.Photo photo = photos.get(x);
             Attachment attachment = (Attachment) attachments.get(x);
+            //viewHolder.container.removeAllViews();
             FlowLayout.LayoutParams lp = new FlowLayout.LayoutParams(attachment.getWidth(),
                     attachment.getHeight());
             image.setLayoutParams(lp);

@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,6 +41,8 @@ public class ImageActivity extends AppCompatActivity implements PhotoViewAttache
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Window window = getWindow();
+        window.setStatusBarColor(getResources().getColor(R.color.text_color));
         setContentView(R.layout.activity_image);
         imageActionBar = (RelativeLayout) findViewById(R.id.image_action_bar);
         menuButton = (ImageButton) findViewById(R.id.menu_for_image);

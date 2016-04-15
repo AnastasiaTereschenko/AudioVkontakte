@@ -16,6 +16,7 @@ public class BookmarkUtils {
     public static void setBookmarks(List<Recipe.Feed> bookmarks) {
         BookmarkUtils.bookmarks = bookmarks;
     }
+
     public static boolean checkBookmarks(long id){
         for(int i = 0; i < bookmarks.size(); i++){
             if(id == bookmarks.get(i).id) {
@@ -24,10 +25,12 @@ public class BookmarkUtils {
         }
         return false;
     }
+
     public static void addBookmark(Recipe.Feed feed, int categoryId){
         bookmarks.add(feed);
-        VkRApplication.get().getMySQLiteHelper().addBookmarks(feed,categoryId);
+        VkRApplication.get().getMySQLiteHelper().addBookmarks(feed, categoryId);
     }
+
     public static void deleteBookmark(Recipe.Feed feed){
         for(int i = 0; i < bookmarks.size(); i++){
             if(feed.id == bookmarks.get(i).id) {

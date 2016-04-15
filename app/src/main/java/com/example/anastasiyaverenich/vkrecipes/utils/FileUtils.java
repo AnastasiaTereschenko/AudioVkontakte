@@ -3,10 +3,10 @@ package com.example.anastasiyaverenich.vkrecipes.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.anastasiyaverenich.vkrecipes.application.VersionConfig;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -35,17 +35,12 @@ public class FileUtils {
     public static void saveImagesOrImageOnDisk(final File src, final Context context,
                                                String loadPhoto, final int numberOfPhoto) {
         DisplayImageOptions options = VkRApplication.get().getOptions();
-        File dst = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Recipes");
-        if (dst.exists() == false) {
+        File dst = new File(VersionConfig.getSavedImageLocation());
+        if (!dst.exists()) {
             dst.mkdirs();
-            File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                    File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
-            dst = dst1;
-        } else {
-            File dst1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                    File.separator + "Recipes" + File.separator + System.currentTimeMillis() + ".jpg");
-            dst = dst1;
         }
+        dst = new File(VersionConfig.getSavedImageLocation() + File.separator + System.currentTimeMillis() + ".jpg");
+
         final File finalDst = dst;
 
         ImageLoader.getInstance().loadImage(loadPhoto, options, new ImageLoadingListener() {
@@ -68,14 +63,15 @@ public class FileUtils {
                     ex.printStackTrace();
                 }
                 if (numberOfPhoto == 1) {
-                    Toast.makeText(context, "Изображение сохранено в папку Recipes.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Изображение сохранено в папку " + VersionConfig.getName() +
+                            '.', Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(context, "Изображения сохранены в папку Recipes.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Изображения сохранены в папку " + VersionConfig.getName() +
+                            '.', Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-
             public void onLoadingCancelled(String imageUri, View view) {
             }
         });

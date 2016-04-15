@@ -14,13 +14,16 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
-import com.example.anastasiyaverenich.vkrecipes.adapters.FeedAdapterRecycler;
+import com.example.anastasiyaverenich.vkrecipes.adapters.FeedRecyclerAdapter;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.gsonFactories.RecipeTypeAdapterFactory;
+import com.example.anastasiyaverenich.vkrecipes.modules.Ads;
 import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethods;
+import com.example.anastasiyaverenich.vkrecipes.modules.ProgreesBar;
 import com.example.anastasiyaverenich.vkrecipes.modules.Recipe;
 import com.example.anastasiyaverenich.vkrecipes.ui.OnLoadMoreListener;
 import com.example.anastasiyaverenich.vkrecipes.utils.FeedUtils;
+import com.google.android.gms.ads.AdView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -35,6 +38,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
+
 public class FeedFragment extends android.support.v4.app.Fragment implements
         SwipeRefreshLayout.OnRefreshListener {
     private static final String API_URL = "https://api.vk.com";
@@ -43,9 +47,9 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     private static final String FILTER = "all";
     private static final String VERSION = "5.7";
     private IApiMethods methods;
-    private Callback callback;
+    private Callback<Recipe> callback;
     private ImageLoader imageLoader;
-    public FeedAdapterRecycler adapter;
+    public FeedRecyclerAdapter adapter;
     RecyclerView recyclerView;
     private List<Recipe.Feed> feedList;
     private SwipeRefreshLayout swipeRefresh;
@@ -54,6 +58,8 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     int offsetErrorLoading;
     protected Handler handler;
     private LinearLayoutManager linearLayoutManager;
+    private AdView mAdView;
+    List<Object> listOfObject = new ArrayList<>();
 
     public static FeedFragment newInstance(int position) {
         FeedFragment fragment = new FeedFragment();
@@ -74,6 +80,9 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
+        // AdView mAdView = (AdView) view.findViewById(R.id.adView);
+        //AdRequest adRequest = new AdRequest.Builder().build();
+        //mAdView.loadAd(adRequest);
         swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
         swipeRefresh.setOnRefreshListener(this);
         swipeRefresh.setColorSchemeResources(R.color.light_blue, R.color.middle_blue, R.color.deep_blue);
@@ -91,18 +100,18 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                feedList.add(null);
-                handler.postDelayed(new Runnable() {
+                /*Runnable r= new Runnable(){
                     @Override
-                    public void run() {
-                        adapter.notifyItemInserted(feedList.size() - 1);
-                        feedList.remove(feedList.size() - 1);
-                        adapter.notifyItemRemoved(feedList.size());
-                        adapter.notifyDataSetChanged();
-                        OFFSET = OFFSET + COUNT;
-                        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-                    }
-                }, 3000);
+                    public void run() {*/
+                // }
+                //   };
+                // handler.postDelayed(r, 300);
+                //adapter.notifyItemInserted(listOfObject.size() - 1);
+
+                listOfObject.add(new ProgreesBar());
+                adapter.notifyItemInserted(listOfObject.size() - 1);
+                OFFSET = OFFSET + COUNT;
+                methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
             }
         });
         return view;
@@ -143,7 +152,13 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                     FeedUtils.saveRefreshData(feedNew, currentGroupId);
                 }
                 feedList.addAll(feedNew);
+                addFeedAdsProgressInListOfObject(feedList);
                 adapter.notifyDataSetChanged();
+                if ((listOfObject.get(listOfObject.size() - 1)) instanceof ProgreesBar) {
+                    listOfObject.remove(listOfObject.size() - 1);
+                    adapter.notifyItemRemoved(listOfObject.size());
+                    //adapter.setLoaded();
+                }
                 swipeRefresh.setRefreshing(false);
                 if ((results.response.size() != 0) || (results.response.size() == COUNT)) {
                     adapter.setLoaded();
@@ -162,6 +177,9 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                                   }
                 );
                 retrofitError.printStackTrace();
+                listOfObject.remove(listOfObject.size() - 1);
+                adapter.notifyItemRemoved(listOfObject.size());
+                adapter.notifyDataSetChanged();
                 adapter.setLoaded();
                 Toast.makeText(getActivity(), "Невозможно обновить ленту ", Toast.LENGTH_LONG)
                         .show();
@@ -188,9 +206,58 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                               }
                           }
         );
-        adapter = new FeedAdapterRecycler(getActivity(), R.layout.recipe_list_item, feeds, recyclerView);
+        addFeedAdsProgressInListOfObject(feeds);
+        adapter = new FeedRecyclerAdapter(getActivity(), R.layout.recipe_list_item, listOfObject, recyclerView);
         recyclerView.setAdapter(adapter);
 
+    }
+
+    public void addFeedAdsProgressInListOfObject(List<Recipe.Feed> objectsOfFeed) {
+        listOfObject.clear();
+        int j = 0;
+        for (int i = 0; i < objectsOfFeed.size(); i++) {
+            if ((i % 6 == 0) && (i != 0)) {
+                listOfObject.add(j, new Ads());
+                listOfObject.add(j + 1, objectsOfFeed.get(i));
+                j=j+2;
+            } else {
+                listOfObject.add(j, objectsOfFeed.get(i));
+                j=j+1;
+            }
+        }
+    }
+
+    /**
+     * Called when leaving the activity
+     */
+    @Override
+    public void onPause() {
+        if (mAdView != null) {
+            mAdView.pause();
+        }
+        super.onPause();
+    }
+
+    /**
+     * Called when returning to the activity
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mAdView != null) {
+            mAdView.resume();
+        }
+    }
+
+    /**
+     * Called before the activity is destroyed
+     */
+    @Override
+    public void onDestroy() {
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
+        super.onDestroy();
     }
 }
 

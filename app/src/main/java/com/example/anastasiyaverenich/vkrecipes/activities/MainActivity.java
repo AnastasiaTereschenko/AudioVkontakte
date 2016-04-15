@@ -17,10 +17,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
+import com.example.anastasiyaverenich.vkrecipes.application.Config;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
@@ -51,10 +53,13 @@ public class MainActivity extends AppCompatActivity {
     List<Integer> itemMenuId;
     List<String> itemMenuName;
     NavigationView view;
+    Window window;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        window = getWindow();
+        window.setStatusBarColor(getResources().getColor(R.color.deep_blue));
         fragmentManager = getSupportFragmentManager();
         view = (NavigationView) findViewById(R.id.navigation_view);
         items = new ArrayList<>();
@@ -80,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             currentTag = getTagById(currentItem);
             Fragment currentFragment = fragmentManager.findFragmentByTag(currentTag);
             for (int i = 0; i < itemMenuId.size(); i++) {
-                if(currentItem == itemMenuId.get(i)){
+                if (currentItem == itemMenuId.get(i)) {
                     setCurrentItem(currentItem, view.getMenu().getItem(i));
                     break;
                 }
@@ -177,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         if (currentItem == idBookmark && bookmarkFragment.canGoBack()) {
             bookmarkFragment.clearScreen();
         } else {
-            bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
+            bookmarkFragment.   showCheckedCategory(bookmarkFragment.currentPosition);
             EditText editText = (EditText) findViewById(R.id.search_src_text);
             editText.setText("");
         }
@@ -226,7 +231,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
+            if (Config.isRecipes()) {
+                actionBar.setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
+            } else {
+                actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+            }
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
@@ -342,12 +351,16 @@ public class MainActivity extends AppCompatActivity {
         if ((bookmarkFragment != null && !bookmarkFragment.canGoBack() &&
                 idBookmark == currentItem) || (bookmarkFragment != null &&
                 bookmarkFragment.canGoBack() && idBookmark == currentItem &&
-                isPressBackMenuSearch )) {
+                isPressBackMenuSearch)) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             getMenu().findItem(R.id.action_edit).setVisible(true);
             getMenu().findItem(R.id.action_search).setVisible(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
-            bookmarkFragment.goBack();
+            if (Config.isRecipes()) {
+                getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_restaurant_menu_black_24dp);
+            } else {
+                getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+            }
+            bookmarkFragment.goBack(itemMenuName.get(itemMenuName.size()-1));
             isPressBackMenuSearch = false;
             return;
         }
@@ -367,8 +380,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setNameAndIdOfCategory() {
-        int[] old = (getResources().getIntArray(R.array.array_drawer_item_id));
-        for (int x : old) {
+        int[] arrayDrawer = (getResources().getIntArray(R.array.array_drawer_item_id));
+        for (int x : arrayDrawer) {
             itemMenuId.add(x);
         }
         itemMenuName = Arrays.asList(getResources().getStringArray(R.array.array_drawer_item_name));

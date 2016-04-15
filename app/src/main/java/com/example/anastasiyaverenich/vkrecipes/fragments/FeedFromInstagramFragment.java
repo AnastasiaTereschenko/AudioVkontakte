@@ -10,7 +10,7 @@ import android.widget.ListView;
 import com.example.anastasiyaverenich.vkrecipes.R;
 import com.example.anastasiyaverenich.vkrecipes.adapters.FeedFromInstagramAdapter;
 import com.example.anastasiyaverenich.vkrecipes.modules.IApiMethodsInstagram;
-import com.example.anastasiyaverenich.vkrecipes.modules.RecipesFromInstagram;
+import com.example.anastasiyaverenich.vkrecipes.modules.RecipeFromInstagram;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class FeedFromInstagramFragment extends android.support.v4.app.Fragment{
     private FeedFromInstagramAdapter adapter;
     private static final String API_URL = "https://api.instagram.com";
     private static final String CLIENT_ID = "f1676673441b4a84a7c82f2ddea72a64";
-    private List<RecipesFromInstagram.Feed> feedList;
+    private List<RecipeFromInstagram.Feed> feedList;
     ListView lvMain;
     private IApiMethodsInstagram methods;
     private Callback callback;
@@ -45,7 +45,7 @@ public class FeedFromInstagramFragment extends android.support.v4.app.Fragment{
         return view;
     }
     private void loadingFeeds(){
-        feedList = new ArrayList<RecipesFromInstagram.Feed>();
+        feedList = new ArrayList<RecipeFromInstagram.Feed>();
         initAdapter(feedList);
         Gson gson = new Gson();
         final RestAdapter restAdapter = new RestAdapter.Builder()
@@ -54,9 +54,9 @@ public class FeedFromInstagramFragment extends android.support.v4.app.Fragment{
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .build();
         methods = restAdapter.create(IApiMethodsInstagram.class);
-        callback = new Callback<RecipesFromInstagram>() {
+        callback = new Callback<RecipeFromInstagram>() {
             @Override
-            public void success(RecipesFromInstagram results, Response response) {
+            public void success(RecipeFromInstagram results, Response response) {
                 Log.e("TAG", "SUCCESS " + results.data.size());
                 feedList.addAll(results.data);
                 adapter.notifyDataSetChanged();
@@ -71,7 +71,7 @@ public class FeedFromInstagramFragment extends android.support.v4.app.Fragment{
         //lvMain.setOnScrollListener(endlessScrollListener);
     }
 
-    private void initAdapter(List<RecipesFromInstagram.Feed> feeds) {
+    private void initAdapter(List<RecipeFromInstagram.Feed> feeds) {
 //        if (lvMain.getFooterViewsCount() != 0) {
 //            lvMain.removeFooterView(footerView);
 //        }

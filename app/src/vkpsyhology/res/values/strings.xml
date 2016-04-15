@@ -36,4 +36,11 @@
         <item>-37859969</item>
         <item>1</item>
     </integer-array>
+    <string-array name="array_bookmark_item_name">
+        <item>Цитаты</item>
+        <item>Высказывания</item>
+        <item>Статьи</item>
+        <item>Стихи</item>
+        <item>Важные мысли</item>
+    </string-array>
 </resources>

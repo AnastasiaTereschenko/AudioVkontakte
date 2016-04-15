@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class RecipesFromInstagram {
+public class RecipeFromInstagram {
     public List<Feed> data;
     public static class Feed{
         public Images images;

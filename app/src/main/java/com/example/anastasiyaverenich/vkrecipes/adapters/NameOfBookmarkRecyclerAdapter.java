@@ -22,7 +22,7 @@ import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
 
 import java.util.List;
 
-public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapter.SimpleViewHolder> {
+public class NameOfBookmarkRecyclerAdapter extends RecyclerSwipeAdapter<NameOfBookmarkRecyclerAdapter.SimpleViewHolder> {
     public static class SimpleViewHolder extends RecyclerView.ViewHolder {
         SwipeLayout swipeLayout;
         TextView textViewData;
@@ -45,7 +45,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     // private int currentDeleteAndEditPosition = -1;
     BookmarkItemClickListener listener;
 
-    public RecyclerViewAdapter(Context context, int resource, List<BookmarkCategory> objects) {
+    public NameOfBookmarkRecyclerAdapter(Context context, int resource, List<BookmarkCategory> objects) {
         this.mContext = context;
         mResourceId = resource;
         objectOfCategory = objects;
