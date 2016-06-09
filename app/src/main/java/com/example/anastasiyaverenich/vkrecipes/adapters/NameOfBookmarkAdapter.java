@@ -91,7 +91,7 @@ public class NameOfBookmarkAdapter extends BaseSwipeAdapter {
             final List<BookmarkCategory> nameOfBookmark = BookmarkCategoryUtils.getArrayOfCategoty();
             int idCategory = nameOfBookmark.get(position).getCategoryId();
             if (BookmarkCategoryUtils.checkCategories(idCategory)) {
-                BookmarkCategoryUtils.deleteBookmark(idCategory);
+                BookmarkCategoryUtils.deleteCategory(idCategory);
                 currentDeleteAndEditPosition = position;
                 notifyDataSetChanged();
             }

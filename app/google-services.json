@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "530419372183",
+    "project_id": "vkrecipes"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530419372183:android:a8cebbf06e5f1eed",
+        "android_client_info": {
+          "package_name": "com.example.anastasiyaverenich.vkrecipes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOHSAcCrHV5ELqmqULqevbGP7WNB26f98"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-77884786-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

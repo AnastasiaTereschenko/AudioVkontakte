@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         if (currentItem == idBookmark && bookmarkFragment.canGoBack()) {
             bookmarkFragment.clearScreen();
         } else {
-            bookmarkFragment.   showCheckedCategory(bookmarkFragment.currentPosition);
+            bookmarkFragment.showCheckedCategory(bookmarkFragment.currentPosition);
             EditText editText = (EditText) findViewById(R.id.search_src_text);
             editText.setText("");
         }

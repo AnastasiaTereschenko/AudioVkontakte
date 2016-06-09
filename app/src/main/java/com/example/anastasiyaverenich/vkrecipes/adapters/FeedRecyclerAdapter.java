@@ -132,7 +132,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter {
                     parent, false);
             vh = new ProgressViewHolder(view);
         } else if (viewType == VIEW_AD) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.ad_embedde_in_feed,
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.ad_embedded_in_feed,
                     parent, false);
             /*AdView adview = new AdView(mContext);
             adview.setAdSize(AdSize.MEDIUM_RECTANGLE);

@@ -18,10 +18,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    private static final int DATABASE_VERSION = 53 ;
+    private static final int DATABASE_VERSION = 58 ;
     private static final String DATABASE_NAME = "DB";
     Context context = VkRApplication.get();
 
@@ -38,8 +39,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 "groupId INTEGER PRIMARY KEY, " +
                 "contentFeed TEXT )";
         String CREATE_BOOKMARK_TABLE = "CREATE TABLE bookmarks ( " +
-                "bookmarkId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                "contentBookmark TEXT, categoryId INTEGER)";
+                "bookmarkIdInc INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "contentBookmark TEXT, categoryId INTEGER, bookmarkId INTEGER)";
         String CREATE_CATEGORY_TABLE = "CREATE TABLE categories ( " +
                 "categoryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 "nameOfCategory TEXT )";
@@ -64,6 +65,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
     private static final String TABLE_BOOKMARKS = "bookmarks";
     private static final String KEY_ID_BOOKMARK = "bookmarkId";
+    private static final String KEY_ID_BOOKMARK_INC = "bookmarkIdInc";
     private static final String KEY_CONTENT_BOOKMARK = "contentBookmark";
     private static final String TABLE_FEEDS = "feeds";
     private static final String KEY_ID_GROUP = "groupId";
@@ -116,13 +118,17 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
     //-----------------------------Bookmarks-----------------------------------------------
     public void addBookmarks(Recipe.Feed feed, int categoryId) {
+        long timeMillis = System.currentTimeMillis();
+        long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(timeMillis);
+        int bookmarkId = (int) timeSeconds;
         String tempSaveDb;
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         tempSaveDb = gson.toJson(feed);
-        values.put(KEY_ID_BOOKMARK, feed.id);
+        values.put(KEY_ID_BOOKMARK_INC, bookmarkId);
         values.put(KEY_CONTENT_BOOKMARK, tempSaveDb);
         values.put(KEY_ID_CATEGORIES_FOR_BOOKMARK, categoryId);
+        values.put(KEY_ID_BOOKMARK, feed.id);
         db.insert(TABLE_BOOKMARKS, null, values);
         db.close();
     }
@@ -147,7 +153,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         String id = Integer.toString(categoryId);
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_ID_CATEGORIES_FOR_BOOKMARK +
-                " = ?" + " ORDER BY " + KEY_ID_BOOKMARK + " DESC", new String[]{id});
+                " = ?" + " ORDER BY " + KEY_ID_BOOKMARK_INC + " DESC", new String[]{id});
         if (cursor.moveToFirst()) {
             do {
                 String tempVarForDisplay = cursor.getString(1);
@@ -180,7 +186,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         }
         return feeds;
     }
-    public List<Recipe.Feed> searchBookmarkForALLCategory(String stringForSearch){
+    public List<Recipe.Feed> searchBookmarkForAllCategory(String stringForSearch){
         List<Recipe.Feed> feeds = new ArrayList<>();
         SQLiteDatabase db = this.getWritableDatabase();
         String query = " SELECT * FROM " + TABLE_BOOKMARKS + " WHERE " + KEY_CONTENT_BOOKMARK +

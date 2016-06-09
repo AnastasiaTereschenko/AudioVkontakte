@@ -84,6 +84,7 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
                 .getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
         List<Recipe.Feed> allBookmarks = BookmarkUtils.getBookmarks(VkRApplication.get()
                 .getMySQLiteHelper().getBookmarksForCertainCategory(checkedCategory.getCategoryId()));
+        int categoryIdForCheckedCategory = checkedCategory.getCategoryId();
         if (!listOfBookmark.isEmpty()) {
             listOfBookmark.clear();
         }
@@ -94,14 +95,14 @@ public class BookmarkFragment extends android.support.v4.app.Fragment {
                 recyclerView);
         recyclerView.setAdapter(bookmarkAdapter);
         ((MainActivity) getActivity()).onBookmarkDetailsOpened();
-        String nameOfBookmark = VkRApplication.get().getMySQLiteHelper().getNameOfCategory(position);
-        ((MainActivity) getActivity()).getSupportActionBar().setTitle(nameOfBookmark);
+        String nameOfBookmark = VkRApplication.get().getMySQLiteHelper().getNameOfCategory(categoryIdForCheckedCategory);
+        ((MainActivity)getActivity()).getSupportActionBar().setTitle(nameOfBookmark);
     }
 
     public void displaySearchBookmark(String stringForSearchInDB) {
         if (currentPosition == -1) {
             List<Recipe.Feed> searchBookmarks = VkRApplication.get()
-                    .getMySQLiteHelper().searchBookmarkForALLCategory(stringForSearchInDB);
+                    .getMySQLiteHelper().searchBookmarkForAllCategory(stringForSearchInDB);
             if (!listOfBookmark.isEmpty()) {
                 listOfBookmark.clear();
             }

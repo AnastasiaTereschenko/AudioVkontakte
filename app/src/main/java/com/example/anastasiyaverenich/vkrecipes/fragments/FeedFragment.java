@@ -109,9 +109,22 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                 //adapter.notifyItemInserted(listOfObject.size() - 1);
 
                 listOfObject.add(new ProgreesBar());
-                adapter.notifyItemInserted(listOfObject.size() - 1);
+               // try {
+
+                    recyclerView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyItemInserted(listOfObject.size() - 1);
+                        }
+                    });
+
+                //adapter.notifyItemInserted(listOfObject.size() - 1);
+                //} catch (Exception e) {
+                  //  Log.d( "TAG", e.toString());
+                //}
                 OFFSET = OFFSET + COUNT;
                 methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
+                //adapter.setLoaded();
             }
         });
         return view;
@@ -154,6 +167,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                 feedList.addAll(feedNew);
                 addFeedAdsProgressInListOfObject(feedList);
                 adapter.notifyDataSetChanged();
+                adapter.setLoaded();
                 if ((listOfObject.get(listOfObject.size() - 1)) instanceof ProgreesBar) {
                     listOfObject.remove(listOfObject.size() - 1);
                     adapter.notifyItemRemoved(listOfObject.size());
@@ -186,7 +200,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
             }
         };
         methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-        adapter.setLoaded();
     }
 
     @Override

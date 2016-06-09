@@ -29,7 +29,7 @@ public class BookmarkCategoryUtils {
         BookmarkCategory tempBookmarkCategory = VkRApplication.get().getMySQLiteHelper().getLastCategoty();
         arrayOfCategoty.add(tempBookmarkCategory);
     }
-    public static void deleteBookmark(int idCategory){
+    public static void deleteCategory(int idCategory){
         for(int i = 0; i < arrayOfCategoty.size(); i++){
             if(idCategory == arrayOfCategoty.get(i).getCategoryId()) {
                 arrayOfCategoty.remove(i);

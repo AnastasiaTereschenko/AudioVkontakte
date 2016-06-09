@@ -16,6 +16,7 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.example.anastasiyaverenich.vkrecipes.R;
+import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.fragments.EditBookmarkDialogFragment;
 import com.example.anastasiyaverenich.vkrecipes.modules.BookmarkCategory;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkCategoryUtils;
@@ -83,7 +84,9 @@ public class NameOfBookmarkRecyclerAdapter extends RecyclerSwipeAdapter<NameOfBo
             @Override
             public void onClick(View view) {
                 if (BookmarkCategoryUtils.checkCategories(idCategory)) {
-                    BookmarkCategoryUtils.deleteBookmark(idCategory);
+                    BookmarkCategoryUtils.deleteCategory(idCategory);
+                    final List<BookmarkCategory> nameOfBookmark = VkRApplication.get()
+                            .getMySQLiteHelper().getAllCategoties();
                     closeItem(position);
                     notifyDatasetChanged();
                     Toast.makeText(view.getContext(), "Удалена категория " +
