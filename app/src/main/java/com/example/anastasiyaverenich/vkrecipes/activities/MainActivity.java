@@ -10,6 +10,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,11 +23,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.anastasiyaverenich.vkrecipes.R;
+import com.example.anastasiyaverenich.vkrecipes.adapters.FeedRecyclerAdapter;
 import com.example.anastasiyaverenich.vkrecipes.application.Config;
 import com.example.anastasiyaverenich.vkrecipes.application.VkRApplication;
 import com.example.anastasiyaverenich.vkrecipes.fragments.BookmarkFragment;
 import com.example.anastasiyaverenich.vkrecipes.fragments.FeedFragment;
 import com.example.anastasiyaverenich.vkrecipes.utils.BookmarkUtils;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +58,11 @@ public class MainActivity extends AppCompatActivity {
     List<String> itemMenuName;
     NavigationView view;
     Window window;
+    final String TAG = "myLogs";
+    private Tracker mTracker;
+    public FeedRecyclerAdapter adapter;
+    List<Object> listOfObject = new ArrayList<>();
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +81,11 @@ public class MainActivity extends AppCompatActivity {
         indexOfBookmark = itemMenuId.size() - 1;
         idBookmark = itemMenuId.get(indexOfBookmark);
         nameBookmark = itemMenuName.get(indexOfBookmark);
+        // [START shared_tracker]
+        // Obtain the shared Tracker instance.
+        VkRApplication application = (VkRApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+        // [END shared_tracker]
         setupDrawerLayout();
         _menu = null;
         isPressBackMenuSearch = false;
@@ -100,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                         .commit();
             }
         }
-
+        sendScreenFragmentName();
     }
 
     public void hideFragmentByTag(String tag) {
@@ -118,57 +132,84 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(CURRENT_ITEM, currentItem);
+    protected void onResume() {
+        super.onResume();
+        sendScreenFragmentName();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_edit, menu);
-        getMenuInflater().inflate(R.menu.menu_find_in_db, menu);
-        searchItem = menu.findItem(R.id.action_search);
-        _menu = menu;
-        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        ImageView closeButton = (ImageView) this.searchView.findViewById(R.id.search_close_btn);
-        closeButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeButtonOnBookmarkMenu();
+    public String getCurrentFragmentTitle(){
+        String nameOfScreen = new String();
+        for (int i = 0; i < itemMenuId.size(); i++) {
+            if (itemMenuId.get(i) == currentItem) {
+                nameOfScreen = itemMenuName.get(i);
+                break;
             }
-        });
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchClickOnBookmarkMenu();
-            }
-        });
-
-        MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                if (currentItem == idBookmark && !bookmarkFragment.canGoBack()) {
-                    searchView.setOnQueryTextListener(searchViewTextChangeListener);
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                searchView.setOnQueryTextListener(null);
-                if (bookmarkFragment.canGoBack()) {
-                    isPressBackMenuSearch = true;
-                    onBackPressed();
-                }
-                return true;
-            }
-        });
-
-        if (needToHideTheMenu) {
-            getMenu().findItem(R.id.action_edit).setVisible(false);
         }
-        return super.onCreateOptionsMenu(menu);
+        return nameOfScreen;
     }
+
+    public void sendScreenFragmentName() {
+        String name = getCurrentFragmentTitle();
+        // [START screen_view_hit]
+        // Log.e("TAG", "Setting screen name:  " + name);
+        Log.i(TAG, "Setting screen name: " + name);
+        mTracker.setScreenName("Fragment~" + name);
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        // [END screen_view_hit]
+    }
+
+            @Override
+            protected void onSaveInstanceState(Bundle outState) {
+                super.onSaveInstanceState(outState);
+                outState.putInt(CURRENT_ITEM, currentItem);
+            }
+
+            @Override
+            public boolean onCreateOptionsMenu(Menu menu) {
+                getMenuInflater().inflate(R.menu.menu_edit, menu);
+                getMenuInflater().inflate(R.menu.menu_find_in_db, menu);
+                searchItem = menu.findItem(R.id.action_search);
+                _menu = menu;
+                searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+                ImageView closeButton = (ImageView) this.searchView.findViewById(R.id.search_close_btn);
+                closeButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        closeButtonOnBookmarkMenu();
+                    }
+                });
+                searchView.setOnSearchClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        searchClickOnBookmarkMenu();
+                    }
+                });
+
+                MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        if (currentItem == idBookmark && !bookmarkFragment.canGoBack()) {
+                            searchView.setOnQueryTextListener(searchViewTextChangeListener);
+                        }
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        searchView.setOnQueryTextListener(null);
+                        if (bookmarkFragment.canGoBack()) {
+                            isPressBackMenuSearch = true;
+                            onBackPressed();
+                        }
+                        return true;
+                    }
+                });
+
+                if (needToHideTheMenu) {
+                    getMenu().findItem(R.id.action_edit).setVisible(false);
+                }
+                return super.onCreateOptionsMenu(menu);
+            }
 
     private void searchClickOnBookmarkMenu() {
         if (currentItem == idBookmark && bookmarkFragment.canGoBack()) {
@@ -311,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (currentFragment != null) {
             hideFragment(currentFragment);
+            Log.e("TAG", "currentFragments " + currentFragment.hashCode());
         }
         String newTag = getTagById(groupId);
         if (newFragment == null && idBookmark == groupId) {
@@ -328,7 +370,10 @@ public class MainActivity extends AppCompatActivity {
                     .show(newFragment)
                     .commit();
         }
+        Log.e("TAG", "newFragments " + newFragment.hashCode());
         setCurrentItem(groupId, menuItem);
+        if(newFragment instanceof FeedFragment)
+          ((FeedFragment)newFragment).setName(getCurrentFragmentTitle());
         return newFragment;
     }
 
@@ -344,6 +389,7 @@ public class MainActivity extends AppCompatActivity {
     private void setCurrentItem(int groupId, MenuItem menuItem) {
         currentItem = groupId;
         menuItem.setChecked(true);
+
     }
 
     @Override

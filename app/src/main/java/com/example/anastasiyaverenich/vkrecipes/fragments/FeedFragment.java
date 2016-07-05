@@ -2,6 +2,7 @@ package com.example.anastasiyaverenich.vkrecipes.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -60,6 +61,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     private LinearLayoutManager linearLayoutManager;
     private AdView mAdView;
     List<Object> listOfObject = new ArrayList<>();
+    String nameOfFragment;
 
     public static FeedFragment newInstance(int position) {
         FeedFragment fragment = new FeedFragment();
@@ -80,7 +82,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
-        // AdView mAdView = (AdView) view.findViewById(R.id.adView);
+        //AdView mAdView = (AdView) view.findViewById(R.id.adView);
         //AdRequest adRequest = new AdRequest.Builder().build();
         //mAdView.loadAd(adRequest);
         swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
@@ -97,37 +99,35 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
         linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         loadingFeeds();
+        Log.e("t", "on create " + hashCode() + " adapter " + adapter.hashCode() + " recv " + recyclerView.hashCode());
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                /*Runnable r= new Runnable(){
-                    @Override
-                    public void run() {*/
-                // }
-                //   };
-                // handler.postDelayed(r, 300);
-                //adapter.notifyItemInserted(listOfObject.size() - 1);
-
                 listOfObject.add(new ProgreesBar());
-               // try {
-
-                    recyclerView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.notifyItemInserted(listOfObject.size() - 1);
-                        }
-                    });
-
-                //adapter.notifyItemInserted(listOfObject.size() - 1);
-                //} catch (Exception e) {
-                  //  Log.d( "TAG", e.toString());
-                //}
-                OFFSET = OFFSET + COUNT;
-                methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
-                //adapter.setLoaded();
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.notifyItemInserted(listOfObject.size() - 1);
+                    }
+                });
+                new Handler(Looper.myLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        OFFSET = OFFSET + COUNT;
+                        methods.getFeeds(currentGroupId, OFFSET, COUNT, FILTER, VERSION, callback);
+                    }
+                }, 5000);
+                Log.e("t", "on lm " + FeedFragment.this.hashCode() + " adapter " + adapter.hashCode() + " recv " + recyclerView.hashCode());
+                Log.e("TAG", "onLoadMore " + adapter.getLoaded()+ getName());
             }
         });
         return view;
+    }
+    public void setName(String name){
+        nameOfFragment = name;
+    }
+    public String getName(){
+        return nameOfFragment;
     }
 
     @Override
@@ -139,7 +139,6 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
     private void setCurrentParam(int groupId) {
         currentGroupId = groupId;
     }
-
     private void loadingFeeds() {
         feedList = new ArrayList<Recipe.Feed>();
         if (FeedUtils.getFeeds() != null) {
@@ -167,16 +166,14 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                 feedList.addAll(feedNew);
                 addFeedAdsProgressInListOfObject(feedList);
                 adapter.notifyDataSetChanged();
-                adapter.setLoaded();
                 if ((listOfObject.get(listOfObject.size() - 1)) instanceof ProgreesBar) {
                     listOfObject.remove(listOfObject.size() - 1);
                     adapter.notifyItemRemoved(listOfObject.size());
                     //adapter.setLoaded();
                 }
+                adapter.setLoaded();
+                Log.e("TAG", "Загрузка произошла успешно " +adapter.getLoaded()+ getName());
                 swipeRefresh.setRefreshing(false);
-                if ((results.response.size() != 0) || (results.response.size() == COUNT)) {
-                    adapter.setLoaded();
-                }
             }
 
             @Override
@@ -195,6 +192,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                 adapter.notifyItemRemoved(listOfObject.size());
                 adapter.notifyDataSetChanged();
                 adapter.setLoaded();
+                Log.e("TAG", "Ошибка загрузки данных " + adapter.getLoaded()+ getName());
                 Toast.makeText(getActivity(), "Невозможно обновить ленту ", Toast.LENGTH_LONG)
                         .show();
             }
@@ -220,6 +218,7 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
                           }
         );
         addFeedAdsProgressInListOfObject(feeds);
+        // changingStateOfFragment =
         adapter = new FeedRecyclerAdapter(getActivity(), R.layout.recipe_list_item, listOfObject, recyclerView);
         recyclerView.setAdapter(adapter);
 
@@ -232,10 +231,10 @@ public class FeedFragment extends android.support.v4.app.Fragment implements
             if ((i % 6 == 0) && (i != 0)) {
                 listOfObject.add(j, new Ads());
                 listOfObject.add(j + 1, objectsOfFeed.get(i));
-                j=j+2;
+                j = j + 2;
             } else {
                 listOfObject.add(j, objectsOfFeed.get(i));
-                j=j+1;
+                j = j + 1;
             }
         }
     }

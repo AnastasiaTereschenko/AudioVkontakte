@@ -58,5 +58,6 @@
         <item>Десерты</item>
         <item>Напитки</item>
     </string-array>
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_unit_id">ca-app-pub-7500282873901481/9243322051</string>
+    <string name="global_tracker">0x7f060000</string>
 </resources>

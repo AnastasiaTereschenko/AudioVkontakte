@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
     Gson gson = new Gson();
-    private static final int DATABASE_VERSION = 58 ;
+    private static final int DATABASE_VERSION = 59 ;
     private static final String DATABASE_NAME = "DB";
     Context context = VkRApplication.get();
 

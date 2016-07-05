@@ -67,12 +67,11 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter {
     Map<Integer, Integer> countOpenPosition = new HashMap<>();
     private int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
-    private boolean loading = true;
-    public static OnLoadMoreListener onLoadMoreListener;
+    private boolean loading;
+    public OnLoadMoreListener onLoadMoreListener;
     boolean isLoaded;
     boolean pauseOnScroll = false; // or true
     boolean pauseOnFling = true; // or false
-    ImageLoader imageLoader;
 
     public FeedRecyclerAdapter(Context context, int resource, List<Object> objects,
                                RecyclerView recyclerView) {
@@ -91,6 +90,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter {
                 public void onScrolled(RecyclerView recyclerView,
                                        int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
+                    // Log.e("TAG", "onScrolled " + getLoaded());
                     totalItemCount = linearLayoutManager.getItemCount();
                     lastVisibleItem = linearLayoutManager
                             .findLastVisibleItemPosition();
@@ -103,7 +103,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter {
                 }
             });
             recyclerView.setOnScrollListener(new RecyclerViewPauseOnScrollListener(ImageLoader.
-                    getInstance(),pauseOnScroll,pauseOnFling));
+                    getInstance(), pauseOnScroll, pauseOnFling));
         }
     }
 
@@ -220,7 +220,6 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter {
                 public void onAdLoaded() {
                     showToast("Ad loaded.");
                     isLoaded = true;
-
                 }
 
                 @Override
@@ -244,9 +243,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter {
                 }
             });
 
-            //AdRequest adRequest = new AdRequest.Builder().build();
+            // AdRequest adRequest = new AdRequest.Builder().build();
             if (!isLoaded) {
                 ((AdViewHolder) holder).adView.loadAd(request);
+                isLoaded = false;
             }
         }
         //((AdViewHolder) holder).adView.loadAd(request);
@@ -254,6 +254,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter {
 
     public void setLoaded() {
         loading = false;
+    }
+
+    public boolean getLoaded() {
+        return loading;
     }
 
     public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
